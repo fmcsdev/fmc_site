@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ログイン | FMC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-slate-800">
+  <main class="p-6 max-w-sm mx-auto">
+    <h1 class="font-bold text-xl">ログイン</h1>
+
+    <label class="block mt-4 text-sm text-slate-600">メールアドレス</label>
+    <input id="email" class="border p-2 w-full mt-1" placeholder="you@example.com" />
+
+    <button id="sendBtn"
+      class="mt-3 px-4 py-2 bg-indigo-600 text-white rounded disabled:opacity-60">
+      マジックリンクを送る
+    </button>
+
+    <p id="status" class="text-sm mt-3 text-slate-600"></p>
+  </main>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    // TODO: replace these with your project values
+    const SUPABASE_URL = "https://jedhzhqblpashspdbdgr.supabase.co";
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplZGh6aHFibHBhc2hzcGRiZGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MDU0MzQsImV4cCI6MjA3ODE4MTQzNH0.HOcms9BIkge9sU_nTXpado7U4a9jBEbxBKzfIAIbvU8";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: { persistSession: true, detectSessionInUrl: true }
+    });
+
+    const emailEl = document.getElementById("email");
+    const btn = document.getElementById("sendBtn");
+    const statusEl = document.getElementById("status");
+
+    btn.addEventListener("click", async () => {
+      const email = (emailEl.value || "").trim();
+      if (!email) {
+        statusEl.textContent = "メールアドレスを入力してください。";
+        return;
+      }
+      btn.disabled = true;
+      statusEl.textContent = "送信中…";
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback.html` },
+      });
+
+      if (error) {
+        statusEl.textContent = `エラー: ${error.message}`;
+        btn.disabled = false;
+        return;
+      }
+      statusEl.textContent = "メールのリンクを確認してください。";
+    });
+  </script>
+</body>
+</html>

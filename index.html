@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FMC 多言語スクール | ホーム</title>
+  <meta name="description" content="初心者から上級者まで。オンライン登録・オンライン決済対応の語学スクール。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html{scroll-behavior:smooth}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans JP",sans-serif}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2 font-extrabold text-slate-900 text-lg">
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-600 text-white">F</span>
+        <span>FMC Language School</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#courses" class="hover:text-indigo-600">コース</a>
+        <a href="#schedule" class="hover:text-indigo-600">スケジュール</a>
+        <a href="#pricing" class="hover:text-indigo-600">料金</a>
+        <a href="#faq" class="hover:text-indigo-600">FAQ</a>
+        <a href="#contact" class="hover:text-indigo-600">お問い合わせ</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="C:\Users\monic\portal\app\login\page.tsx" class="text-sm px-3 py-2 rounded-lg hover:bg-slate-100">ログイン</a>
+        <!-- TODO: Replace with your Stripe Payment Link URL -->
+        <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">今すぐ申し込み</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="relative">
+    <div class="max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">
+          学びを、もっと身近に。
+          <span class="block text-indigo-600">オンライン登録 & 決済で今日からスタート</span>
+        </h1>
+        <p class="mt-4 text-slate-600">初めての方も安心。支払い完了後、スマホアプリで進捗・メッセージ・追加決済が使えます。</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="#courses" class="px-5 py-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">コースを見る</a>
+          <a href="#how" class="px-5 py-3 rounded-xl border border-slate-300 hover:bg-slate-50">流れを知る</a>
+        </div>
+        <div class="mt-6 flex items-center gap-3 text-sm text-slate-500">
+          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100">Visa / Mastercard / AMEX</span>
+          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100">Apple Pay / Google Pay</span>
+          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100">コンビニ払い / 銀行振込（対応可）</span>
+        </div>
+      </div>
+      <div class="relative">
+        <div class="aspect-[4/3] rounded-2xl bg-gradient-to-br from-indigo-50 to-white border border-slate-200 p-6">
+          <div class="grid grid-cols-2 gap-4 h-full">
+            <div class="rounded-xl bg-white shadow-sm border border-slate-200 p-4">
+              <p class="text-xs text-slate-500">次のレッスン</p>
+              <p class="text-lg font-semibold">12/10(火) 19:00-20:00</p>
+              <p class="text-sm mt-2">講師：Yuki / レベルA2</p>
+            </div>
+            <div class="rounded-xl bg-white shadow-sm border border-slate-200 p-4">
+              <p class="text-xs text-slate-500">出欠</p>
+              <p class="text-3xl font-extrabold text-indigo-600">92%</p>
+              <p class="text-sm mt-2">アプリで確認できます</p>
+            </div>
+            <div class="col-span-2 rounded-xl bg-white shadow-sm border border-slate-200 p-4">
+              <p class="text-xs text-slate-500">メッセージ</p>
+              <p class="text-sm">「宿題の提出は金曜までです」</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how" class="bg-slate-50 border-y border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-14">
+      <h2 class="text-2xl md:text-3xl font-extrabold">申し込みの流れ（3ステップ）</h2>
+      <div class="mt-8 grid md:grid-cols-3 gap-6">
+        <div class="rounded-2xl bg-white p-6 border border-slate-200 shadow-sm">
+          <div class="text-sm font-bold text-indigo-600">STEP 1</div>
+          <h3 class="mt-1 font-semibold">コース・日時を選ぶ</h3>
+          <p class="mt-2 text-sm text-slate-600">レベル・曜日・時間帯から最適なクラスを選択。</p>
+        </div>
+        <div class="rounded-2xl bg-white p-6 border border-slate-200 shadow-sm">
+          <div class="text-sm font-bold text-indigo-600">STEP 2</div>
+          <h3 class="mt-1 font-semibold">オンライン決済</h3>
+          <p class="mt-2 text-sm text-slate-600">カード・ウォレットに加え、コンビニ払い・銀行振込にも対応（要有効化）。</p>
+        </div>
+        <div class="rounded-2xl bg-white p-6 border border-slate-200 shadow-sm">
+          <div class="text-sm font-bold text-indigo-600">STEP 3</div>
+          <h3 class="mt-1 font-semibold">アプリの利用開始</h3>
+          <p class="mt-2 text-sm text-slate-600">支払い確認後、アプリで進捗・連絡・追加入金が使えます。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Courses -->
+  <section id="courses" class="">
+    <div class="max-w-6xl mx-auto px-4 py-14">
+      <div class="flex items-end justify-between">
+        <h2 class="text-2xl md:text-3xl font-extrabold">コース</h2>
+        <a href="#schedule" class="text-sm text-indigo-600 hover:underline">スケジュールを見る →</a>
+      </div>
+      <div class="mt-6 grid md:grid-cols-3 gap-6">
+        <!-- Course Card -->
+        <article class="rounded-2xl border border-slate-200 shadow-sm p-6">
+          <h3 class="font-bold">スペイン語 初級（A1）</h3>
+          <p class="text-sm text-slate-600 mt-1">挨拶・自己紹介・基礎文法</p>
+          <div class="mt-4 flex items-center gap-3 text-sm">
+            <span class="px-2 py-1 rounded bg-slate-100">60分 x 8回</span>
+            <span class="px-2 py-1 rounded bg-slate-100">最大8名</span>
+          </div>
+          <div class="mt-4 font-extrabold text-lg">¥18,000 <span class="text-sm font-normal text-slate-500">（税込）</span></div>
+          <a href="https://buy.stripe.com/your_payment_link" class="mt-4 inline-block w-full text-center px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">申し込む</a>
+        </article>
+        <article class="rounded-2xl border border-slate-200 shadow-sm p-6">
+          <h3 class="font-bold">英語 中級（B1）</h3>
+          <p class="text-sm text-slate-600 mt-1">旅行・仕事で使える表現を強化</p>
+          <div class="mt-4 flex items-center gap-3 text-sm">
+            <span class="px-2 py-1 rounded bg-slate-100">90分 x 6回</span>
+            <span class="px-2 py-1 rounded bg-slate-100">最大10名</span>
+          </div>
+          <div class="mt-4 font-extrabold text-lg">¥24,000 <span class="text-sm font-normal text-slate-500">（税込）</span></div>
+          <a href="https://buy.stripe.com/your_payment_link" class="mt-4 inline-block w-full text-center px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">申し込む</a>
+        </article>
+        <article class="rounded-2xl border border-slate-200 shadow-sm p-6">
+          <h3 class="font-bold">キッズ向け（7-12歳）</h3>
+          <p class="text-sm text-slate-600 mt-1">楽しく学ぶアクティビティ中心</p>
+          <div class="mt-4 flex items-center gap-3 text-sm">
+            <span class="px-2 py-1 rounded bg-slate-100">45分 x 8回</span>
+            <span class="px-2 py-1 rounded bg-slate-100">最大6名</span>
+          </div>
+          <div class="mt-4 font-extrabold text-lg">¥16,000 <span class="text-sm font-normal text-slate-500">（税込）</span></div>
+          <a href="https://buy.stripe.com/your_payment_link" class="mt-4 inline-block w-full text-center px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">申し込む</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Schedule -->
+  <section id="schedule" class="bg-slate-50 border-y border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-14">
+      <h2 class="text-2xl md:text-3xl font-extrabold">直近のスケジュール</h2>
+      <div class="mt-6 overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr class="text-left text-slate-500">
+              <th class="py-2 pr-6">日時</th>
+              <th class="py-2 pr-6">コース</th>
+              <th class="py-2 pr-6">講師</th>
+              <th class="py-2 pr-6">定員</th>
+              <th class="py-2 pr-6">申込</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            <tr>
+              <td class="py-3 pr-6">火 19:00-20:00</td>
+              <td class="py-3 pr-6">スペイン語 A1</td>
+              <td class="py-3 pr-6">Yuki</td>
+              <td class="py-3 pr-6">8名</td>
+              <td class="py-3 pr-6"><a class="text-indigo-600 hover:underline" href="https://buy.stripe.com/your_payment_link">申し込む</a></td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-6">土 10:00-11:30</td>
+              <td class="py-3 pr-6">英語 B1</td>
+              <td class="py-3 pr-6">Sato</td>
+              <td class="py-3 pr-6">10名</td>
+              <td class="py-3 pr-6"><a class="text-indigo-600 hover:underline" href="https://buy.stripe.com/your_payment_link">申し込む</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="">
+    <div class="max-w-6xl mx-auto px-4 py-14">
+      <h2 class="text-2xl md:text-3xl font-extrabold">料金とお支払い方法</h2>
+      <div class="mt-6 grid md:grid-cols-3 gap-6">
+        <div class="rounded-2xl border border-slate-200 p-6">
+          <h3 class="font-bold">入会金</h3>
+          <p class="text-3xl font-extrabold mt-2">¥0</p>
+          <p class="text-sm text-slate-600 mt-2">キャンペーン中</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 p-6">
+          <h3 class="font-bold">月謝（目安）</h3>
+          <p class="text-3xl font-extrabold mt-2">¥8,000〜</p>
+          <p class="text-sm text-slate-600 mt-2">コースにより異なります</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 p-6">
+          <h3 class="font-bold">お支払い</h3>
+          <ul class="text-sm text-slate-600 mt-2 list-disc pl-5 space-y-1">
+            <li>クレジットカード（Apple/Google Pay対応）</li>
+            <li>コンビニ払い（要有効化）</li>
+            <li>銀行振込（要有効化）</li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-6 text-sm text-slate-500">※ 価格は税込表記。返金ポリシーは下部のリンクをご確認ください。</div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="bg-slate-50 border-y border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-14">
+      <h2 class="text-2xl md:text-3xl font-extrabold">よくある質問</h2>
+      <div class="mt-6 grid md:grid-cols-2 gap-6">
+        <div class="rounded-2xl bg-white p-6 border border-slate-200">
+          <h3 class="font-semibold">アプリはいつから使えますか？</h3>
+          <p class="mt-2 text-sm text-slate-600">登録支払いが完了し次第、アプリへのアクセスが自動的に有効化されます。</p>
+        </div>
+        <div class="rounded-2xl bg-white p-6 border border-slate-200">
+          <h3 class="font-semibold">支払い方法は？</h3>
+          <p class="mt-2 text-sm text-slate-600">カードのほか、コンビニ払い・銀行振込も対応可能です（Stripe 設定が必要）。</p>
+        </div>
+        <div class="rounded-2xl bg-white p-6 border border-slate-200">
+          <h3 class="font-semibold">返金はできますか？</h3>
+          <p class="mt-2 text-sm text-slate-600">返金ポリシーに基づき期間内であれば可能です。詳細は規約をご確認ください。</p>
+        </div>
+        <div class="rounded-2xl bg-white p-6 border border-slate-200">
+          <h3 class="font-semibold">体験レッスンはありますか？</h3>
+          <p class="mt-2 text-sm text-slate-600">はい。日程はスケジュールからご確認ください。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="">
+    <div class="max-w-6xl mx-auto px-4 py-14">
+      <h2 class="text-2xl md:text-3xl font-extrabold">お問い合わせ</h2>
+      <p class="mt-2 text-slate-600 text-sm">ご質問はメールまたはLINEでどうぞ。</p>
+      <div class="mt-4 flex flex-wrap gap-3 text-sm">
+        <a href="mailto:info@example.com" class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50">info@example.com</a>
+        <a href="#" class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50">LINEで相談</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-6 text-sm text-slate-600">
+      <div>
+        <div class="font-bold text-slate-900">FMC Language School</div>
+        <p class="mt-2">〒000-0000 東京都〇〇区〇〇 1-2-3</p>
+        <p class="">TEL: 00-0000-0000 / Mail: info@example.com</p>
+      </div>
+      <div class="flex md:justify-end gap-4">
+        <a href="#" class="hover:underline">特定商取引法に基づく表記</a>
+        <a href="#" class="hover:underline">プライバシーポリシー</a>
+        <a href="#" class="hover:underline">利用規約</a>
+        <a href="#" class="hover:underline">返金ポリシー</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

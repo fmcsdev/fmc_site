@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ログイン処理 | FMC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-slate-800">
+  <main class="p-6 max-w-sm mx-auto">
+    <p id="msg">処理中…</p>
+  </main>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const SUPABASE_URL = "https://YOUR_PROJECT_REF.supabase.co";
+    const SUPABASE_ANON = "YOUR_PUBLIC_ANON_KEY";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: { persistSession: true, detectSessionInUrl: true }
+    });
+
+    const msg = document.getElementById("msg");
+
+    (async () => {
+      const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+      if (error) {
+        msg.textContent = `エラー: ${error.message}`;
+        return;
+      }
+      msg.textContent = "ログイン成功！ホームへ移動します…";
+      window.location.replace("/"); // 遷移先を必要に応じて変更
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# --- Basic system files ---
+.DS_Store
+Thumbs.db
+
+# --- Node & package files (if you later use npm or Tailwind) ---
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# --- Vercel local cache ---
+.vercel/
+
+# --- Build & output directories (for future frameworks) ---
+dist/
+out/
+build/
+.next/
+.cache/
+
+# --- Editor & log files ---
+.vscode/
+*.log
+*.tmp

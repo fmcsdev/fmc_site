@@ -74,5 +74,22 @@ th,td{ padding:.8rem 1rem; border-bottom:1px solid var(--border); }
 
 /* Footer */
 footer{ background:#fff; }
+/* Reveal animation */
+[data-reveal]{
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal-visible{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* FAQ accordion panel */
+.accordion-panel{
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .3s ease;
+}
 
 

@@ -32,18 +32,37 @@
       </nav>
 
       <!-- Actions + Mobile menu button -->
-      <div class="flex items-center gap-2">
-        <a href="/login.html" class="text-sm px-3 py-2 rounded-lg btn-outline">ログイン</a>
-        <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 btn-primary">今すぐ申し込み</a>
+      <!-- Actions (desktop stays) -->
+<div class="hidden md:flex items-center gap-2">
+  <a href="/login.html" class="text-sm px-3 py-2 rounded-lg btn-outline">ログイン</a>
+  <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 btn-primary">今すぐ申し込み</a>
+</div>
 
-        <!-- Mobile burger -->
-        <button class="md:hidden inline-flex items-center px-3 py-2 rounded text-white/90 hover:text-white"
-                aria-label="Open menu" data-nav-toggle>
-          <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M3 6h18M3 12h18M3 18h18"/>
-          </svg>
-        </button>
-      </div>
+<!-- Mobile popover trigger (only on small screens) -->
+<div class="md:hidden relative">
+  <button class="inline-flex items-center px-3 py-2 rounded text-white/90 hover:text-white"
+          aria-label="Open menu" aria-expanded="false" data-menu-toggle>
+    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M3 6h18M3 12h18M3 18h18"/>
+    </svg>
+  </button>
+
+  <!-- Popover panel -->
+  <div class="fmc-popover hidden" role="menu" aria-hidden="true" data-menu>
+    <nav class="flex flex-col gap-1">
+      <a href="/courses.html" class="menu-link">コース</a>
+      <a href="/schedule.html" class="menu-link">スケジュール</a>
+      <a href="/pricing.html" class="menu-link">料金</a>
+      <a href="/access.html" class="menu-link">アクセス</a>
+      <a href="/contact.html" class="menu-link">お問い合わせ</a>
+    </nav>
+    <div class="mt-3 flex flex-col gap-2">
+      <a href="/login.html" class="btn-outline w-full text-center">ログイン</a>
+      <a href="https://buy.stripe.com/your_payment_link" class="btn-primary w-full text-center">今すぐ申し込み</a>
+    </div>
+  </div>
+</div>
+
     </div>
   </header>
 

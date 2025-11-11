@@ -1,0 +1,142 @@
+:root{
+  --pink:   #e83e8c;
+  --blue:   #3b82f6;
+  --cyan:   #06b6d4;
+  --orange: #f59e0b;
+  --yellow: #facc15;
+  --gray:   #374151;
+  --light:  #f9fafb;
+  --border: #e5e7eb;
+}
+
+/* === Base === */
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", "Noto Sans JP", sans-serif;
+  background: var(--light);
+  color: var(--gray);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* === Header === */
+.fmc-header {
+  background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 50%, var(--pink) 100%);
+  color: white;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.fmc-brand-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  padding: 0 .9rem;
+  border-radius: 0.75rem;
+  background: var(--blue) !important; /* solid blue */
+  color: white !important;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+}
+
+/* === Buttons === */
+/* Header buttons */
+header .btn-outline {
+  border: 1px solid rgba(255,255,255,0.8);
+  color: #fff;
+  background: transparent;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+header .btn-outline:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+/* “今すぐ申し込み” warm solid button */
+header .btn-primary {
+  background: #fff;
+  color: var(--orange);
+  font-weight: 700;
+  border-radius: 0.75rem;
+  transition: all 0.25s ease;
+}
+header .btn-primary:hover {
+  background: var(--orange);
+  color: #fff;
+}
+
+.btn-outline:hover {
+  background: var(--blue);
+  color: white;
+}
+
+/* === Sections === */
+section {
+  background: white;
+  padding: 4rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+#how, #faq {
+  background: var(--light);
+}
+
+/* === Headings === */
+h2 {
+  font-weight: 800;
+  color: var(--gray);
+  position: relative;
+  display: inline-block;
+}
+h2::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 4px;
+  margin-top: .5rem;
+  border-radius: 999px;
+  background: var(--blue);
+}
+
+/* === Cards === */
+.card, article {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  padding: 1.5rem;
+  transition: transform .2s, box-shadow .2s;
+}
+.card:hover, article:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* === Table === */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead {
+  background: var(--blue);
+  color: white;
+}
+th, td {
+  padding: .8rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* === Footer === */
+footer {
+  background: var(--blue);
+  color: white;
+  padding: 2rem 1rem;
+}
+footer a {
+  color: #dbeafe;
+}
+footer a:hover {
+  color: white;
+  text-decoration: underline;
+}
+

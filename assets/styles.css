@@ -40,35 +40,49 @@ body {
 }
 
 /* === Buttons === */
-/* Header buttons */
-header .btn-outline {
-  border: 1px solid rgba(255,255,255,0.8);
+/* 1) GLOBAL BUTTONS (everywhere) */
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+  border-radius: 0.75rem;
+  padding: .6rem 1.2rem;
+  font-weight: 600;
+  transition: background .2s;
+}
+.btn-primary:hover { background: var(--cyan); }
+
+.btn-outline {
+  border: 1px solid var(--blue);
+  color: var(--blue);
+  border-radius: 0.75rem;
+  padding: .6rem 1.2rem;
+  transition: all .2s;
+}
+.btn-outline:hover {
+  background: var(--blue);
+  color: #fff;
+}
+
+/* 2) HEADER-ONLY VARIANTS (don’t affect other sections) */
+.fmc-header .btn-outline {
+  border: 1px solid rgba(255,255,255,0.85);
   color: #fff;
   background: transparent;
-  font-weight: 500;
-  transition: all 0.25s ease;
 }
-header .btn-outline:hover {
+.fmc-header .btn-outline:hover {
   background: rgba(255,255,255,0.15);
 }
 
-/* “今すぐ申し込み” warm solid button */
-header .btn-primary {
+.fmc-header .btn-primary {
   background: #fff;
   color: var(--orange);
   font-weight: 700;
-  border-radius: 0.75rem;
-  transition: all 0.25s ease;
 }
-header .btn-primary:hover {
+.fmc-header .btn-primary:hover {
   background: var(--orange);
   color: #fff;
 }
 
-.btn-outline:hover {
-  background: var(--blue);
-  color: white;
-}
 
 /* === Sections === */
 section {

@@ -162,4 +162,35 @@
   drawer.addEventListener('click', (e) => {
     if (e.target.closest('a')) close();
   });
+  
 })();
+document.addEventListener('DOMContentLoaded', () => {
+  const drawer  = document.querySelector('[data-drawer]');
+  const backdrop = document.querySelector('[data-backdrop]');
+  const openBtn = document.querySelector('[data-drawer-open]');
+  const closeBtn = document.querySelector('[data-drawer-close]');
+  if (!drawer || !backdrop || !openBtn) return;
+
+  const open = () => {
+    document.body.style.overflow = 'hidden';
+    drawer.classList.remove('drawer-hidden'); drawer.classList.add('drawer-visible');
+    backdrop.classList.remove('backdrop-hidden'); backdrop.classList.add('backdrop-visible');
+    openBtn.setAttribute('aria-expanded','true');
+  };
+
+  const close = () => {
+    document.body.style.overflow = '';
+    drawer.classList.add('drawer-hidden'); drawer.classList.remove('drawer-visible');
+    backdrop.classList.add('backdrop-hidden'); backdrop.classList.remove('backdrop-visible');
+    openBtn.setAttribute('aria-expanded','false');
+  };
+
+  openBtn.addEventListener('click', open);
+  closeBtn?.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+
+  // optional: close when clicking any link inside the drawer
+  drawer.addEventListener('click', (e) => { if (e.target.closest('a')) close(); });
+});
+

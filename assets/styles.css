@@ -91,6 +91,36 @@ footer{ background:#fff; }
   max-height: 0;
   transition: max-height .3s ease;
 }
+
+/*footer*/
+  footer {
+    background: #000;
+    color: #fff;
+  }
+
+  footer .font-bold,
+  footer .text-slate-900,
+  footer .text-slate-600,
+  footer p {
+    color: #fff !important;
+  }
+
+  footer a {
+    color: #fff;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+  }
+
+  footer a:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  footer .border-t {
+    border-color: rgba(255,255,255,0.15) !important;
+  }
+
+
 /* ===============================
    Mobile Drawer (sidebar menu)
    =============================== */

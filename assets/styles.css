@@ -165,6 +165,11 @@ footer{ background:#fff; }
   outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
+.drawer-hidden { transform: translateX(100%); }
+.drawer-visible { transform: translateX(0%); }
+.backdrop-hidden { opacity: 0; pointer-events: none; }
+.backdrop-visible { opacity: 1; pointer-events: auto; }
+
 
 
 

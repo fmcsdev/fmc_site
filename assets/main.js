@@ -1,9 +1,9 @@
 /* ================================
    FMC – Lightweight interactions
-   ================================ */
+================================ */
 
 /* 1) Sticky header shadow on scroll */
-(function(){
+(function () {
   const header = document.querySelector('.fmc-header');
   if (!header) return;
   const toggleShadow = () => {
@@ -14,18 +14,16 @@
   window.addEventListener('scroll', toggleShadow, { passive: true });
 })();
 
-/* 2) Mobile nav toggle (legacy simple hide/show for inline nav) */
-(function(){
+/* 2) (optional) legacy inline nav toggle */
+(function () {
   const btn = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');
   if (!btn || !nav) return;
-  btn.addEventListener('click', () => {
-    nav.classList.toggle('hidden');
-  });
+  btn.addEventListener('click', () => nav.classList.toggle('hidden'));
 })();
 
-/* 3) Scroll reveal (IntersectionObserver) */
-(function(){
+/* 3) Scroll reveal */
+(function () {
   const items = document.querySelectorAll('[data-reveal]');
   if (!('IntersectionObserver' in window) || !items.length) {
     items.forEach(el => el.classList.add('reveal-visible'));
@@ -43,9 +41,9 @@
 })();
 
 /* 4) FAQ accordion */
-(function(){
-  const faqButtons = document.querySelectorAll('[data-accordion="button"]');
-  faqButtons.forEach(btn => {
+(function () {
+  const buttons = document.querySelectorAll('[data-accordion="button"]');
+  buttons.forEach(btn => {
     const panel = btn.nextElementSibling;
     if (!panel) return;
     btn.addEventListener('click', () => {
@@ -58,8 +56,8 @@
   });
 })();
 
-/* 5) Schedule filter (by language/level) – optional */
-(function(){
+/* 5) Schedule filter */
+(function () {
   const form = document.querySelector('[data-filter="schedule"]');
   const rows = document.querySelectorAll('#weekly tbody tr');
   if (!form || !rows.length) return;
@@ -70,12 +68,12 @@
   };
 
   const apply = () => {
-    const lang = (fields.lang?.value || '').trim();
-    const level = (fields.level?.value || '').trim();
+    const lang = (fields.lang?.value || '').trim().toLowerCase();
+    const level = (fields.level?.value || '').trim().toLowerCase();
     rows.forEach(tr => {
       const course = (tr.cells[2]?.textContent || '').toLowerCase();
-      const matchLang = !lang || course.includes(lang.toLowerCase());
-      const matchLevel = !level || course.includes(level.toLowerCase());
+      const matchLang = !lang || course.includes(lang);
+      const matchLevel = !level || course.includes(level);
       tr.style.display = (matchLang && matchLevel) ? '' : 'none';
     });
   };
@@ -84,56 +82,36 @@
   apply();
 })();
 
-/* 6) Tiny carousel (auto-rotate) – optional, for a testimonials strip */
-(function(){
+/* 6) Tiny carousel */
+(function () {
   const root = document.querySelector('[data-carousel]');
   if (!root) return;
   const slides = root.querySelectorAll('[data-slide]');
   let i = 0;
-  const show = (idx) => {
-    slides.forEach((s, j) => s.classList.toggle('opacity-100', j === idx));
-  };
+  const show = (idx) => slides.forEach((s, j) => s.classList.toggle('opacity-100', j === idx));
   show(0);
   setInterval(() => { i = (i + 1) % slides.length; show(i); }, 3500);
 })();
 
-/* 7) Mobile sidebar drawer – single, robust implementation
-      Requires in HTML:
-        - button[data-drawer-open]   (open button, e.g., 3-dots at right)
-        - aside[data-drawer]         (drawer panel)
-        - [data-drawer-close]        (X button inside drawer)
-        - [data-backdrop]            (dark overlay behind drawer)
-      CSS helpers needed:
-        .drawer-hidden { transform: translateX(100%); }
-        .drawer-visible { transform: translateX(0%); }
-        .backdrop-hidden { opacity: 0; pointer-events: none; }
-        .backdrop-visible { opacity: 1; pointer-events: auto; }
-*/
-(function(){
+/* 7) Mobile sidebar drawer — SINGLE SOURCE OF TRUTH */
+(function () {
+  // If you load this file with `defer`, DOM is ready; no need for DOMContentLoaded.
   const drawer   = document.querySelector('[data-drawer]');
   const backdrop = document.querySelector('[data-backdrop]');
   const openBtn  = document.querySelector('[data-drawer-open]');
-
+  const closeBtn = document.querySelector('[data-drawer-close]');
   if (!drawer || !backdrop || !openBtn) return;
 
-  // --- Force CLOSED state on load (prevents visible-by-default issues) ---
-  const forceClosed = () => {
-    document.body.style.overflow = '';
-    drawer.classList.add('drawer-hidden');
-    drawer.classList.remove('drawer-visible');
-    backdrop.classList.add('backdrop-hidden');
-    backdrop.classList.remove('backdrop-visible');
-    openBtn.setAttribute('aria-expanded','false');
-  };
-  forceClosed();
+  const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])';
+  let lastActive = null;
 
   const open = () => {
+    lastActive = document.activeElement;
     document.body.style.overflow = 'hidden';
     drawer.classList.remove('drawer-hidden'); drawer.classList.add('drawer-visible');
     backdrop.classList.remove('backdrop-hidden'); backdrop.classList.add('backdrop-visible');
-    openBtn.setAttribute('aria-expanded','true');
-    // Focus first focusable for accessibility
-    const first = drawer.querySelector('a[href],button,[tabindex]:not([tabindex="-1"])');
+    openBtn.setAttribute('aria-expanded', 'true');
+    const first = drawer.querySelector(FOCUSABLE);
     if (first) first.focus();
   };
 
@@ -141,19 +119,38 @@
     document.body.style.overflow = '';
     drawer.classList.add('drawer-hidden'); drawer.classList.remove('drawer-visible');
     backdrop.classList.add('backdrop-hidden'); backdrop.classList.remove('backdrop-visible');
-    openBtn.setAttribute('aria-expanded','false');
+    openBtn.setAttribute('aria-expanded', 'false');
+    if (lastActive) lastActive.focus();
   };
 
-  // Open when tapping the open button
-  openBtn.addEventListener('click', open);
+  // Bind once
+  openBtn.addEventListener('click', open, { capture: true });
+  backdrop.addEventListener('click', close, { capture: true });
+  if (closeBtn) closeBtn.addEventListener('click', close, { capture: true });
 
-  // Close on: backdrop tap, X button, or any link inside drawer (event delegation)
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('[data-backdrop]')) return close();
-    if (e.target.closest('[data-drawer-close]')) return close();
-    if (e.target.closest('[data-drawer] a')) return close();
+  // Close on links inside the drawer
+  drawer.addEventListener('click', (e) => {
+    if (e.target.closest('a')) close();
+  }, { capture: true });
+
+  // ESC to close + basic focus trap
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+    if (e.key === 'Tab' && drawer.classList.contains('drawer-visible')) {
+      const f = drawer.querySelectorAll(FOCUSABLE);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
   });
 
-  // Close on Esc
-  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  // Force closed on load
+  close();
+
+  // Debug helpers (optional)
+  window.__drawerOpen = open;
+  window.__drawerClose = close;
 })();
+
+

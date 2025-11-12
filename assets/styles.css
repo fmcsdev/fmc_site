@@ -91,48 +91,80 @@ footer{ background:#fff; }
   max-height: 0;
   transition: max-height .3s ease;
 }
-/* Mobile popover menu */
-.fmc-popover{
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: .5rem;
-  width: 15.5rem;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: .75rem;
-  box-shadow: 0 12px 24px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.06);
-  padding: .75rem;
-  z-index: 60;
+/* ===============================
+   Mobile Drawer (sidebar menu)
+   =============================== */
+
+/* Backdrop overlay (black transparent background) */
+[data-backdrop] {
+  transition: opacity 0.25s ease;
+  z-index: 40;
+}
+.backdrop-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.backdrop-visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-.menu-link{
-  display: block;
-  padding: .55rem .65rem;
-  border-radius: .5rem;
+/* Drawer container (slides from right) */
+[data-drawer] {
+  transition: transform 0.25s ease;
+  z-index: 50;
+}
+.drawer-hidden {
+  transform: translateX(100%);
+}
+.drawer-visible {
+  transform: translateX(0%);
+}
+
+/* Drawer styling */
+[data-drawer] {
+  background: #fff;
+  border-left: 1px solid var(--border);
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Drawer links */
+[data-drawer] .menu-link {
+  font-weight: 500;
   color: var(--gray);
-  font-size: .95rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
 }
-.menu-link:hover{
-  background: #f8fafc; /* very light */
+
+[data-drawer] .menu-link:hover {
+  background: var(--light);
   color: var(--blue);
 }
 
-/* Make header CTAs look good inside white popover too (reuse globals) */
-.fmc-popover .btn-outline{
-  border-color: var(--blue);
-  color: var(--blue);
-  background: #fff;
+/* Drawer buttons */
+[data-drawer] .btn-outline,
+[data-drawer] .btn-primary {
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
 }
-.fmc-popover .btn-outline:hover{ background: var(--blue); color:#fff; }
 
-/* Ensure header override doesn't leak into popover */
-.fmc-header .fmc-popover .btn-primary{
-  background: var(--blue);
-  color: #fff;
+/* Drawer header (logo & close button) */
+[data-drawer] h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray);
 }
-.fmc-header .fmc-popover .btn-primary:hover{
-  background: var(--cyan);
+
+/* Accessibility focus style */
+[data-drawer] a:focus,
+[data-drawer] button:focus {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
+
 
 

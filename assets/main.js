@@ -14,7 +14,7 @@
   window.addEventListener('scroll', toggleShadow, { passive: true });
 })();
 
-/* 2) Mobile nav toggle (adds a burger if you include the button in HTML) */
+/* 2) Mobile nav toggle (legacy simple hide/show for inline nav) */
 (function(){
   const btn = document.querySelector('[data-nav-toggle]');
   const nav = document.querySelector('[data-nav]');
@@ -28,7 +28,6 @@
 (function(){
   const items = document.querySelectorAll('[data-reveal]');
   if (!('IntersectionObserver' in window) || !items.length) {
-    // Fallback: show all
     items.forEach(el => el.classList.add('reveal-visible'));
     return;
   }
@@ -54,7 +53,6 @@
       btn.setAttribute('aria-expanded', String(!expanded));
       panel.style.maxHeight = expanded ? '0px' : panel.scrollHeight + 'px';
     });
-    // init closed
     btn.setAttribute('aria-expanded', 'false');
     panel.style.maxHeight = '0px';
   });
@@ -97,4 +95,71 @@
   };
   show(0);
   setInterval(() => { i = (i + 1) % slides.length; show(i); }, 3500);
+})();
+
+/* 7) Mobile sidebar drawer (opens from right when tapping header's right corner button)
+     Requires in HTML:
+       - button[data-drawer-open]   (右上の三点ボタン)
+       - aside[data-drawer]         (ドロワーパネル)
+       - [data-drawer-close]        (×ボタン)
+       - [data-backdrop]            (黒半透明背景)
+     And CSS helpers (例):
+       .drawer-hidden { transform: translateX(100%); }
+       .drawer-visible { transform: translateX(0%); }
+       .backdrop-hidden { opacity: 0; pointer-events: none; }
+       .backdrop-visible { opacity: 1; pointer-events: auto; }
+*/
+(function(){
+  const drawer = document.querySelector('[data-drawer]');
+  const backdrop = document.querySelector('[data-backdrop]');
+  const openBtn  = document.querySelector('[data-drawer-open]');
+  const closeBtn = document.querySelector('[data-drawer-close]');
+  if (!drawer || !backdrop || !openBtn) return;
+
+  const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])';
+  let lastActive = null;
+
+  const open = () => {
+    lastActive = document.activeElement;
+    document.body.style.overflow = 'hidden';
+    drawer.classList.remove('drawer-hidden'); drawer.classList.add('drawer-visible');
+    backdrop.classList.remove('backdrop-hidden'); backdrop.classList.add('backdrop-visible');
+    openBtn.setAttribute('aria-expanded', 'true');
+    const first = drawer.querySelector(FOCUSABLE);
+    if (first) first.focus();
+  };
+
+  const close = () => {
+    document.body.style.overflow = '';
+    drawer.classList.add('drawer-hidden'); drawer.classList.remove('drawer-visible');
+    backdrop.classList.add('backdrop-hidden'); backdrop.classList.remove('backdrop-visible');
+    openBtn.setAttribute('aria-expanded', 'false');
+    if (lastActive) lastActive.focus();
+  };
+
+  openBtn.addEventListener('click', open);
+  if (closeBtn) closeBtn.addEventListener('click', close);
+  backdrop.addEventListener('click', close);
+
+  // Esc to close + basic focus trap
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+
+    if (e.key === 'Tab' && drawer.classList.contains('drawer-visible')) {
+      const f = drawer.querySelectorAll(FOCUSABLE);
+      if (!f.length) return;
+      const first = f[0];
+      const last  = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus();
+      }
+    }
+  });
+
+  // Close when any link inside the drawer is clicked
+  drawer.addEventListener('click', (e) => {
+    if (e.target.closest('a')) close();
+  });
 })();

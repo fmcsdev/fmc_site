@@ -11,8 +11,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Your site styles -->
   <link rel="stylesheet" href="assets/styles.css?v=7">
+  <!-- (Optional) remove these helpers if already in styles.css -->
   <style>
-    /* Optional tiny helpers for the drawer animation */
     .drawer-hidden { transform: translateX(100%); }
     .drawer-visible { transform: translateX(0%); }
     .backdrop-hidden { opacity: 0; pointer-events: none; }
@@ -22,102 +22,57 @@
 <body class="bg-white text-slate-800">
 
   <!-- Header -->
-<header class="sticky top-0 z-40 fmc-header">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-    <a href="index.html" class="flex items-center gap-2 font-extrabold text-lg">
-      <span class="fmc-brand-dot">FMC</span>
-      <span class="text-white">多国語会話教室</span>
-    </a>
+  <header class="sticky top-0 z-40 fmc-header">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 font-extrabold text-lg">
+        <span class="fmc-brand-dot">FMC</span>
+        <span class="text-white">多国語会話教室</span>
+      </a>
 
-    <!-- Desktop nav -->
-    <nav class="hidden md:flex items-center gap-6 text-sm text-white" data-nav>
-      <a href="courses.html">コース</a>
-      <a href="schedule.html">スケジュール</a>
-      <a href="pricing.html">料金</a>
-      <a href="access.html">アクセス</a>
-      <a href="contact.html">お問い合わせ</a>
-    </nav>
+      <!-- Desktop nav -->
+      <nav class="hidden md:flex items-center gap-6 text-sm text-white" data-nav>
+        <a href="courses.html">コース</a>
+        <a href="schedule.html">スケジュール</a>
+        <a href="pricing.html">料金</a>
+        <a href="access.html">アクセス</a>
+        <a href="contact.html">お問い合わせ</a>
+      </nav>
 
-    <!-- Desktop actions -->
-    <div class="hidden md:flex items-center gap-2">
-      <a href="login.html" class="text-sm px-3 py-2 rounded-lg btn-outline">ログイン</a>
-      <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 btn-primary">今すぐ申し込み</a>
+      <!-- Desktop actions -->
+      <div class="hidden md:flex items-center gap-2">
+        <a href="login.html" class="text-sm px-3 py-2 rounded-lg btn-outline">ログイン</a>
+        <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 btn-primary">今すぐ申し込み</a>
+      </div>
+
+      <!-- Mobile open button (right corner) -->
+      <button
+        class="md:hidden inline-flex items-center justify-center p-2 rounded text-white/90 hover:text-white"
+        aria-label="Open menu" aria-controls="mobile-drawer" aria-expanded="false"
+        data-drawer-open
+      >
+        <!-- 3 dots icon -->
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+      </button>
     </div>
-
-    <!-- Mobile open button (right corner) -->
-    <button
-      class="md:hidden inline-flex items-center justify-center p-2 rounded text-white/90 hover:text-white"
-      aria-label="Open menu" aria-controls="mobile-drawer" aria-expanded="false"
-      data-drawer-open
-    >
-      <!-- 3 dots icon -->
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-    </button>
-  </div>
-</header>
-
-<!-- Backdrop (starts hidden) -->
-<div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden" aria-hidden="true" data-backdrop></div>
-
-<!-- Drawer (starts hidden on the RIGHT) -->
-<aside
-  id="mobile-drawer"
-  class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 transform transition-transform duration-200 drawer-hidden md:hidden"
-  role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
-  data-drawer
->
-  <div class="flex items-center justify-between px-4 py-3 border-b">
-    <div class="flex items-center gap-2">
-      <img src="assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto">
-      <h2 id="mobile-drawer-title" class="font-bold">メニュー</h2>
-    </div>
-    <button class="p-2 rounded hover:bg-slate-100" aria-label="Close menu" data-drawer-close>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-    </button>
-  </div>
-
-  <nav class="px-4 py-3 flex flex-col text-slate-700">
-    <a href="courses.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">コース</a>
-    <a href="schedule.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">スケジュール</a>
-    <a href="pricing.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">料金</a>
-    <a href="access.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">アクセス</a>
-    <a href="contact.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">お問い合わせ</a>
-    <div class="h-px bg-slate-200 my-3"></div>
-    <a href="login.html" class="btn-outline w-full text-center">ログイン</a>
-    <a href="https://buy.stripe.com/your_payment_link" class="btn-primary w-full text-center mt-2">今すぐ申し込み</a>
-  </nav>
-</aside>
-
   </header>
 
-  <!-- Mobile Drawer (off-canvas sidebar) -->
-  <!-- Backdrop -->
-  <div
-    class="fixed inset-0 bg-black/40 transition-opacity duration-200 backdrop-hidden md:hidden"
-    aria-hidden="true"
-    data-backdrop
-  ></div>
+  <!-- Backdrop (ONE ONLY, starts hidden) -->
+  <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden" aria-hidden="true" data-backdrop></div>
 
-  <!-- Drawer panel -->
+  <!-- Drawer (ONE ONLY, starts hidden on the RIGHT) -->
   <aside
-  id="mobile-drawer"
-  class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 transform transition-transform duration-200 drawer-hidden md:hidden"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="mobile-drawer-title"
-  tabindex="-1"
-  data-drawer
->
-
+    id="mobile-drawer"
+    class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 transform transition-transform duration-200 drawer-hidden md:hidden"
+    role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
+    data-drawer
+  >
     <div class="flex items-center justify-between px-4 py-3 border-b">
       <div class="flex items-center gap-2">
-        <img src="assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto"/>
+        <img src="assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto">
         <h2 id="mobile-drawer-title" class="font-bold">メニュー</h2>
       </div>
-      <button class="p-2 rounded hover:bg-slate-100" aria-label="メニューを閉じる" data-drawer-close>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
+      <button type="button" class="p-2 rounded hover:bg-slate-100" aria-label="Close menu" data-drawer-close>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
     </div>
 
@@ -160,9 +115,8 @@
         </div>
       </div>
 
-      <!-- RIGHT: brand + photo (public) -->
+      <!-- RIGHT: brand + photo -->
       <div class="hero-frame p-0 overflow-hidden" data-reveal>
-        <!-- Brand strip -->
         <div class="p-6 flex items-center gap-4 border-b border-slate-200 bg-white">
           <img src="assets/logo.png" alt="FMC ロゴ" class="h-12 w-auto" loading="lazy" />
           <div>
@@ -170,7 +124,6 @@
             <p class="font-semibold">Fun Multi-Language Conversation Classroom</p>
           </div>
         </div>
-        <!-- School photo -->
         <img
           src="assets/school-hero.JPG"
           alt="FMC 教室の様子"
@@ -181,7 +134,6 @@
       </div>
     </div>
 
-    <!-- Announcement: full width under the grid -->
     <div class="mt-8 card" data-reveal>
       <p class="text-xs text-slate-500">お知らせ</p>
       <p class="text-sm">「初回体験 45分は無料です。お気軽にご予約ください。」</p>
@@ -241,73 +193,7 @@
     </div>
   </footer>
 
-  <!-- Scripts -->
-  <script>
-    // Drawer logic (mobile sidebar)
-    (function(){
-      const drawer = document.querySelector('[data-drawer]');
-      const backdrop = document.querySelector('[data-backdrop]');
-      const openBtn = document.querySelector('[data-drawer-open]');
-      const closeBtn = document.querySelector('[data-drawer-close]');
-      const focusableSelectors = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
-      let lastActive = null;
-
-      if(!drawer || !openBtn || !backdrop) return;
-
-      const open = () => {
-        lastActive = document.activeElement;
-        document.body.style.overflow = 'hidden';
-        drawer.classList.remove('drawer-hidden');
-        drawer.classList.add('drawer-visible');
-        backdrop.classList.remove('backdrop-hidden');
-        backdrop.classList.add('backdrop-visible');
-        openBtn.setAttribute('aria-expanded','true');
-        // focus first focusable in drawer
-        const first = drawer.querySelector(focusableSelectors);
-        if(first) first.focus();
-      };
-
-      const close = () => {
-        document.body.style.overflow = '';
-        drawer.classList.add('drawer-hidden');
-        drawer.classList.remove('drawer-visible');
-        backdrop.classList.add('backdrop-hidden');
-        backdrop.classList.remove('backdrop-visible');
-        openBtn.setAttribute('aria-expanded','false');
-        if(lastActive) lastActive.focus();
-      };
-
-      openBtn.addEventListener('click', open);
-      if(closeBtn) closeBtn.addEventListener('click', close);
-      backdrop.addEventListener('click', close);
-
-      // Close on ESC
-      window.addEventListener('keydown', (e)=>{
-        if(e.key === 'Escape') close();
-        // basic focus trap
-        if(e.key === 'Tab' && drawer.classList.contains('drawer-visible')){
-          const f = drawer.querySelectorAll(focusableSelectors);
-          if(!f.length) return;
-          const first = f[0];
-          const last = f[f.length - 1];
-          if(e.shiftKey && document.activeElement === first){
-            e.preventDefault(); last.focus();
-          } else if(!e.shiftKey && document.activeElement === last){
-            e.preventDefault(); first.focus();
-          }
-        }
-      });
-
-      // Auto-close when clicking a nav link inside the drawer
-      drawer.addEventListener('click', (e)=>{
-        const target = e.target;
-        if(target.closest('a')) close();
-      });
-    })();
-    
-  </script>
-  <script src="assets/main.js" defer>
-    
-  </script>
+  <!-- Scripts: use ONLY the external JS (no inline drawer script) -->
+  <script src="assets/main.js" defer></script>
 </body>
 </html>

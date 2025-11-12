@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>講師ページ | FMC 多国語会話教室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css?v=7">
+</head>
+<body class="bg-white text-slate-800">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-indigo-600 text-white shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <h1 class="font-bold text-lg">FMC 講師ページ</h1>
+      <button id="logoutBtn" class="px-3 py-1 bg-white text-indigo-600 rounded hover:bg-indigo-100">
+        ログアウト
+      </button>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-4xl mx-auto px-4 py-10">
+    <h2 class="text-2xl font-bold mb-4">ようこそ、講師の皆様へ 👩‍🏫</h2>
+    <p class="text-slate-600 mb-6">
+      これはテストページです。ログインが成功した場合のみ表示されます。
+    </p>
+
+    <div id="userInfo" class="border p-4 rounded bg-slate-50 text-sm"></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL  = "https://dsbvgomhugvjruqykbmr.supabase.co";
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYnZnb21odWd2anJ1cXlrYm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NzIwNzksImV4cCI6MjA3ODQ0ODA3OX0.FHX45XbBfpeNtnnCLc9wvoyxOM6w2vIIjOcIZWfb-_I";
+
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    async function loadUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      const infoDiv = document.getElementById("userInfo");
+
+      if (!user) {
+        infoDiv.innerHTML = `<p class="text-red-600">ログイン情報がありません。<a href="../login.html" class="underline">ログインページへ戻る</a></p>`;
+        return;
+      }
+
+      infoDiv.innerHTML = `
+        <p><strong>ユーザーID:</strong> ${user.id}</p>
+        <p><strong>メール:</strong> ${user.email}</p>
+        <p><strong>ログイン成功!</strong> ロール: 講師</p>
+      `;
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.href = "../login.html";
+    });
+
+    loadUser();
+  </script>
+</body>
+</html>

@@ -97,85 +97,44 @@
   setInterval(() => { i = (i + 1) % slides.length; show(i); }, 3500);
 })();
 
-/* 7) Mobile sidebar drawer (opens from right when tapping header's right corner button)
-     Requires in HTML:
-       - button[data-drawer-open]   (右上の三点ボタン)
-       - aside[data-drawer]         (ドロワーパネル)
-       - [data-drawer-close]        (×ボタン)
-       - [data-backdrop]            (黒半透明背景)
-     And CSS helpers (例):
-       .drawer-hidden { transform: translateX(100%); }
-       .drawer-visible { transform: translateX(0%); }
-       .backdrop-hidden { opacity: 0; pointer-events: none; }
-       .backdrop-visible { opacity: 1; pointer-events: auto; }
+/* 7) Mobile sidebar drawer – single, robust implementation
+      Requires in HTML:
+        - button[data-drawer-open]   (open button, e.g., 3-dots at right)
+        - aside[data-drawer]         (drawer panel)
+        - [data-drawer-close]        (X button inside drawer)
+        - [data-backdrop]            (dark overlay behind drawer)
+      CSS helpers needed:
+        .drawer-hidden { transform: translateX(100%); }
+        .drawer-visible { transform: translateX(0%); }
+        .backdrop-hidden { opacity: 0; pointer-events: none; }
+        .backdrop-visible { opacity: 1; pointer-events: auto; }
 */
 (function(){
-  const drawer = document.querySelector('[data-drawer]');
+  const drawer   = document.querySelector('[data-drawer]');
   const backdrop = document.querySelector('[data-backdrop]');
   const openBtn  = document.querySelector('[data-drawer-open]');
-  const closeBtn = document.querySelector('[data-drawer-close]');
+
   if (!drawer || !backdrop || !openBtn) return;
 
-  const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex]:not([tabindex="-1"])';
-  let lastActive = null;
-
-  const open = () => {
-    lastActive = document.activeElement;
-    document.body.style.overflow = 'hidden';
-    drawer.classList.remove('drawer-hidden'); drawer.classList.add('drawer-visible');
-    backdrop.classList.remove('backdrop-hidden'); backdrop.classList.add('backdrop-visible');
-    openBtn.setAttribute('aria-expanded', 'true');
-    const first = drawer.querySelector(FOCUSABLE);
-    if (first) first.focus();
-  };
-
-  const close = () => {
+  // --- Force CLOSED state on load (prevents visible-by-default issues) ---
+  const forceClosed = () => {
     document.body.style.overflow = '';
-    drawer.classList.add('drawer-hidden'); drawer.classList.remove('drawer-visible');
-    backdrop.classList.add('backdrop-hidden'); backdrop.classList.remove('backdrop-visible');
-    openBtn.setAttribute('aria-expanded', 'false');
-    if (lastActive) lastActive.focus();
+    drawer.classList.add('drawer-hidden');
+    drawer.classList.remove('drawer-visible');
+    backdrop.classList.add('backdrop-hidden');
+    backdrop.classList.remove('backdrop-visible');
+    openBtn.setAttribute('aria-expanded','false');
   };
-
-  openBtn.addEventListener('click', open);
-  if (closeBtn) closeBtn.addEventListener('click', close);
-  backdrop.addEventListener('click', close);
-
-  // Esc to close + basic focus trap
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') close();
-
-    if (e.key === 'Tab' && drawer.classList.contains('drawer-visible')) {
-      const f = drawer.querySelectorAll(FOCUSABLE);
-      if (!f.length) return;
-      const first = f[0];
-      const last  = f[f.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault(); last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault(); first.focus();
-      }
-    }
-  });
-
-  // Close when any link inside the drawer is clicked
-  drawer.addEventListener('click', (e) => {
-    if (e.target.closest('a')) close();
-  });
-  
-})();
-document.addEventListener('DOMContentLoaded', () => {
-  const drawer  = document.querySelector('[data-drawer]');
-  const backdrop = document.querySelector('[data-backdrop]');
-  const openBtn = document.querySelector('[data-drawer-open]');
-  const closeBtn = document.querySelector('[data-drawer-close]');
-  if (!drawer || !backdrop || !openBtn) return;
+  forceClosed();
 
   const open = () => {
     document.body.style.overflow = 'hidden';
     drawer.classList.remove('drawer-hidden'); drawer.classList.add('drawer-visible');
     backdrop.classList.remove('backdrop-hidden'); backdrop.classList.add('backdrop-visible');
     openBtn.setAttribute('aria-expanded','true');
+    // Focus first focusable for accessibility
+    const first = drawer.querySelector('a[href],button,[tabindex]:not([tabindex="-1"])');
+    if (first) first.focus();
   };
 
   const close = () => {
@@ -185,12 +144,16 @@ document.addEventListener('DOMContentLoaded', () => {
     openBtn.setAttribute('aria-expanded','false');
   };
 
+  // Open when tapping the open button
   openBtn.addEventListener('click', open);
-  closeBtn?.addEventListener('click', close);
-  backdrop.addEventListener('click', close);
+
+  // Close on: backdrop tap, X button, or any link inside drawer (event delegation)
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-backdrop]')) return close();
+    if (e.target.closest('[data-drawer-close]')) return close();
+    if (e.target.closest('[data-drawer] a')) return close();
+  });
+
+  // Close on Esc
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
-
-  // optional: close when clicking any link inside the drawer
-  drawer.addEventListener('click', (e) => { if (e.target.closest('a')) close(); });
-});
-
+})();

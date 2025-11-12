@@ -170,6 +170,14 @@ footer{ background:#fff; }
 .backdrop-hidden { opacity: 0; pointer-events: none; }
 .backdrop-visible { opacity: 1; pointer-events: auto; }
 
+/* put this near the bottom of your CSS */
+[data-drawer].drawer-hidden { transform: translateX(100%) !important; }
+[data-drawer].drawer-visible { transform: translateX(0%) !important; }
+
+[data-backdrop].backdrop-hidden { opacity: 0 !important; pointer-events: none !important; }
+[data-backdrop].backdrop-visible { opacity: 1 !important; pointer-events: auto !important; }
+
+
 
 
 

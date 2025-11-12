@@ -9,14 +9,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Your site styles -->
   <link rel="stylesheet" href="assets/styles.css?v=7">
-  <!-- (Optional) remove these helpers if already in styles.css -->
+  <!-- (Optional) helpers; OK to remove if already in styles.css -->
   <style>
-    .drawer-hidden { transform: translateX(100%); }
-    .drawer-visible { transform: translateX(0%); }
-    .backdrop-hidden { opacity: 0; pointer-events: none; }
-    .backdrop-visible { opacity: 1; pointer-events: auto; }
+    .drawer-hidden{transform:translateX(100%)} .drawer-visible{transform:translateX(0%)}
+    .backdrop-hidden{opacity:0;pointer-events:none} .backdrop-visible{opacity:1;pointer-events:auto}
   </style>
 </head>
 <body class="bg-white text-slate-800">
@@ -48,32 +45,38 @@
       <button
         class="md:hidden inline-flex items-center justify-center p-2 rounded text-white/90 hover:text-white"
         aria-label="Open menu" aria-controls="mobile-drawer" aria-expanded="false"
-        data-drawer-open
-      >
+        data-drawer-open>
         <!-- 3 dots icon -->
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
       </button>
     </div>
   </header>
 
-  <!-- Backdrop (ONE ONLY, starts hidden) -->
-  <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden" aria-hidden="true" data-backdrop></div>
+  <!-- Backdrop -->
+<div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden z-40" data-backdrop aria-hidden="true"></div>
 
-  <!-- Drawer (ONE ONLY, starts hidden on the RIGHT) -->
-  <aside
-    id="mobile-drawer"
-    class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 transform transition-transform duration-200 drawer-hidden md:hidden"
-    role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
-    data-drawer
-  >
+<!-- Drawer -->
+<aside
+  id="mobile-drawer"
+  class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 transform transition-transform duration-200 drawer-hidden md:hidden z-50"
+  role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
+  data-drawer>
     <div class="flex items-center justify-between px-4 py-3 border-b">
       <div class="flex items-center gap-2">
         <img src="assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto">
         <h2 id="mobile-drawer-title" class="font-bold">メニュー</h2>
       </div>
-      <button type="button" class="p-2 rounded hover:bg-slate-100" aria-label="Close menu" data-drawer-close>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </button>
+      <button
+  type="button"
+  class="p-2 rounded hover:bg-slate-100"
+  aria-label="Close menu"
+  data-drawer-close>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2">
+    <path d="M18 6L6 18M6 6l12 12"/>
+  </svg>
+</button>
+
     </div>
 
     <nav class="px-4 py-3 flex flex-col text-slate-700">
@@ -95,7 +98,6 @@
   <!-- Hero -->
   <section class="max-w-6xl mx-auto px-4 py-16">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-      <!-- LEFT: headline & CTAs -->
       <div data-reveal>
         <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">
           学びを、もっと身近に。
@@ -115,7 +117,6 @@
         </div>
       </div>
 
-      <!-- RIGHT: brand + photo -->
       <div class="hero-frame p-0 overflow-hidden" data-reveal>
         <div class="p-6 flex items-center gap-4 border-b border-slate-200 bg-white">
           <img src="assets/logo.png" alt="FMC ロゴ" class="h-12 w-auto" loading="lazy" />
@@ -124,13 +125,7 @@
             <p class="font-semibold">Fun Multi-Language Conversation Classroom</p>
           </div>
         </div>
-        <img
-          src="assets/school-hero.JPG"
-          alt="FMC 教室の様子"
-          class="w-full aspect-[4/3] object-cover"
-          loading="lazy"
-          decoding="async"
-        />
+        <img src="assets/school-hero.JPG" alt="FMC 教室の様子" class="w-full aspect-[4/3] object-cover" loading="lazy" decoding="async" />
       </div>
     </div>
 
@@ -193,7 +188,10 @@
     </div>
   </footer>
 
-  <!-- Scripts: use ONLY the external JS (no inline drawer script) -->
-  <script src="assets/main.js" defer></script>
+ <script src="assets/main.js?v=8" defer></script> 
+ <script>
+
+</script>
+
 </body>
 </html>

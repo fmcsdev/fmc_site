@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>講師マイスケジュール | FMC 多国語会話教室</title>
+  <title>レッスン予約 | FMC 多国語会話教室</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -12,22 +12,22 @@
 </head>
 <body class="bg-white text-slate-800">
 
-  <!-- App Header (Teacher) -->
+  <!-- App Header (Student) -->
   <header class="sticky top-0 z-40 fmc-header">
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
       <a href="index.html" class="flex items-center gap-2 font-extrabold text-lg">
         <span class="fmc-brand-dot">FMC</span>
-        <span class="text-white">講師ページ</span>
+        <span class="text-white">受講ページ</span>
       </a>
 
       <nav class="hidden md:flex items-center gap-6 text-sm text-white" data-nav>
-        <a href="index.html" class="font-semibold underline underline-offset-4">マイスケジュール</a>
-        <a href="reservations.html">予約状況</a>
+        <a href="index.html" class="font-semibold underline underline-offset-4">予約する</a>
+        <a href="my-reservations.html">自分の予約</a>
         <a href="profile.html">プロフィール</a>
       </nav>
 
       <div class="hidden md:flex items-center gap-3 text-xs text-white">
-        <span id="userDisplayName" class="opacity-80">Teacher</span>
+        <span id="userDisplayName" class="opacity-80">Student</span>
         <button id="logoutBtn" class="btn-outline text-xs px-3 py-1.5">ログアウト</button>
       </div>
 
@@ -45,13 +45,13 @@
   <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden" data-backdrop aria-hidden="true"></div>
 
   <aside id="mobile-drawer"
-         class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-whiteshadow-xl border-l border-slate-200 drawer-hidden md:hidden"
+         class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 drawer-hidden md:hidden"
          role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
          data-drawer>
     <div class="flex items-center justify-between px-4 py-3 border-b">
       <div class="flex items-center gap-2">
         <img src="../assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto">
-        <h2 id="mobile-drawer-title" class="font-bold">講師メニュー</h2>
+        <h2 id="mobile-drawer-title" class="font-bold">受講メニュー</h2>
       </div>
       <button type="button" class="p-2 rounded hover:bg-slate-100" aria-label="メニューを閉じる" data-drawer-close>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -60,8 +60,8 @@
       </button>
     </div>
     <nav class="px-4 py-3 flex flex-col text-slate-700">
-      <a href="index.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">マイスケジュール</a>
-      <a href="reservations.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">予約状況</a>
+      <a href="index.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">予約する</a>
+      <a href="my-reservations.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">自分の予約</a>
       <a href="profile.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">プロフィール</a>
       <div class="h-px bg-slate-200 my-3"></div>
       <button id="logoutBtnMobile" class="btn-outline w-full text-center">ログアウト</button>
@@ -70,59 +70,52 @@
 
   <main class="max-w-6xl mx-auto px-4 py-8">
     <header class="mb-6">
-      <p class="text-xs text-slate-500">講師専用ページ</p>
-      <h1 class="font-extrabold text-2xl mt-1">マイスケジュール</h1>
+      <p class="text-xs text-slate-500">学生専用ページ</p>
+      <h1 class="font-extrabold text-2xl mt-1">レッスン予約</h1>
       <p class="text-sm text-slate-600 mt-1">
-        自分の空き時間を登録し、学生からの予約状況を確認できます。
+        管理者が公開した「予約受付スケジュール」の中から、言語や講師を選んで予約できます。
       </p>
     </header>
 
-    <!-- Submit availability -->
+    <!-- Filters -->
     <section class="card mb-8" data-reveal>
-      <h2 class="text-base font-bold mb-2">空き時間の送信</h2>
-      <p class="text-xs text-slate-500 mb-4">
-        管理者が確認し、「予約受付スケジュール」に反映します。
-      </p>
-
-      <form id="teacher-availability-form" class="grid gap-3 md:grid-cols-4 text-sm">
-        <div class="md:col-span-1">
+      <h2 class="text-base font-bold mb-2">予約枠の検索</h2>
+      <form id="student-filter-form" class="grid gap-3 md:grid-cols-4 text-sm">
+        <div>
           <label class="block text-xs text-slate-600 mb-1">言語</label>
           <select name="language" class="w-full border rounded px-2 py-2">
-            <option value="">選択してください</option>
+            <option value="">すべて</option>
             <option value="Spanish">スペイン語</option>
             <option value="English">英語</option>
             <option value="Japanese">日本語</option>
           </select>
         </div>
-        <div class="md:col-span-1">
-          <label class="block text-xs text-slate-600 mb-1">日付</label>
-          <input type="date" name="date" class="w-full border rounded px-2 py-2">
+        <div>
+          <label class="block text-xs text-slate-600 mb-1">講師</label>
+          <select name="teacher" class="w-full border rounded px-2 py-2" id="student-filter-teacher">
+            <option value="">すべて</option>
+            <!-- student.js で講師一覧を注入 -->
+          </select>
         </div>
         <div>
-          <label class="block text-xs text-slate-600 mb-1">開始時間</label>
-          <input type="time" name="start" class="w-full border rounded px-2 py-2">
+          <label class="block text-xs text-slate-600 mb-1">日付（開始）</label>
+          <input type="date" name="from" class="w-full border rounded px-2 py-2">
         </div>
         <div>
-          <label class="block text-xs text-slate-600 mb-1">終了時間</label>
-          <input type="time" name="end" class="w-full border rounded px-2 py-2">
-        </div>
-        <div class="md:col-span-4">
-          <label class="block text-xs text-slate-600 mb-1">メモ（任意）</label>
-          <textarea name="note" rows="2" class="w-full border rounded px-2 py-2"></textarea>
-        </div>
-        <div class="md:col-span-4 flex justify-end">
-          <button type="submit" class="btn-primary px-4 py-2 text-sm">空き時間を送信</button>
+          <label class="block text-xs text-slate-600 mb-1">日付（終了）</label>
+          <input type="date" name="to" class="w-full border rounded px-2 py-2">
         </div>
       </form>
-      <p id="teacher-availability-status" class="text-xs text-slate-600 mt-2"></p>
     </section>
 
-    <!-- Own availability -->
+    <!-- Available slots -->
     <section class="schedule-block mb-8" data-reveal>
       <div class="schedule-headbar">
         <div>
-          <h2 class="text-base font-bold">提出した空き時間</h2>
-          <p class="text-xs text-slate-500 mt-1">承認状況を確認できます。</p>
+          <h2 class="text-base font-bold">予約可能な枠</h2>
+          <p class="text-xs text-slate-500 mt-1">
+            表示されている枠は、管理者が公開した「予約受付スケジュール」です。
+          </p>
         </div>
       </div>
       <div class="table-wrap">
@@ -132,52 +125,29 @@
               <th class="schedule-head">日付</th>
               <th class="schedule-head">時間</th>
               <th class="schedule-head">言語</th>
-              <th class="schedule-head">状態</th>
+              <th class="schedule-head">講師</th>
+              <th class="schedule-head">残席</th>
+              <th class="schedule-head">予約</th>
             </tr>
           </thead>
-          <tbody id="teacher-availability-body">
-            <!-- teacher.js で埋める -->
+          <tbody id="student-slots-body">
+            <!-- student.js で埋める -->
           </tbody>
         </table>
       </div>
-    </section>
-
-    <!-- Reservations for this teacher -->
-    <section class="schedule-block mb-10" data-reveal>
-      <div class="schedule-headbar">
-        <div>
-          <h2 class="text-base font-bold">予約状況</h2>
-          <p class="text-xs text-slate-500 mt-1">あなたの枠に対する学生の予約一覧です。</p>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table class="schedule-table text-xs md:text-sm w-full">
-          <thead>
-            <tr>
-              <th class="schedule-head">日付</th>
-              <th class="schedule-head">時間</th>
-              <th class="schedule-head">言語</th>
-              <th class="schedule-head">学生</th>
-              <th class="schedule-head">状態</th>
-            </tr>
-          </thead>
-          <tbody id="teacher-reservation-body">
-            <!-- teacher.js で埋める -->
-          </tbody>
-        </table>
-      </div>
+      <p id="student-slots-status" class="text-xs text-slate-600 mt-2 px-4 pb-3"></p>
     </section>
   </main>
 
   <footer class="border-t border-slate-200">
     <div class="max-w-6xl mx-auto px-4 py-6 text-xs text-slate-500 flex justify-between">
       <span>© FMC 多国語会話教室</span>
-      <span>講師ページ</span>
+      <span>受講ページ</span>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/site.js" defer></script>
-  <script src="../assets/teacher.js" defer></script>
+  <script src="../assets/student.js" defer></script>
 </body>
 </html>

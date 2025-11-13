@@ -11,28 +11,40 @@
 }
 
 /* Base */
-html{scroll-behavior:smooth}
-body{ background: var(--light); color: var(--gray); font-family: Inter, system-ui, -apple-system, "Segoe UI", "Noto Sans JP", sans-serif; }
+html{ scroll-behavior:smooth; }
+body{
+  background:var(--light);
+  color:var(--gray);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", "Noto Sans JP", sans-serif;
+}
+:focus-visible{ outline:2px solid var(--blue); outline-offset:2px; }
+@media (prefers-reduced-motion: reduce){
+  *{ transition:none !important; animation:none !important; }
+}
 
 /* Header (warm gradient), solid FMC logo */
 .fmc-header{
-  background: linear-gradient(90deg, var(--orange) 0%, var(--yellow) 50%, var(--pink) 100%);
-  color:#fff; border-bottom:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(90deg, var(--orange) 0%, var(--yellow) 50%, var(--pink) 100%);
+  color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.12);
 }
 .fmc-brand-dot{
-  display:inline-flex;align-items:center;justify-content:center;
-  height:2rem;padding:0 .9rem;border-radius:.75rem;
-  background: var(--blue) !important; color:#fff !important;
-  font-weight:800;font-size:1.05rem;letter-spacing:.05em;
+  display:inline-flex; align-items:center; justify-content:center;
+  height:2rem; padding:0 .9rem; border-radius:.75rem;
+  background:var(--blue) !important; color:#fff !important;
+  font-weight:800; font-size:1.05rem; letter-spacing:.05em;
 }
 
 /* Sections */
 section{ background:#fff; padding:4rem 1rem; border-bottom:1px solid var(--border); }
-#how, #faq{ background: var(--light); }
+#how, #faq{ background:var(--light); }
 
 /* Headings */
-h2{ font-weight:800; color: var(--gray); display:inline-block; position:relative; }
-h2::after{ content:""; display:block; width:60px; height:4px; margin-top:.5rem; border-radius:999px; background: var(--blue); }
+h2{ font-weight:800; color:var(--gray); display:inline-block; position:relative; }
+h2::after{
+  content:""; display:block; width:60px; height:4px; margin-top:.5rem;
+  border-radius:999px; background:var(--blue);
+}
 
 /* Cards & common UI */
 .card, article{
@@ -43,171 +55,145 @@ h2::after{ content:""; display:block; width:60px; height:4px; margin-top:.5rem; 
 .card:hover, article:hover{ transform:translateY(-3px); box-shadow:0 6px 12px rgba(0,0,0,.08); }
 .badge{ background:#eef2ff; color:var(--blue); border-radius:999px; padding:.25rem .7rem; font-weight:500; }
 
-/* GLOBAL buttons (everywhere) */
+/* Buttons (global) */
 .btn-primary{
-  background: var(--blue); color:#fff; border-radius:.75rem;
+  background:var(--blue); color:#fff; border-radius:.75rem;
   padding:.6rem 1.2rem; font-weight:600; transition:background .2s;
 }
-.btn-primary:hover{ background: var(--cyan); }
-
+.btn-primary:hover{ background:var(--cyan); }
 .btn-outline{
   border:1px solid var(--blue); color:var(--blue); border-radius:.75rem;
   padding:.6rem 1.2rem; transition:all .2s;
 }
-.btn-outline:hover{ background: var(--blue); color:#fff; }
+.btn-outline:hover{ background:var(--blue); color:#fff; }
 
-/* HEADER-ONLY button overrides */
+/* Header-only button overrides */
 .fmc-header .btn-outline{
   border:1px solid rgba(255,255,255,.85); color:#fff; background:transparent;
 }
 .fmc-header .btn-outline:hover{ background:rgba(255,255,255,.15); }
-
 .fmc-header .btn-primary{
   background:#fff; color:var(--orange); font-weight:700;
 }
 .fmc-header .btn-primary:hover{ background:var(--orange); color:#fff; }
 
-/* Table */
-table{ width:100%; border-collapse:collapse; }
-thead{ background: var(--blue); color:#fff; }
-th,td{ padding:.8rem 1rem; border-bottom:1px solid var(--border); }
+/* Tables (scoped so styles don't leak) */
+.table{ width:100%; border-collapse:collapse; }
+.table thead{ background:var(--blue); color:#fff; }
+.table th, .table td{ padding:.8rem 1rem; border-bottom:1px solid var(--border); }
+.table-wrap{ overflow-x:auto; }
 
-/* Footer */
-footer{ background:#fff; }
+/* Schedule grid helpers */
+/* === Schedule – card-style wrapper, brandy header, chips === */
+.schedule-block{
+  border:1px solid var(--border);
+  border-radius:1rem;
+  background:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,.04);
+  overflow:hidden;          /* rounds table corners */
+}
+
+/* Title row inside the card */
+.schedule-headbar{
+  display:flex; align-items:center; justify-content:space-between; gap:.75rem;
+  padding:.85rem 1rem;
+  background: linear-gradient(90deg, rgba(250,204,21,.18), rgba(251,191,36,.05));
+  border-bottom:1px solid var(--border);
+}
+
+/* Optional small chips on the right */
+.chips{ display:flex; gap:.5rem; flex-wrap:wrap; }
+.chip{
+  font-size:.75rem; line-height:1; font-weight:600;
+  padding:.35rem .6rem; border-radius:999px;
+  background:#eef2ff; color:var(--blue); border:1px solid rgba(59,130,246,.15);
+}
+
+/* Table tweaks to blend with card */
+.schedule-table{
+  width:100%; border-collapse:collapse; table-layout:fixed;  /* fits width nicely */
+}
+.schedule-table th, .schedule-table td{
+  padding:.9rem 1rem; font-weight:700; text-align:center;
+  border:1px solid var(--border);
+}
+.schedule-table thead th.schedule-head{
+  background: linear-gradient(180deg, rgba(250,204,21,1), rgba(250,204,21,.88));
+  color:#222; letter-spacing:.02em;
+}
+
+/* Subtle hover (desktop only) */
+@media (hover:hover){
+  .schedule-table tbody tr:hover td{
+    background: rgba(59,130,246,.06);
+  }
+}
+
+/* Keep your original time-slot colors on top of hover */
+.bg-am{ background:#dbeafe !important; }
+.bg-pm{ background:#fde6da !important; }
+.bg-night{ background:#dbeafe !important; }
+.bg-note{ background:#e7f4e4 !important; }
+.note-red{ color:#e11d48; font-weight:800; }
+
+/* Mobile nicety: slight edge breathing room */
+.schedule-block .table-wrap{ padding: .5rem; }
+
 /* Reveal animation */
-[data-reveal]{
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity .6s ease, transform .6s ease;
-}
-.reveal-visible{
-  opacity: 1;
-  transform: translateY(0);
-}
+[data-reveal]{ opacity:0; transform:translateY(12px); transition:opacity .6s ease, transform .6s ease; }
+.reveal-visible{ opacity:1; transform:translateY(0); }
 
 /* FAQ accordion panel */
-.accordion-panel{
-  overflow: hidden;
-  max-height: 0;
-  transition: max-height .3s ease;
-}
+.accordion-panel{ overflow:hidden; max-height:0; transition:max-height .3s ease; }
 
-/*footer*/
-  footer {
-    background: #000;
-    color: #fff;
-  }
-
-  footer .font-bold,
-  footer .text-slate-900,
-  footer .text-slate-600,
-  footer p {
-    color: #fff !important;
-  }
-
-  footer a {
-    color: #fff;
-    opacity: 0.85;
-    transition: opacity 0.2s;
-  }
-
-  footer a:hover {
-    opacity: 1;
-    text-decoration: underline;
-  }
-
-  footer .border-t {
-    border-color: rgba(255,255,255,0.15) !important;
-  }
-
+/* Footer (consolidated to black theme) */
+footer{ background:#000; color:#fff; }
+footer .font-bold, footer .text-slate-900, footer .text-slate-600, footer p{ color:#fff !important; }
+footer a{ color:#fff; opacity:.85; transition:opacity .2s; }
+footer a:hover{ opacity:1; text-decoration:underline; }
+footer .border-t{ border-color:rgba(255,255,255,.15) !important; }
 
 /* ===============================
    Mobile Drawer (sidebar menu)
+   Single source of truth
    =============================== */
 
-/* Backdrop overlay (black transparent background) */
-[data-backdrop] {
-  transition: opacity 0.25s ease;
-  z-index: 40;
-}
-.backdrop-hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-.backdrop-visible {
-  opacity: 1;
-  pointer-events: auto;
-}
+/* Backdrop overlay */
+[data-backdrop]{ transition:opacity .25s ease; z-index:40; }
+.backdrop-hidden{ opacity:0 !important; pointer-events:none !important; }
+.backdrop-visible{ opacity:1 !important; pointer-events:auto !important; }
 
-/* Drawer container (slides from right) */
-[data-drawer] {
-  transition: transform 0.25s ease;
-  z-index: 50;
+/* Drawer container */
+[data-drawer]{
+  background:#fff; border-left:1px solid var(--border);
+  box-shadow:-2px 0 10px rgba(0,0,0,.1);
+  display:flex; flex-direction:column; height:100%;
+  transition:transform .25s ease; z-index:50;
 }
-.drawer-hidden {
-  transform: translateX(100%);
-}
-.drawer-visible {
-  transform: translateX(0%);
-}
+[data-drawer].drawer-hidden{ transform:translateX(100%) !important; }
+[data-drawer].drawer-visible{ transform:translateX(0%) !important; }
 
-/* Drawer styling */
-[data-drawer] {
-  background: #fff;
-  border-left: 1px solid var(--border);
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+/* Drawer links/buttons/header */
+[data-drawer] .menu-link{
+  font-weight:500; color:var(--gray); text-decoration:none;
+  transition:background .2s, color .2s;
+}
+[data-drawer] .menu-link:hover{ background:var(--light); color:var(--blue); }
+[data-drawer] .btn-outline, [data-drawer] .btn-primary{
+  padding:.7rem 1rem; font-weight:600; border-radius:.75rem;
+}
+[data-drawer] h2{ font-size:1rem; font-weight:700; color:var(--gray); }
+
+/* Drawer focus (keyboard only handled by :focus-visible) */
+[data-drawer] a:focus-visible, [data-drawer] button:focus-visible{
+  outline:2px solid var(--blue); outline-offset:2px;
 }
 
-/* Drawer links */
-[data-drawer] .menu-link {
-  font-weight: 500;
-  color: var(--gray);
-  text-decoration: none;
-  transition: background 0.2s, color 0.2s;
+/* --- FINAL SAFETY FIX: ensure tables render normally --- */
+table, thead, tbody, tr, th, td {
+  display: revert !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
-
-[data-drawer] .menu-link:hover {
-  background: var(--light);
-  color: var(--blue);
-}
-
-/* Drawer buttons */
-[data-drawer] .btn-outline,
-[data-drawer] .btn-primary {
-  padding: 0.7rem 1rem;
-  font-weight: 600;
-  border-radius: 0.75rem;
-}
-
-/* Drawer header (logo & close button) */
-[data-drawer] h2 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--gray);
-}
-
-/* Accessibility focus style */
-[data-drawer] a:focus,
-[data-drawer] button:focus {
-  outline: 2px solid var(--blue);
-  outline-offset: 2px;
-}
-.drawer-hidden { transform: translateX(100%); }
-.drawer-visible { transform: translateX(0%); }
-.backdrop-hidden { opacity: 0; pointer-events: none; }
-.backdrop-visible { opacity: 1; pointer-events: auto; }
-
-/* put this near the bottom of your CSS */
-[data-drawer].drawer-hidden { transform: translateX(100%) !important; }
-[data-drawer].drawer-visible { transform: translateX(0%) !important; }
-
-[data-backdrop].backdrop-hidden { opacity: 0 !important; pointer-events: none !important; }
-[data-backdrop].backdrop-visible { opacity: 1 !important; pointer-events: auto !important; }
-
-
-
 
 

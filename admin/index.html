@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>管理者ダッシュボード | FMC 多国語会話教室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css?v=7">
+</head>
+<body class="bg-white text-slate-800">
+
+  <!-- App Header (Admin) -->
+  <header class="sticky top-0 z-40 fmc-header">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 font-extrabold text-lg">
+        <span class="fmc-brand-dot">FMC</span>
+        <span class="text-white">管理コンソール</span>
+      </a>
+
+      <!-- Desktop app nav -->
+      <nav class="hidden md:flex items-center gap-6 text-sm text-white" data-nav>
+        <a href="index.html" class="font-semibold underline underline-offset-4">ダッシュボード</a>
+        <a href="teachers.html">講師スケジュール</a>
+        <a href="students.html">学生予約</a>
+        <a href="settings.html">設定</a>
+      </nav>
+
+      <!-- User / logout -->
+      <div class="hidden md:flex items-center gap-3 text-xs text-white">
+        <span id="userDisplayName" class="opacity-80">Admin</span>
+        <button id="logoutBtn" class="btn-outline text-xs px-3 py-1.5">ログアウト</button>
+      </div>
+
+      <!-- Mobile menu button -->
+      <button
+        class="md:hidden inline-flex items-center justify-center p-2 rounded text-white/90 hover:text-white"
+        aria-label="メニューを開く" aria-controls="mobile-drawer" aria-expanded="false"
+        data-drawer-open>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden" data-backdrop aria-hidden="true"></div>
+
+  <!-- Mobile drawer -->
+  <aside id="mobile-drawer"
+         class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 drawer-hidden md:hidden"
+         role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
+         data-drawer>
+    <div class="flex items-center justify-between px-4 py-3 border-b">
+      <div class="flex items-center gap-2">
+        <img src="../assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto">
+        <h2 id="mobile-drawer-title" class="font-bold">管理メニュー</h2>
+      </div>
+      <button type="button" class="p-2 rounded hover:bg-slate-100" aria-label="メニューを閉じる" data-drawer-close>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <nav class="px-4 py-3 flex flex-col text-slate-700">
+      <a href="index.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">ダッシュボード</a>
+      <a href="teachers.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">講師スケジュール</a>
+      <a href="students.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">学生予約</a>
+      <a href="settings.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">設定</a>
+      <div class="h-px bg-slate-200 my-3"></div>
+      <button id="logoutBtnMobile" class="btn-outline w-full text-center">ログアウト</button>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <header class="mb-6">
+      <p class="text-xs text-slate-500">管理者専用ページ</p>
+      <h1 class="font-extrabold text-2xl mt-1">ダッシュボード</h1>
+      <p class="text-sm text-slate-600 mt-1">
+        講師の空き時間を確認し、「予約受付スケジュール」を作成・編集します。予約状況も一覧で確認できます。
+      </p>
+    </header>
+
+    <!-- Summary cards -->
+    <section class="grid gap-4 md:grid-cols-3 mb-8" data-reveal>
+      <div class="card">
+        <div class="text-xs text-slate-500 mb-1">本日の予約数</div>
+        <div id="admin-today-count" class="text-3xl font-bold">0</div>
+      </div>
+      <div class="card">
+        <div class="text-xs text-slate-500 mb-1">有効な予約枠</div>
+        <div id="admin-active-slots" class="text-3xl font-bold">0</div>
+      </div>
+      <div class="card">
+        <div class="text-xs text-slate-500 mb-1">未承認の講師スケジュール</div>
+        <div id="admin-pending-avail" class="text-3xl font-bold">0</div>
+      </div>
+    </section>
+
+    <!-- Teacher availabilities -->
+    <section class="schedule-block mb-10" data-reveal>
+      <div class="schedule-headbar">
+        <div>
+          <h2 class="text-base font-bold">講師からのスケジュール申請</h2>
+          <p class="text-xs text-slate-500 mt-1">
+            講師が提出した空き時間です。「予約枠を作成」を押すと、学生が予約できる枠になります。
+          </p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="schedule-table text-xs md:text-sm w-full">
+          <thead>
+            <tr>
+              <th class="schedule-head w-32">講師</th>
+              <th class="schedule-head w-24">言語</th>
+              <th class="schedule-head w-48">開始</th>
+              <th class="schedule-head w-48">終了</th>
+              <th class="schedule-head w-24">状態</th>
+              <th class="schedule-head w-40">操作</th>
+            </tr>
+          </thead>
+          <tbody id="admin-availability-body">
+            <!-- admin.js で埋める -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Reservation slots -->
+    <section class="schedule-block mb-10" data-reveal>
+      <div class="schedule-headbar">
+        <div>
+          <h2 class="text-base font-bold">予約受付スケジュール</h2>
+          <p class="text-xs text-slate-500 mt-1">
+            学生が予約できる正式な枠です。必要に応じて追加・編集・停止できます。
+          </p>
+        </div>
+        <button id="admin-add-slot" class="btn-primary text-xs px-3 py-2">
+          新しい予約枠を追加
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table class="schedule-table text-xs md:text-sm w-full">
+          <thead>
+            <tr>
+              <th class="schedule-head w-28">講師</th>
+              <th class="schedule-head w-24">言語</th>
+              <th class="schedule-head w-40">開始</th>
+              <th class="schedule-head w-40">終了</th>
+              <th class="schedule-head w-20">定員</th>
+              <th class="schedule-head w-20">状態</th>
+              <th class="schedule-head w-40">操作</th>
+            </tr>
+          </thead>
+          <tbody id="admin-slots-body">
+            <!-- admin.js で埋める -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Reservations overview -->
+    <section class="schedule-block mb-10" data-reveal>
+      <div class="schedule-headbar">
+        <div>
+          <h2 class="text-base font-bold">予約一覧</h2>
+          <p class="text-xs text-slate-500 mt-1">全ての学生の予約を確認できます。</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="schedule-table text-xs md:text-sm w-full">
+          <thead>
+            <tr>
+              <th class="schedule-head">日付</th>
+              <th class="schedule-head">時間</th>
+              <th class="schedule-head">言語</th>
+              <th class="schedule-head">講師</th>
+              <th class="schedule-head">学生</th>
+              <th class="schedule-head">状態</th>
+            </tr>
+          </thead>
+          <tbody id="admin-reservation-body">
+            <!-- admin.js で埋める -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer stays simple / black theme from styles.css -->
+  <footer class="border-t border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-6 text-xs text-slate-500 flex justify-between">
+      <span>© FMC 多国語会話教室</span>
+      <span>管理コンソール</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/admin.js" defer></script>
+</body>
+</html>

@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
 async function initTeacher() {
   const user = await requireAuthTeacher("teacher");
   setupLogoutTeacher();
-
   setupAvailabilityForm(user);
 
   await Promise.all([
@@ -42,27 +41,34 @@ async function requireAuthTeacher(requiredRole) {
 
   const { data: profile, error: profileErr } = await supabaseT
     .from("user_profiles")
-    .select("role, display_name")
+    .select("role, login_id")
     .eq("user_id", user.id)
     .single();
 
   if (profileErr || !profile) {
+    console.error("Teacher profile error:", profileErr);
     window.location.href = "../login.html";
     throw new Error("Profile not found");
   }
 
-  const name = profile.display_name || user.email || "Teacher";
+  const name = profile.login_id || user.email || "Teacher";
   const nameEl = document.getElementById("userDisplayName");
   if (nameEl) nameEl.textContent = name;
 
   if (profile.role !== requiredRole) {
+    // redirect to correct dashboard if role mismatch
     switch (profile.role) {
       case "admin":
         window.location.href = "../admin/index.html";
         break;
       case "student":
-      default:
         window.location.href = "../student/index.html";
+        break;
+      case "guardian":
+        window.location.href = "../guardian/index.html";
+        break;
+      default:
+        window.location.href = "../login.html";
         break;
     }
     throw new Error("Wrong role");

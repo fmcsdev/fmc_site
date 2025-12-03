@@ -21,9 +21,13 @@ async function initAdmin() {
   const user = await requireAuthAdmin("admin");
   setupLogoutAdmin();
 
-  await loadTeacherAvailabilitiesForAdmin();
-  // later: loadSlotsForAdmin(); loadReservationsForAdmin();
+  await Promise.all([
+    loadTeacherAvailabilitiesForAdmin(),
+    loadSlotsForAdmin()
+    // later: loadReservationsForAdmin()
+  ]);
 }
+
 
 /**
  * Require auth + admin role
@@ -134,38 +138,97 @@ async function loadTeacherAvailabilitiesForAdmin() {
   const todayStr = todayStringA();
 
   data.forEach(row => {
-    if (row.status === "pending") pendingCount++;
-    if (row.status === "approved") approvedCount++;
+  if (row.status === "pending") pendingCount++;
+  if (row.status === "approved") approvedCount++;
 
-    const startDateStr = formatDateOnlyA(row.start_time);
-    if (startDateStr === todayStr && row.status === "approved") {
-      // very rough "today count" until we wire real reservations
-      todayReservationsCount++;
-    }
+  const startDateStr = formatDateOnlyA(row.start_time);
+  if (startDateStr === todayStr && row.status === "approved") {
+    todayReservationsCount++; // 仮
+  }
 
-   const teacherName = teacherNameMap[row.teacher_id] || shortIdA(row.teacher_id);
+  const teacherName = teacherNameMap[row.teacher_id] || shortIdA(row.teacher_id);
+  const timeRange   = formatTimeRangeA(row.start_time, row.end_time);
+  const statusLabel = row.status === "approved"
+    ? "承認済み"
+    : row.status === "rejected"
+    ? "却下"
+    : "承認待ち";
 
-    const timeRange   = formatTimeRangeA(row.start_time, row.end_time);
-    const statusLabel = row.status === "approved"
-      ? "承認済み"
-      : row.status === "rejected"
-      ? "却下"
-      : "承認待ち";
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${teacherName}</td>
+    <td>${row.language || ""}</td>
+    <td>${formatDateOnlyA(row.start_time)} ${timeRange}</td>
+    <td>${formatDateOnlyA(row.end_time)} ${formatTimeRangeA(row.start_time, row.end_time)}</td>
+    <td>${statusLabel}</td>
+    <td>
+      <button
+        class="btn-xs btn-outline"
+        data-action="approve-avail"
+        data-id="${row.id}"
+      >承認</button>
+      <button
+        class="btn-xs btn-ghost text-slate-500 ml-1"
+        data-action="reject-avail"
+        data-id="${row.id}"
+      >却下</button>
+      <button
+        class="btn-xs btn-primary ml-2"
+        data-action="create-slot"
+        data-id="${row.id}"
+        data-teacher-id="${row.teacher_id}"
+        data-language="${row.language || ""}"
+        data-start="${row.start_time}"
+        data-end="${row.end_time}"
+      >予約枠を作成</button>
+    </td>
+  `;
+  tbody.appendChild(tr);
 
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${teacherName}</td>
-      <td>${row.language || ""}</td>
-      <td>${formatDateOnlyA(row.start_time)} ${timeRange}</td>
-      <td>${formatDateOnlyA(row.end_time)} ${formatTimeRangeA(row.start_time, row.end_time)}</td>
-      <td>${statusLabel}</td>
-      <td>
-        <!-- TODO: approve / reject buttons -->
-        <span class="text-xs text-slate-400">（操作は後で実装）</span>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
+  // Attach handlers
+  const approveBtn = tr.querySelector('[data-action="approve-avail"]');
+  const rejectBtn  = tr.querySelector('[data-action="reject-avail"]');
+  const slotBtn    = tr.querySelector('[data-action="create-slot"]');
+
+  if (approveBtn) {
+    approveBtn.addEventListener("click", async () => {
+      const ok = await updateAvailabilityStatus(row.id, "approved");
+      if (ok) await loadTeacherAvailabilitiesForAdmin();
+    });
+  }
+
+  if (rejectBtn) {
+    rejectBtn.addEventListener("click", async () => {
+      const ok = await updateAvailabilityStatus(row.id, "rejected");
+      if (ok) await loadTeacherAvailabilitiesForAdmin();
+    });
+  }
+
+  if (slotBtn) {
+    slotBtn.addEventListener("click", async () => {
+      const capacityStr = window.prompt("この予約枠の定員を入力してください（例：3）", "1");
+      if (capacityStr === null) return; // cancelled
+      const capacity = parseInt(capacityStr, 10);
+      if (!Number.isFinite(capacity) || capacity <= 0) {
+        alert("有効な定員を入力してください。");
+        return;
+      }
+      const ok = await createSlotFromAvailability({
+        id: row.id,
+        teacher_id: row.teacher_id,
+        language: row.language,
+        start_time: row.start_time,
+        end_time: row.end_time,
+        capacity
+      });
+      if (ok) {
+        await loadSlotsForAdmin();
+        alert("予約枠を作成しました。");
+      }
+    });
+  }
+});
+
 
   if (pendingEl)   pendingEl.textContent   = String(pendingCount);
   if (activeSlots) activeSlots.textContent = String(approvedCount);
@@ -206,6 +269,62 @@ async function fetchTeacherNames(teacherIds) {
 
   return map;
 }
+/** Update teacher_availabilities.status */
+async function updateAvailabilityStatus(id, status) {
+  const { error } = await supabaseA
+    .from("teacher_availabilities")
+    .update({ status })
+    .eq("id", id);
+
+  if (error) {
+    console.error("updateAvailabilityStatus error:", error);
+    alert("スケジュールの状態更新に失敗しました。");
+    return false;
+  }
+  return true;
+}
+/** Create reservation_slots row from a teacher availability row */
+async function createSlotFromAvailability(avail) {
+  try {
+    // すでに同じ teacher_id + start_time の予約枠がないかチェック
+    const { data: existing, error: exErr } = await supabaseA
+      .from("reservation_slots")
+      .select("id")
+      .eq("teacher_id", avail.teacher_id)
+      .eq("start_time", avail.start_time);
+
+    if (exErr) {
+      console.error("check existing slot error:", exErr);
+      return false;
+    }
+    if (existing && existing.length > 0) {
+      alert("同じ時間帯の予約枠が既に存在します。");
+      return false;
+    }
+
+    const { error } = await supabaseA
+      .from("reservation_slots")
+      .insert({
+        teacher_id: avail.teacher_id,
+        language: avail.language,
+        start_time: avail.start_time,
+        end_time: avail.end_time,
+        capacity: avail.capacity,
+        status: "active"
+      });
+
+    if (error) {
+      console.error("createSlotFromAvailability insert error:", error);
+      alert("予約枠の作成に失敗しました。");
+      return false;
+    }
+
+    return true;
+  } catch (e) {
+    console.error("createSlotFromAvailability unexpected error:", e);
+    return false;
+  }
+}
 
 
 
@@ -235,6 +354,97 @@ function formatTimeRangeA(startIso, endIso) {
   const eh = String(e.getHours()).padStart(2, "0");
   const em = String(e.getMinutes()).padStart(2, "0");
   return `${sh}:${sm}〜${eh}:${em}`;
+}
+/**
+ * Load all reservation slots that students can book (admin view)
+ */
+async function loadSlotsForAdmin() {
+  const tbody = document.getElementById("admin-slots-body");
+  if (!tbody) return;
+
+  tbody.innerHTML = "<tr><td colspan='7'>読み込み中...</td></tr>";
+
+  const { data, error } = await supabaseA
+    .from("reservation_slots")
+    .select("id, teacher_id, language, start_time, end_time, capacity, status")
+    .order("start_time", { ascending: true });
+
+  if (error) {
+    console.error("loadSlotsForAdmin error:", error);
+    tbody.innerHTML = "<tr><td colspan='7' class='text-red-500'>読み込みエラー</td></tr>";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = "<tr><td colspan='7'>まだ予約枠は作成されていません。</td></tr>";
+    return;
+  }
+
+  // resolve teacher names
+  const teacherIds = [...new Set(data.map(r => r.teacher_id).filter(Boolean))];
+  const teacherNameMap = await fetchTeacherNames(teacherIds);
+
+  tbody.innerHTML = "";
+  data.forEach(row => {
+    const teacherName = teacherNameMap[row.teacher_id] || shortIdA(row.teacher_id);
+    const dateStr     = formatDateOnlyA(row.start_time);
+    const timeRange   = formatTimeRangeA(row.start_time, row.end_time);
+    const statusLabel = row.status === "active"
+      ? "公開中"
+      : row.status === "closed"
+      ? "停止中"
+      : "下書き";
+
+    const toggleLabel = row.status === "active" ? "停止" : "公開";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${teacherName}</td>
+      <td>${row.language || ""}</td>
+      <td>${dateStr} ${timeRange}</td>
+      <td>${dateStr} ${formatTimeRangeA(row.start_time, row.end_time)}</td>
+      <td>${row.capacity ?? 1}</td>
+      <td>${statusLabel}</td>
+      <td>
+        <button
+          class="btn-xs btn-outline"
+          data-action="toggle-slot-status"
+          data-id="${row.id}"
+          data-status="${row.status}"
+        >
+          ${toggleLabel}
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+
+    const toggleBtn = tr.querySelector('[data-action="toggle-slot-status"]');
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", async () => {
+        const current = toggleBtn.dataset.status || "active";
+        const next = current === "active" ? "closed" : "active";
+        const ok = await updateSlotStatus(row.id, next);
+        if (ok) {
+          await loadSlotsForAdmin();
+        }
+      });
+    }
+  });
+}
+
+/** Update reservation slot status (公開 / 停止) */
+async function updateSlotStatus(slotId, newStatus) {
+  const { error } = await supabaseA
+    .from("reservation_slots")
+    .update({ status: newStatus })
+    .eq("id", slotId);
+
+  if (error) {
+    console.error("updateSlotStatus error:", error);
+    alert("予約枠の状態更新に失敗しました。");
+    return false;
+  }
+  return true;
 }
 
 function todayStringA() {

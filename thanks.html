@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>お問い合わせありがとうございました | FMC 多国語会話教室</title>
+  <meta name="description" content="お問い合わせ完了ページ。送信ありがとうございます。">
+
+  <!-- Fonts / Tailwind -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Your global styles -->
+  <link rel="stylesheet" href="assets/styles.css?v=8">
+</head>
+
+<body class="bg-white text-slate-800">
+
+  <!-- Header (copied from your existing pages) -->
+  <header class="sticky top-0 z-40 fmc-header">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 font-extrabold text-lg">
+        <span class="fmc-brand-dot">FMC</span>
+        <span class="text-white">多国語会話教室</span>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="hidden md:flex items-center gap-6 text-sm text-white">
+        <a href="courses.html">コース</a>
+        <a href="schedule.html">スケジュール</a>
+        <a href="pricing.html">料金</a>
+        <a href="access.html">アクセス</a>
+        <a href="contact.html">お問い合わせ</a>
+      </nav>
+
+      <!-- Desktop actions -->
+      <div class="hidden md:flex items-center gap-2">
+        <a href="login.html" class="text-sm px-3 py-2 rounded-lg btn-outline">ログイン</a>
+        <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 btn-primary">今すぐ申し込み</a>
+      </div>
+
+      <!-- Mobile menu button -->
+      <button
+        class="md:hidden inline-flex items-center justify-center p-2 rounded text-white/90 hover:text-white"
+        aria-label="Open menu"
+        data-drawer-open>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="2"/>
+          <circle cx="12" cy="12" r="2"/>
+          <circle cx="19" cy="12" r="2"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden z-40" data-backdrop></div>
+
+  <!-- Mobile Drawer (copied from contact.html) -->
+  <aside
+    data-drawer
+    class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200
+           transform transition-transform duration-200 drawer-hidden md:hidden z-50">
+
+    <div class="flex items-center justify-between px-4 py-3 border-b">
+      <div class="flex items-center gap-2">
+        <img src="assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto">
+        <h2 class="font-bold text-slate-700">メニュー</h2>
+      </div>
+      <button class="p-2 rounded hover:bg-slate-100" data-drawer-close aria-label="Close menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="px-4 py-3 flex flex-col text-slate-700">
+      <a href="courses.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">コース</a>
+      <a href="schedule.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">スケジュール</a>
+      <a href="pricing.html"  class="menu-link px-3 py-2 rounded hover:bg-slate-100">料金</a>
+      <a href="access.html"   class="menu-link px-3 py-2 rounded hover:bg-slate-100">アクセス</a>
+      <a href="contact.html"  class="menu-link px-3 py-2 rounded hover:bg-slate-100">お問い合わせ</a>
+      <div class="h-px bg-slate-200 my-3"></div>
+      <a href="login.html" class="btn-outline w-full text-center">ログイン</a>
+      <a href="https://buy.stripe.com/your_payment_link" class="btn-primary w-full text-center mt-2">今すぐ申し込み</a>
+    </nav>
+
+    <div class="px-4 py-4 text-xs text-slate-500">
+      <p>© 2025 FMC 多国語会話教室</p>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="max-w-3xl mx-auto px-4 py-24 text-center" data-reveal>
+
+    <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-6">
+      お問い合わせありがとうございます！
+    </h1>
+
+    <p class="text-slate-600 text-sm md:text-base leading-relaxed mb-10">
+      フォームは正常に送信されました。<br/>
+      通常、<span class="font-semibold text-blue-600">24〜48時間以内</span>にご返信いたしますので、しばらくお待ちください。<br/>
+      If you need urgent assistance, feel free to email us directly at:<br/>
+      <a href="mailto:fmc.osaka@outlook.jp" class="text-blue-600 underline">fmc.osaka@outlook.jp</a>
+    </p>
+
+    <a href="index.html" class="btn-primary text-sm px-6 py-3">
+      トップページに戻る / Back to Home
+    </a>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-6 text-sm text-slate-600">
+      <div>
+        <div class="font-bold text-slate-900">FMC 多国語会話教室</div>
+        <p class="mt-2">〒556-0006 大阪市浪速区日本橋東3丁目3 大阪市営日東住宅1号館104</p>
+        <p>Mail: fmc.osaka@outlook.jp / TEL: 090-3651-5407</p>
+      </div>
+      <div class="md:text-right flex md:justify-end gap-4">
+        <a href="pricing.html" class="hover:underline">特定商取引法に基づく表記</a>
+        <a href="contact.html" class="hover:underline">プライバシーポリシー</a>
+        <a href="contact.html" class="hover:underline">利用規約</a>
+        <a href="pricing.html" class="hover:underline">返金ポリシー</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Drawer Script -->
+  <script>
+    (function () {
+      const drawer   = document.querySelector('[data-drawer]');
+      const backdrop = document.querySelector('[data-backdrop]');
+      const openBtn  = document.querySelector('[data-drawer-open]');
+      const closeBtn = document.querySelector('[data-drawer-close]');
+      if (!drawer || !backdrop || !openBtn) return;
+
+      const open = () => {
+        document.body.style.overflow = 'hidden';
+        drawer.classList.remove('drawer-hidden');
+        drawer.classList.add('drawer-visible');
+        backdrop.classList.remove('backdrop-hidden');
+        backdrop.classList.add('backdrop-visible');
+      };
+
+      const close = () => {
+        document.body.style.overflow = '';
+        drawer.classList.add('drawer-hidden');
+        drawer.classList.remove('drawer-visible');
+        backdrop.classList.add('backdrop-hidden');
+        backdrop.classList.remove('backdrop-visible');
+      };
+
+      openBtn.addEventListener('click', open, { capture: true });
+      backdrop.addEventListener('click', close, { capture: true });
+      if (closeBtn) closeBtn.addEventListener('click', close, { capture: true });
+      drawer.addEventListener('click', (e) => {
+        if (e.target.closest('a')) close();
+      }, { capture: true });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') close();
+      });
+
+      close();
+    })();
+  </script>
+
+</body>
+</html>

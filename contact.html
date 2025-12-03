@@ -39,7 +39,7 @@
       <!-- Desktop actions -->
       <div class="hidden md:flex items-center gap-2">
         <a href="login.html" class="text-sm px-3 py-2 rounded-lg btn-outline">ログイン</a>
-        <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 btn-primary">今すぐ申し込み</a>
+        <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 btn-primary">無料体験レッスン</a>
       </div>
 
       <!-- Mobile open button (right corner) -->
@@ -109,10 +109,186 @@
       </div>
     </div>
 
-    <div class="mt-10">
-      <h3 class="font-bold">プライバシーポリシー / 利用規約（ダミー）</h3>
-      <p class="text-sm text-slate-600 mt-2">個人情報は、各種連絡・予約管理の目的にのみ使用します。詳細は後日掲載予定です。</p>
-    </div>
+        <!-- Contact form -->
+    <section class="max-w-6xl mx-auto px-4 py-10">
+      <h2 class="text-2xl md:text-3xl">お問い合わせフォーム</h2>
+      <p class="text-sm text-slate-600 mt-3">
+        体験レッスン・言語交換・レッスン内容に関するお問い合わせは、こちらのフォームからお気軽にご連絡ください。
+      </p>
+
+      <!-- Mailto-based form (opens user’s mail app) -->
+      <form
+        class="card mt-6 space-y-4"
+        action="mailto:fmc.osaka@outlook.jp"
+        method="POST"
+        enctype="text/plain"
+      >
+        <!-- Basic info -->
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">
+              お名前 / Name <span class="text-red-500 text-xs">必須</span>
+            </label>
+            <input
+              type="text"
+              name="name"
+              required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="山田 太郎 / Monica"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1">
+              メールアドレス / Email <span class="text-red-500 text-xs">必須</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              required
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="you@example.com"
+            />
+          </div>
+        </div>
+
+        <!-- Inquiry type -->
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-1">
+              お問い合わせ種別 / Type of inquiry
+            </label>
+            <select
+              name="type"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <option value="trial">体験レッスン Trial lesson</option>
+              <option value="exchange">言語交換 Language exchange</option>
+              <option value="regular">通常レッスン Regular lesson</option>
+              <option value="other">その他 Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold mb-1">
+              学びたい言語 / Target language
+            </label>
+            <select
+              name="language"
+              class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <option value="">選択してください / Please select</option>
+              <option>スペイン語 / Spanish</option>
+              <option>英語 / English</option>
+              <option>日本語 / Japanese</option>
+              <option>その他 / Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Level -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">
+            レベル / Current level
+          </label>
+          <select
+            name="level"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="">選択してください / Please select</option>
+            <option>完全初心者 / Absolute beginner</option>
+            <option>初級 / Beginner</option>
+            <option>中級 / Intermediate</option>
+            <option>上級 / Advanced</option>
+          </select>
+        </div>
+
+        <!-- Calendar: preferred dates -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">
+            ご希望日程（体験レッスン / 言語交換）<br class="hidden md:block"/>
+            Preferred dates for trial lesson / language exchange
+          </label>
+          <p class="text-xs text-slate-500 mb-2">
+            第1希望・第2希望の日程を入力してください。<br/>
+            Please select your 1st and 2nd preferred dates.
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div class="border border-slate-200 rounded-lg p-3">
+              <div class="text-xs font-semibold text-slate-600 mb-1">
+                第1希望 / 1st choice
+              </div>
+              <div class="flex gap-2">
+                <input
+                  type="date"
+                  name="preferred_date_1"
+                  class="w-1/2 border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <input
+                  type="time"
+                  name="preferred_time_1"
+                  class="w-1/2 border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+            </div>
+
+            <div class="border border-slate-200 rounded-lg p-3">
+              <div class="text-xs font-semibold text-slate-600 mb-1">
+                第2希望 / 2nd choice
+              </div>
+              <div class="flex gap-2">
+                <input
+                  type="date"
+                  name="preferred_date_2"
+                  class="w-1/2 border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <input
+                  type="time"
+                  name="preferred_time_2"
+                  class="w-1/2 border border-slate-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message -->
+        <div>
+          <label class="block text-sm font-semibold mb-1">
+            お問い合わせ内容 / Message <span class="text-red-500 text-xs">必須</span>
+          </label>
+          <textarea
+            name="message"
+            required
+            rows="5"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="例：スペイン語の体験レッスンを希望しています。平日19:00以降だと参加しやすいです。..."
+          ></textarea>
+        </div>
+
+        <!-- Privacy + submit -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-2">
+          <label class="inline-flex items-start gap-2 text-xs text-slate-600">
+            <input type="checkbox" required class="mt-0.5">
+            <span>
+              個人情報の取り扱いに同意します。 / I agree to the use of my personal data
+              for contacting me about my inquiry.
+            </span>
+          </label>
+
+          <button type="submit" class="btn-primary text-sm px-6 py-2">
+            送信する / Send
+          </button>
+        </div>
+
+        <p class="text-[11px] text-slate-500 mt-2">
+          ※ 送信ボタンを押すと、ご利用のメールソフトが立ち上がり、入力内容が
+          <span class="font-semibold">fmc.osaka@outlook.jp</span> 宛てに送信されます。
+        </p>
+      </form>
+    </section>
+
   </section>
 
   <!-- Footer -->

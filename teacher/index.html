@@ -78,44 +78,56 @@
     </header>
 
     <!-- Submit availability -->
+       <!-- Submit availability via calendar -->
     <section class="card mb-8" data-reveal>
-      <h2 class="text-base font-bold mb-2">空き時間の送信</h2>
-      <p class="text-xs text-slate-500 mb-4">
-        管理者が確認し、「予約受付スケジュール」に反映します。
-      </p>
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+        <div>
+          <h2 class="text-base font-bold mb-1">空き時間の登録</h2>
+          <p class="text-xs text-slate-500">
+            カレンダーから参加できる時間帯にチェックしてください。（1日複数コマ選択可）
+          </p>
+        </div>
+        <div class="flex flex-col items-end gap-2 text-xs">
+          <label class="flex items-center gap-2">
+            <span class="text-slate-600">担当言語</span>
+            <select id="teacherLanguage" class="border rounded px-2 py-1 text-sm">
+              <option value="">選択してください</option>
+              <option value="Spanish">スペイン語</option>
+              <option value="English">英語</option>
+              <option value="Japanese">日本語</option>
+            </select>
+          </label>
+          <div class="flex items-center gap-2">
+            <button id="calPrev" type="button" class="btn-outline px-2 py-1">＜ 前月</button>
+            <span id="calLabel" class="font-semibold"></span>
+            <button id="calNext" type="button" class="btn-outline px-2 py-1">次月 ＞</button>
+          </div>
+        </div>
+      </div>
 
-      <form id="teacher-availability-form" class="grid gap-3 md:grid-cols-4 text-sm">
-        <div class="md:col-span-1">
-          <label class="block text-xs text-slate-600 mb-1">言語</label>
-          <select name="language" class="w-full border rounded px-2 py-2">
-            <option value="">選択してください</option>
-            <option value="Spanish">スペイン語</option>
-            <option value="English">英語</option>
-            <option value="Japanese">日本語</option>
-          </select>
-        </div>
-        <div class="md:col-span-1">
-          <label class="block text-xs text-slate-600 mb-1">日付</label>
-          <input type="date" name="date" class="w-full border rounded px-2 py-2">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-600 mb-1">開始時間</label>
-          <input type="time" name="start" class="w-full border rounded px-2 py-2">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-600 mb-1">終了時間</label>
-          <input type="time" name="end" class="w-full border rounded px-2 py-2">
-        </div>
-        <div class="md:col-span-4">
-          <label class="block text-xs text-slate-600 mb-1">メモ（任意）</label>
-          <textarea name="note" rows="2" class="w-full border rounded px-2 py-2"></textarea>
-        </div>
-        <div class="md:col-span-4 flex justify-end">
-          <button type="submit" class="btn-primary px-4 py-2 text-sm">空き時間を送信</button>
-        </div>
-      </form>
-      <p id="teacher-availability-status" class="text-xs text-slate-600 mt-2"></p>
+      <!-- Week header -->
+      <div class="grid grid-cols-7 gap-2 text-[11px] font-semibold text-center mb-1">
+        <div class="text-red-500">日</div>
+        <div>月</div>
+        <div>火</div>
+        <div>水</div>
+        <div>木</div>
+        <div>金</div>
+        <div class="text-blue-500">土</div>
+      </div>
+
+      <!-- Calendar grid -->
+      <div id="teacherCalendar" class="grid grid-cols-7 gap-2 text-[11px]">
+        <!-- teacher.js で埋める -->
+      </div>
+
+      <p class="mt-3 text-[11px] text-slate-500">
+        平日：1〜6コマ（9:00〜22:00） ／ 土日：2〜5コマのみ。
+        チェックを入れると「承認待ち」として管理者に送信されます。チェックを外すと申請が取り消されます。
+      </p>
+      <p id="teacher-availability-status" class="text-[11px] text-slate-500 mt-1"></p>
     </section>
+
 
     <!-- Own availability -->
     <section class="schedule-block mb-8" data-reveal>

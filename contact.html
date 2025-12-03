@@ -118,11 +118,18 @@
 
       <!-- Mailto-based form (opens user’s mail app) -->
       <form
-        class="card mt-6 space-y-4"
-        action="https://formspree.io/f/xldqnzrv"
+        name="fmc-contact"
         method="POST"
-        enctype="text/plain"
+        data-netlify="true"
+        data-netlify-honeypot="bot-field"
+        class="card mt-6 space-y-4"
       >
+        <!-- Netlify hidden fields -->
+        <input type="hidden" name="form-name" value="fmc-contact" />
+        <p class="hidden">
+          <label>Don’t fill this out: <input name="bot-field" /></label>
+        </p>
+
         <!-- Basic info -->
         <div class="grid md:grid-cols-2 gap-4">
           <div>
@@ -206,11 +213,11 @@
         <!-- Calendar: preferred dates -->
         <div>
           <label class="block text-sm font-semibold mb-1">
-            ご希望日程（体験レッスン / 言語交換）<br class="hidden md:block"/>
+            ご希望日程（体験レッスン / 言語交換）<br class="hidden md:block" />
             Preferred dates for trial lesson / language exchange
           </label>
           <p class="text-xs text-slate-500 mb-2">
-            第1希望・第2希望の日程を入力してください。<br/>
+            第1希望・第2希望の日程を入力してください。<br />
             Please select your 1st and 2nd preferred dates.
           </p>
 
@@ -270,7 +277,7 @@
         <!-- Privacy + submit -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pt-2">
           <label class="inline-flex items-start gap-2 text-xs text-slate-600">
-            <input type="checkbox" required class="mt-0.5">
+            <input type="checkbox" required class="mt-0.5" />
             <span>
               個人情報の取り扱いに同意します。 / I agree to the use of my personal data
               for contacting me about my inquiry.
@@ -281,11 +288,6 @@
             送信する / Send
           </button>
         </div>
-
-        <p class="text-[11px] text-slate-500 mt-2">
-          ※ 送信ボタンを押すと、ご利用のメールソフトが立ち上がり、入力内容が
-          <span class="font-semibold">fmc.osaka@outlook.jp</span> 宛てに送信されます。
-        </p>
       </form>
     </section>
 

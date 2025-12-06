@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>新規登録 | FMC 多国語会話教室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/styles.css?v=7">
+  <style>
+    .drawer-hidden{transform:translateX(100%)} .drawer-visible{transform:translateX(0%)}
+    .backdrop-hidden{opacity:0;pointer-events:none} .backdrop-visible{opacity:1;pointer-events:auto}
+  </style>
+</head>
+<body class="bg-white text-slate-800">
+
+  <!-- Header (same as login) -->
+  <header class="sticky top-0 z-40 fmc-header">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 font-extrabold text-lg">
+        <span class="fmc-brand-dot">FMC</span>
+        <span class="text-white">多国語会話教室</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-6 text-sm text-white">
+        <a href="courses.html">コース</a>
+        <a href="schedule.html">スケジュール</a>
+        <a href="pricing.html">料金</a>
+        <a href="access.html">アクセス</a>
+        <a href="contact.html">お問い合わせ</a>
+      </nav>
+
+      <div class="hidden md:flex items-center gap-2">
+       <a href="login.html" class="text-sm px-3 py-2 rounded-lg btn-outline">ログイン</a>
+        <a href="register.html" class="text-sm px-3 py-2 rounded-lg btn-outline">無料登録</a>
+        <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 btn-primary">今すぐ申し込み</a>
+      </div>
+
+      <button
+        class="md:hidden inline-flex items-center justify-center p-2 rounded text-white/90 hover:text-white"
+        aria-label="Open menu" aria-controls="mobile-drawer" aria-expanded="false"
+        data-drawer-open>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden z-40" data-backdrop aria-hidden="true"></div>
+
+  <!-- Drawer -->
+  <aside id="mobile-drawer"
+         class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 transform transition-transform duration-200 drawer-hidden md:hidden z-50"
+         role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
+         data-drawer>
+    <div class="flex items-center justify-between px-4 py-3 border-b">
+      <div class="flex items-center gap-2">
+        <img src="assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto">
+        <h2 id="mobile-drawer-title" class="font-bold">メニュー</h2>
+      </div>
+      <button type="button" class="p-2 rounded hover:bg-slate-100" aria-label="Close menu" data-drawer-close>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <nav class="px-4 py-3 flex flex-col text-slate-700">
+      <a href="courses.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">コース</a>
+      <a href="schedule.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">スケジュール</a>
+      <a href="pricing.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">料金</a>
+      <a href="access.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">アクセス</a>
+      <a href="contact.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">お問い合わせ</a>
+      <div class="h-px bg-slate-200 my-3"></div>
+    <a href="login.html" class="btn-outline w-full text-center">ログイン</a>
+      <a href="register.html" class="btn-outline w-full text-center mt-2">無料登録</a>
+      <a href="https://buy.stripe.com/your_payment_link" class="btn-primary w-full text-center mt-2">今すぐ申し込み</a>
+    </nav>
+    <div class="px-4 py-4 text-xs text-slate-500">
+      <p>© FMC 多国語会話教室</p>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto px-4 py-10">
+    <div class="max-w-md mx-auto">
+      <h1 class="font-extrabold text-2xl">新規登録（無料）</h1>
+      <p class="text-sm text-slate-600 mt-1">
+        言語交換・体験レッスン・イベントのご予約には、無料会員登録が必要です。
+      </p>
+
+      <form id="registerForm" class="mt-6 space-y-4">
+        <!-- Name -->
+        <div>
+          <label for="fullName" class="block text-sm text-slate-600">お名前 / Full name</label>
+          <input id="fullName" type="text" required
+                 class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+                 placeholder="山田 太郎 / Monica" />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-sm text-slate-600">メールアドレス / Email</label>
+          <input id="email" type="email" autocomplete="email" required
+                 class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+                 placeholder="you@example.com" />
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label for="password" class="block text-sm text-slate-600">パスワード / Password</label>
+          <input id="password" type="password" autocomplete="new-password" required
+                 class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+                 placeholder="8文字以上" />
+        </div>
+
+        <!-- Preferred language -->
+        <div>
+          <label for="language" class="block text-sm text-slate-600">学びたい言語 / Target language</label>
+          <select id="language"
+                  class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+            <option value="">選択してください</option>
+            <option value="Spanish">スペイン語 / Spanish</option>
+            <option value="English">英語 / English</option>
+            <option value="Japanese">日本語 / Japanese</option>
+            <option value="Other">その他 / Other</option>
+          </select>
+        </div>
+
+        <!-- Level -->
+        <div>
+          <label for="level" class="block text-sm text-slate-600">レベル / Level</label>
+          <select id="level"
+                  class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+            <option value="">選択してください</option>
+            <option value="Beginner">初心者 / Beginner</option>
+            <option value="Intermediate">中級 / Intermediate</option>
+            <option value="Advanced">上級 / Advanced</option>
+          </select>
+        </div>
+
+        <!-- Notes -->
+        <div>
+          <label for="notes" class="block text-sm text-slate-600">ご希望・メモ（任意） / Notes</label>
+          <textarea id="notes" rows="3"
+                    class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+                    placeholder="例：スペイン語の交流会に参加したい、平日19時以降が希望 など"></textarea>
+        </div>
+
+        <!-- Submit -->
+        <button id="registerBtn"
+                class="mt-4 w-full btn-primary py-3 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed">
+          登録する / Register
+        </button>
+
+        <p id="registerStatus" class="text-sm mt-3 text-slate-600"></p>
+
+        <p class="text-xs text-slate-500 mt-4">
+          すでにアカウントをお持ちの方は <a href="login.html" class="underline">こちらからログイン</a> してください。
+        </p>
+      </form>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-6 text-sm text-slate-600">
+      <div>
+        <div class="font-bold text-slate-900">FMC 多国語会話教室</div>
+        <p class="mt-2">〒556-0006 大阪市浪速区日本橋東3丁目3 大阪市営日東住宅1号館104</p>
+        <p>Mail: fmc.osaka@outlook.jp / TEL: 090-3651-5407</p>
+      </div>
+      <div class="md:text-right flex md:justify-end gap-4">
+        <a href="pricing.html" class="hover:underline">特定商取引法に基づく表記</a>
+        <a href="contact.html" class="hover:underline">プライバシーポリシー</a>
+        <a href="contact.html" class="hover:underline">利用規約</a>
+        <a href="pricing.html" class="hover:underline">返金ポリシー</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Supabase + registration script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/register.js" defer></script>
+</body>
+</html>

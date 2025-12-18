@@ -1,5 +1,3 @@
-// assets/register.js
-
 // 1) Initialize Supabase
 // 👉 Use the SAME values you already use in login.js
 const SUPABASE_URL = 'https://dsbvgomhugvjruqykbmr.supabase.co';

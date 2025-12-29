@@ -1,14 +1,8 @@
-// 1) Initialize Supabase
-// 👉 Use the SAME values you already use in login.js
 const SUPABASE_URL = 'https://dsbvgomhugvjruqykbmr.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYnZnb21odWd2anJ1cXlrYm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NzIwNzksImV4cCI6MjA3ODQ0ODA3OX0.FHX45XbBfpeNtnnCLc9wvoyxOM6w2vIIjOcIZWfb-_I';
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 2) Registration flow:
-// - signUp in auth.users
-// - insert into user_profiles (role = 'student')
-// - insert into students (using user_profile_id)
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('registerForm');
   const btn = document.getElementById('registerBtn');
@@ -21,12 +15,33 @@ document.addEventListener('DOMContentLoaded', () => {
     statusEl.textContent = '';
     btn.disabled = true;
 
-    const fullName = document.getElementById('fullName').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const language = document.getElementById('language').value || null;
-    const level = document.getElementById('level').value || null;
-    const notes = document.getElementById('notes').value.trim() || null;
+    const fullName = document.getElementById('fullName')?.value.trim();
+    const email = document.getElementById('email')?.value.trim();
+    const password = document.getElementById('password')?.value;
+
+    const language = document.getElementById('language')?.value || null;
+    const level = document.getElementById('level')?.value || null;
+    const notes = document.getElementById('notes')?.value.trim() || null;
+
+    // Extra fields (from your paper form)
+    const romajiName = document.getElementById('romajiName')?.value.trim() || null;
+    const age = Number(document.getElementById('age')?.value) || null;
+    const gender = document.getElementById('gender')?.value || null;
+    const birthday = document.getElementById('birthday')?.value || null;
+    const phone = document.getElementById('phone')?.value.trim() || null;
+    const address = document.getElementById('address')?.value.trim() || null;
+
+    const course = document.getElementById('course')?.value.trim() || null;
+    const classType = document.getElementById('classType')?.value || null;
+    const lessonLength = Number(document.getElementById('lessonLength')?.value) || null;
+    const term = document.getElementById('term')?.value || null;
+
+    const days = Array.from(document.querySelectorAll('.dayChk:checked')).map(x => x.value);
+
+    const goal = document.getElementById('goal')?.value.trim() || null;
+    const textbook = document.getElementById('textbook')?.value.trim() || null;
+    const payment = document.getElementById('payment')?.value || null;
+    const joinEvents = document.getElementById('joinEvents')?.value || null;
 
     if (!fullName || !email || !password) {
       statusEl.textContent = '必須項目を入力してください。';
@@ -35,83 +50,80 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      // 1) Create auth user
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      statusEl.textContent = '登録中...';
+
+      // 1) Create auth user ✅ (use supabaseClient)
+      const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            full_name: fullName,
-          },
+          data: { full_name: fullName },
         },
       });
 
-      if (signUpError) {
-        console.error('signUpError', signUpError);
-        statusEl.textContent = '登録に失敗しました：' + signUpError.message;
-        btn.disabled = false;
-        return;
-      }
+      if (signUpError) throw signUpError;
 
       const user = signUpData.user;
-      if (!user) {
-        statusEl.textContent = '登録に失敗しました。もう一度お試しください。';
-        btn.disabled = false;
-        return;
-      }
+      if (!user) throw new Error('User creation failed.');
 
-      // 2) Insert into user_profiles (role = student)
-      const { data: profileData, error: profileError } = await supabase
+      // 2) Insert into user_profiles ✅
+      const { data: profileData, error: profileError } = await supabaseClient
         .from('user_profiles')
         .insert({
           user_id: user.id,
           role: 'student',
-          login_id: email,       // you can change this to something else later
+          login_id: email,
           display_name: fullName,
         })
         .select('id')
         .single();
 
-      if (profileError) {
-        console.error('profileError', profileError);
-        statusEl.textContent =
-          'プロフィール作成に失敗しました。運営までお問い合わせください。';
-        btn.disabled = false;
-        return;
-      }
+      if (profileError) throw profileError;
 
       const userProfileId = profileData.id;
 
-      // 3) Insert into students (link via user_profile_id)
-      const { error: studentError } = await supabase.from('students').insert({
+      // 3) Insert into students ✅
+      // Store all the extra “paper-form” data as JSON for now
+      const applicationJson = {
+        romaji_name: romajiName,
+        age,
+        gender,
+        birthday,
+        phone,
+        address,
+        course,
+        class_type: classType,
+        lesson_length_min: lessonLength,
+        term,
+        preferred_days: days,
+        goal,
+        textbook,
+        payment_method: payment,
+        join_events: joinEvents,
+      };
+
+      const { error: studentError } = await supabaseClient.from('students').insert({
         user_profile_id: userProfileId,
-        name: fullName,           // existing column
-        full_name: fullName,      // new detailed name column
+        name: fullName,
+        full_name: fullName,
         preferred_language: language,
         level: level,
         notes: notes,
-        // birthday is optional; can be added later if you put it in the form
+        application_json: applicationJson, // 👈 you need this column
       });
 
-      if (studentError) {
-        console.error('studentError', studentError);
-        statusEl.textContent =
-          '生徒情報の保存に失敗しました。運営までお問い合わせください。';
-        btn.disabled = false;
-        return;
-      }
+      if (studentError) throw studentError;
 
-      // Everything OK
-      statusEl.textContent =
-        '登録が完了しました！確認メールをご確認のうえ、ログインしてください。';
+      statusEl.textContent = '登録が完了しました！確認メールをご確認のうえ、ログインしてください。';
 
-      // Optional: redirect to login after a short delay
       setTimeout(() => {
         window.location.href = 'login.html';
       }, 2000);
     } catch (err) {
       console.error(err);
-      statusEl.textContent = 'エラーが発生しました。時間をおいて再度お試しください。';
+      statusEl.textContent = 'エラー: ' + (err?.message ?? '不明なエラー');
+      btn.disabled = false;
+    } finally {
       btn.disabled = false;
     }
   });

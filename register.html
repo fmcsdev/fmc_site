@@ -82,82 +82,301 @@
 
   <!-- Main -->
   <main class="max-w-6xl mx-auto px-4 py-10">
-    <div class="max-w-md mx-auto">
+    <div class="max-w-5xl mx-auto">
       <h1 class="font-extrabold text-2xl">新規登録（無料）</h1>
       <p class="text-sm text-slate-600 mt-1">
         言語交換・体験レッスン・イベントのご予約には、無料会員登録が必要です。
       </p>
 
-      <form id="registerForm" class="mt-6 space-y-4">
-        <!-- Name -->
-        <div>
-          <label for="fullName" class="block text-sm text-slate-600">お名前 / Full name</label>
-          <input id="fullName" type="text" required
-                 class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
-                 placeholder="山田 太郎 / Monica" />
-        </div>
+     <form id="registerForm" class="mt-6 space-y-6">
+  <!-- ====== Basic Info (like top lines in the sheet) ====== -->
+  <section class="space-y-4">
+    <h2 class="text-sm font-bold text-slate-700 border-b pb-2">基本情報 / Basic Info</h2>
 
-        <!-- Email -->
-        <div>
-          <label for="email" class="block text-sm text-slate-600">メールアドレス / Email</label>
-          <input id="email" type="email" autocomplete="email" required
-                 class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
-                 placeholder="you@example.com" />
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="romajiName" class="block text-sm text-slate-600">ローマ字氏名 / Romaji name</label>
+        <input id="romajiName" type="text"
+               class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+               placeholder="YAMADA TARO" />
+      </div>
 
-        <!-- Password -->
-        <div>
-          <label for="password" class="block text-sm text-slate-600">パスワード / Password</label>
-          <input id="password" type="password" autocomplete="new-password" required
-                 class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
-                 placeholder="8文字以上" />
-        </div>
+      <div>
+        <label for="fullName" class="block text-sm text-slate-600">氏名 / Full name</label>
+        <input id="fullName" type="text" required
+               class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+               placeholder="山田 太郎" />
+      </div>
+    </div>
 
-        <!-- Preferred language -->
-        <div>
-          <label for="language" class="block text-sm text-slate-600">学びたい言語 / Target language</label>
-          <select id="language"
-                  class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
-            <option value="">選択してください</option>
-            <option value="Spanish">スペイン語 / Spanish</option>
-            <option value="English">英語 / English</option>
-            <option value="Japanese">日本語 / Japanese</option>
-            <option value="Other">その他 / Other</option>
-          </select>
-        </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label for="age" class="block text-sm text-slate-600">年齢 / Age</label>
+        <input id="age" type="number" min="1"
+               class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+               placeholder="23" />
+      </div>
 
-        <!-- Level -->
-        <div>
-          <label for="level" class="block text-sm text-slate-600">レベル / Level</label>
-          <select id="level"
-                  class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
-            <option value="">選択してください</option>
-            <option value="Beginner">初心者 / Beginner</option>
-            <option value="Intermediate">中級 / Intermediate</option>
-            <option value="Advanced">上級 / Advanced</option>
-          </select>
-        </div>
+      <div>
+        <label for="gender" class="block text-sm text-slate-600">性別 / Gender</label>
+        <select id="gender"
+                class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+          <option value="">選択してください</option>
+          <option value="Female">女性</option>
+          <option value="Male">男性</option>
+          <option value="Other">その他</option>
+          <option value="PreferNot">回答しない</option>
+        </select>
+      </div>
 
-        <!-- Notes -->
-        <div>
-          <label for="notes" class="block text-sm text-slate-600">ご希望・メモ（任意） / Notes</label>
-          <textarea id="notes" rows="3"
-                    class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
-                    placeholder="例：スペイン語の交流会に参加したい、平日19時以降が希望 など"></textarea>
-        </div>
+      <div>
+        <label for="birthday" class="block text-sm text-slate-600">生年月日 / Birthday</label>
+        <input id="birthday" type="date"
+               class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200" />
+      </div>
+    </div>
 
-        <!-- Submit -->
-        <button id="registerBtn"
-                class="mt-4 w-full btn-primary py-3 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed">
-          登録する / Register
-        </button>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="phone" class="block text-sm text-slate-600">電話 / Phone</label>
+        <input id="phone" type="tel" autocomplete="tel"
+               class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+               placeholder="090-xxxx-xxxx" />
+      </div>
+      <div>
+        <label for="address" class="block text-sm text-slate-600">現住所 / Address</label>
+        <input id="address" type="text" autocomplete="street-address"
+               class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+               placeholder="大阪市..." />
+      </div>
+    </div>
+  </section>
 
-        <p id="registerStatus" class="text-sm mt-3 text-slate-600"></p>
+  <!-- ====== Account Info (email/password line on sheet) ====== -->
+  <section class="space-y-4">
+    <h2 class="text-sm font-bold text-slate-700 border-b pb-2">アカウント / Account</h2>
 
-        <p class="text-xs text-slate-500 mt-4">
-          すでにアカウントをお持ちの方は <a href="login.html" class="underline">こちらからログイン</a> してください。
-        </p>
-      </form>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="email" class="block text-sm text-slate-600">メールアドレス / Email</label>
+        <input id="email" type="email" autocomplete="email" required
+               class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+               placeholder="you@example.com" />
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm text-slate-600">パスワード / Password</label>
+        <input id="password" type="password" autocomplete="new-password" required
+               class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+               placeholder="8文字以上" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Course / Class (コース・クラス) ====== -->
+  <section class="space-y-4">
+    <h2 class="text-sm font-bold text-slate-700 border-b pb-2">コース情報 / Course</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+  <label for="course" class="block text-sm text-slate-600">コース / Course</label>
+  <select id="course"
+          class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+    <option value="">選択してください</option>
+
+    <optgroup label="語学 / Languages">
+      <option value="Chinese Course">中国語コース（Chinese Course）</option>
+      <option value="English Course">英語（English Course）</option>
+      <option value="Japanese Course">日本語コース（Japanese Course）</option>
+      <option value="French Course">フランス語コース（French Course）</option>
+      <option value="Spanish Course">スペイン語講座（Spanish Course）</option>
+      <option value="Danish Course">デンマーク語コース（Danish Course）</option>
+      <option value="Mongolian Course">モンゴル語（Mongolian Course）</option>
+      <option value="Arabic Course">アラビア語コース（اللغة العربية）</option>
+    </optgroup>
+
+    <optgroup label="文化・その他 / Culture & Other">
+      <option value="Ukulele Course">ウクレレコース（Ukulele Course）</option>
+      <option value="Painting Course">絵画コース（Painting Course）</option>
+      <option value="Calligraphy">習字・書道（Calligraphy）</option>
+      <option value="Programming Class">プログラミングクラス（Programming Class）</option>
+    </optgroup>
+
+    <optgroup label="イベント / Events">
+      <option value="Language Exchange Meetings">交流会（Language Exchange Meetings）</option>
+      <option value="Trial French/English">フランス語・英語体験講座</option>
+      <option value="Trial Japanese">日本語体験講座</option>
+    </optgroup>
+  </select>
+</div>
+
+
+      <div>
+        <label for="classType" class="block text-sm text-slate-600">クラス / Class</label>
+        <select id="classType"
+                class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+          <option value="">選択してください</option>
+          <option value="Private">マンツーマン（1対1）</option>
+          <option value="Group">グループ（2〜6）</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Your original target language + level (still useful) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="language" class="block text-sm text-slate-600">学びたい言語 / Target language</label>
+        <select id="language"
+                class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+          <option value="">選択してください</option>
+          <option value="Spanish">スペイン語 / Spanish</option>
+          <option value="English">英語 / English</option>
+          <option value="Japanese">日本語 / Japanese</option>
+          <option value="Other">その他 / Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="level" class="block text-sm text-slate-600">希望レベル / Level</label>
+        <select id="level"
+                class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+          <option value="">選択してください</option>
+          <option value="Beginner">初心者 / Beginner</option>
+          <option value="Intermediate">中級 / Intermediate</option>
+          <option value="Advanced">上級 / Advanced</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Lesson plan (45/90/180 + term + koma) ====== -->
+  <section class="space-y-4">
+    <h2 class="text-sm font-bold text-slate-700 border-b pb-2">受講希望 / Lesson Plan</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label for="lessonLength" class="block text-sm text-slate-600">時間 / Lesson length</label>
+        <select id="lessonLength"
+                class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+          <option value="">選択してください</option>
+          <option value="45">45分</option>
+          <option value="90">90分</option>
+          <option value="180">180分（3時間）</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="term" class="block text-sm text-slate-600">期間 / Term</label>
+        <select id="term"
+                class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+          <option value="">選択してください</option>
+          <option value="3m">3ヶ月</option>
+          <option value="6m">半年</option>
+          <option value="1y">1年</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="koma" class="block text-sm text-slate-600">コマ数 / Number of lessons</label>
+        <input id="koma" type="number" min="1"
+               class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+               placeholder="例：4" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== Preferred days (like schedule area) ====== -->
+  <section class="space-y-4">
+    <h2 class="text-sm font-bold text-slate-700 border-b pb-2">希望曜日 / Availability</h2>
+
+    <div class="grid grid-cols-4 md:grid-cols-8 gap-2 text-sm">
+      <label class="flex items-center gap-2"><input type="checkbox" value="Mon" class="dayChk">月</label>
+      <label class="flex items-center gap-2"><input type="checkbox" value="Tue" class="dayChk">火</label>
+      <label class="flex items-center gap-2"><input type="checkbox" value="Wed" class="dayChk">水</label>
+      <label class="flex items-center gap-2"><input type="checkbox" value="Thu" class="dayChk">木</label>
+      <label class="flex items-center gap-2"><input type="checkbox" value="Fri" class="dayChk">金</label>
+      <label class="flex items-center gap-2"><input type="checkbox" value="Sat" class="dayChk">土</label>
+      <label class="flex items-center gap-2"><input type="checkbox" value="Sun" class="dayChk">日</label>
+      <label class="flex items-center gap-2"><input type="checkbox" value="Holiday" class="dayChk">祝</label>
+    </div>
+
+    <div>
+      <label for="preferredTime" class="block text-sm text-slate-600">希望時間帯 / Preferred time (optional)</label>
+      <input id="preferredTime" type="text"
+             class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+             placeholder="例：平日19時以降、土曜の午後など" />
+    </div>
+  </section>
+
+  <!-- ====== Learning details (bottom free text lines) ====== -->
+  <section class="space-y-4">
+    <h2 class="text-sm font-bold text-slate-700 border-b pb-2">学習内容 / Learning</h2>
+
+    <div>
+      <label for="goal" class="block text-sm text-slate-600">学ぶ目的 / Goal</label>
+      <input id="goal" type="text"
+             class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+             placeholder="旅行、日常会話、ビジネス、試験対策..." />
+    </div>
+
+    <div>
+      <label for="textbook" class="block text-sm text-slate-600">希望テキスト / Textbook（任意）</label>
+      <input id="textbook" type="text"
+             class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+             placeholder="例：持っているテキスト名、先生おすすめが良い など" />
+    </div>
+
+    <div>
+      <label for="notes" class="block text-sm text-slate-600">ご希望・メモ（任意） / Notes</label>
+      <textarea id="notes" rows="3"
+                class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200"
+                placeholder="例：スピーキング中心で、宿題は少なめが良い など"></textarea>
+    </div>
+  </section>
+
+  <!-- ====== Payment / Events (questionnaire-ish bottom) ====== -->
+  <section class="space-y-4">
+    <h2 class="text-sm font-bold text-slate-700 border-b pb-2">その他 / Other</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label for="payment" class="block text-sm text-slate-600">支払い方法 / Payment</label>
+        <select id="payment"
+                class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+          <option value="">選択してください</option>
+          <option value="Cash">現金</option>
+          <option value="Bank">銀行振込</option>
+          <option value="Card">カード</option>
+          <option value="Other">その他</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="joinEvents" class="block text-sm text-slate-600">イベント参加 / Events</label>
+        <select id="joinEvents"
+                class="mt-1 w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-200">
+          <option value="">選択してください</option>
+          <option value="Yes">参加したい</option>
+          <option value="No">参加しない</option>
+          <option value="Maybe">どちらでも</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Submit -->
+  <button id="registerBtn" type="submit"
+          class="mt-4 w-full btn-primary py-3 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed">
+    登録する / Register
+  </button>
+
+  <p id="registerStatus" class="text-sm mt-3 text-slate-600"></p>
+
+  <p class="text-xs text-slate-500 mt-4">
+    すでにアカウントをお持ちの方は <a href="login.html" class="underline">こちらからログイン</a> してください。
+  </p>
+</form>
+
     </div>
   </main>
 

@@ -93,9 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const user = signUpData.user;
       if (!user) throw new Error('User creation failed (no user returned).');
 
-      // 2) Insert into user_profiles
-      const userProfileId = profileData.id;
-
       // (Optional) Keep a complete backup JSON too
       const applicationJson = {
         full_name: fullName,

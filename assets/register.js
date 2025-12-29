@@ -94,8 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!user) throw new Error('User creation failed (no user returned).');
 
       // 2) Insert into user_profiles
-      if (profileError) throw profileError;
-
       const userProfileId = profileData.id;
 
       // (Optional) Keep a complete backup JSON too

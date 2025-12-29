@@ -92,61 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const user = signUpData.user;
       if (!user) throw new Error('User creation failed (no user returned).');
-
-      // (Optional) Keep a complete backup JSON too
-      const applicationJson = {
-        full_name: fullName,
-        romaji_name: romajiName,
-        age: safeAge,
-        gender,
-        birthday,
-        phone,
-        address,
-        course,
-        class_type: classType,
-        lesson_length_min: safeLessonLength,
-        term,
-        preferred_days: preferredDays,
-        preferred_language: language,
-        level,
-        goal,
-        textbook,
-        payment_method: paymentMethod,
-        join_events: joinEvents,
-        notes,
-      };
-
-      // 3) Insert into students (YOUR column names)
-      const { error: studentError } = await supabaseClient.from('students').insert({
-        user_profile_id: userProfileId,
-        name: fullName,
-        full_name: fullName,
-
-        birthday: birthday,              // date
-        preferred_language: language,
-        level: level,
-        notes: notes,
-
-        application_json: applicationJson, // jsonb backup (optional)
-
-        romaji_name: romajiName,
-        age: safeAge,
-        gender: gender,
-        phone: phone,
-        address: address,
-        course: course,
-        class_type: classType,
-        lesson_length_min: safeLessonLength,
-        term: term,
-        preferred_days: preferredDays,    // jsonb
-        goal: goal,
-        textbook: textbook,
-        payment_method: paymentMethod,
-        join_events: joinEvents,
-      });
-
-      if (studentError) throw studentError;
-
       setStatus('登録が完了しました！確認メールをご確認のうえ、ログインしてください。');
 
       setTimeout(() => {

@@ -1,5 +1,8 @@
+// assets/register.js
+
+// 1) Initialize Supabase
 const SUPABASE_URL = 'https://dsbvgomhugvjruqykbmr.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYnZnb21odWd2anJ1cXlrYm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NzIwNzksImV4cCI6MjA3ODQ0ODA3OX0.FHX45XbBfpeNtnnCLc9wvoyxOM6w2vIIjOcIZWfb-_I';
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -10,49 +13,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!form) return;
 
+  const setStatus = (msg) => {
+    if (statusEl) statusEl.textContent = msg || '';
+  };
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    statusEl.textContent = '';
-    btn.disabled = true;
+    setStatus('');
+    if (btn) btn.disabled = true;
 
+    // --- Required fields ---
     const fullName = document.getElementById('fullName')?.value.trim();
     const email = document.getElementById('email')?.value.trim();
     const password = document.getElementById('password')?.value;
 
+    // --- Optional fields from your form ---
     const language = document.getElementById('language')?.value || null;
     const level = document.getElementById('level')?.value || null;
     const notes = document.getElementById('notes')?.value.trim() || null;
 
-    // Extra fields (from your paper form)
+    // Paper-form fields
     const romajiName = document.getElementById('romajiName')?.value.trim() || null;
-    const age = Number(document.getElementById('age')?.value) || null;
+    const ageRaw = document.getElementById('age')?.value;
+    const age = ageRaw ? Number(ageRaw) : null;
+
     const gender = document.getElementById('gender')?.value || null;
+
+    // students.birthday is DATE. Keep as 'YYYY-MM-DD' or null.
     const birthday = document.getElementById('birthday')?.value || null;
+
     const phone = document.getElementById('phone')?.value.trim() || null;
     const address = document.getElementById('address')?.value.trim() || null;
 
-    const course = document.getElementById('course')?.value.trim() || null;
+    // Course fields
+    const course = document.getElementById('course')?.value || null; // select value
     const classType = document.getElementById('classType')?.value || null;
-    const lessonLength = Number(document.getElementById('lessonLength')?.value) || null;
+    const lessonLengthRaw = document.getElementById('lessonLength')?.value;
+    const lessonLengthMin = lessonLengthRaw ? Number(lessonLengthRaw) : null;
     const term = document.getElementById('term')?.value || null;
 
-    const days = Array.from(document.querySelectorAll('.dayChk:checked')).map(x => x.value);
+    // Availability
+    const preferredDays = Array.from(document.querySelectorAll('.dayChk:checked')).map(
+      (x) => x.value
+    );
 
+    // Learning
     const goal = document.getElementById('goal')?.value.trim() || null;
     const textbook = document.getElementById('textbook')?.value.trim() || null;
-    const payment = document.getElementById('payment')?.value || null;
+
+    // Other
+    const paymentMethod = document.getElementById('payment')?.value || null;
     const joinEvents = document.getElementById('joinEvents')?.value || null;
 
+    // Basic validation
     if (!fullName || !email || !password) {
-      statusEl.textContent = '必須項目を入力してください。';
-      btn.disabled = false;
+      setStatus('必須項目を入力してください。');
+      if (btn) btn.disabled = false;
       return;
     }
 
-    try {
-      statusEl.textContent = '登録中...';
+    // Prevent NaN from being inserted
+    const safeAge = Number.isFinite(age) ? age : null;
+    const safeLessonLength = Number.isFinite(lessonLengthMin) ? lessonLengthMin : null;
 
-      // 1) Create auth user ✅ (use supabaseClient)
+    try {
+      setStatus('登録中...');
+
+      // 1) Create auth user
       const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
         email,
         password,
@@ -64,9 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (signUpError) throw signUpError;
 
       const user = signUpData.user;
-      if (!user) throw new Error('User creation failed.');
+      if (!user) throw new Error('User creation failed (no user returned).');
 
-      // 2) Insert into user_profiles ✅
+      // 2) Insert into user_profiles
       const { data: profileData, error: profileError } = await supabaseClient
         .from('user_profiles')
         .insert({
@@ -82,49 +109,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const userProfileId = profileData.id;
 
-      // 3) Insert into students ✅
-      // Store all the extra “paper-form” data as JSON for now
+      // (Optional) Keep a complete backup JSON too
       const applicationJson = {
+        full_name: fullName,
         romaji_name: romajiName,
-        age,
+        age: safeAge,
         gender,
         birthday,
         phone,
         address,
         course,
         class_type: classType,
-        lesson_length_min: lessonLength,
+        lesson_length_min: safeLessonLength,
         term,
-        preferred_days: days,
+        preferred_days: preferredDays,
+        preferred_language: language,
+        level,
         goal,
         textbook,
-        payment_method: payment,
+        payment_method: paymentMethod,
         join_events: joinEvents,
+        notes,
       };
 
+      // 3) Insert into students (YOUR column names)
       const { error: studentError } = await supabaseClient.from('students').insert({
         user_profile_id: userProfileId,
         name: fullName,
         full_name: fullName,
+
+        birthday: birthday,              // date
         preferred_language: language,
         level: level,
         notes: notes,
-        application_json: applicationJson, // 👈 you need this column
+
+        application_json: applicationJson, // jsonb backup (optional)
+
+        romaji_name: romajiName,
+        age: safeAge,
+        gender: gender,
+        phone: phone,
+        address: address,
+        course: course,
+        class_type: classType,
+        lesson_length_min: safeLessonLength,
+        term: term,
+        preferred_days: preferredDays,    // jsonb
+        goal: goal,
+        textbook: textbook,
+        payment_method: paymentMethod,
+        join_events: joinEvents,
       });
 
       if (studentError) throw studentError;
 
-      statusEl.textContent = '登録が完了しました！確認メールをご確認のうえ、ログインしてください。';
+      setStatus('登録が完了しました！確認メールをご確認のうえ、ログインしてください。');
 
       setTimeout(() => {
         window.location.href = 'login.html';
       }, 2000);
     } catch (err) {
-      console.error(err);
-      statusEl.textContent = 'エラー: ' + (err?.message ?? '不明なエラー');
-      btn.disabled = false;
+      console.error('Register error:', err);
+      setStatus('エラー: ' + (err?.message || '不明なエラー'));
     } finally {
-      btn.disabled = false;
+      if (btn) btn.disabled = false;
     }
   });
 });

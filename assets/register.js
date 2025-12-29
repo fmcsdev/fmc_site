@@ -94,17 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!user) throw new Error('User creation failed (no user returned).');
 
       // 2) Insert into user_profiles
-      const { data: profileData, error: profileError } = await supabaseClient
-        .from('user_profiles')
-        .insert({
-          user_id: user.id,
-          role: 'student',
-          login_id: email,
-          display_name: fullName,
-        })
-        .select('id')
-        .single();
-
       if (profileError) throw profileError;
 
       const userProfileId = profileData.id;

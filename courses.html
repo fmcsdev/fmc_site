@@ -4,20 +4,79 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FMC 多国語会話教室 | コース</title>
-  <meta name="description" content="各国のネイティブ講師による多言語コース。初級〜上級、試験対策も対応。">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta name="description" content="各国のネイティブ講師による多言語・文化コース。初級〜上級、試験対策も対応。">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/styles.css?v=8">
 
-  <!-- Drawer specificity fix -->
+  <!-- Drawer specificity fix (keep even if also in styles.css) -->
   <style>
     [data-drawer].drawer-hidden  { transform: translateX(100%) !important; }
     [data-drawer].drawer-visible { transform: translateX(0%) !important; }
     [data-backdrop].backdrop-hidden  { opacity: 0 !important; pointer-events: none !important; }
     [data-backdrop].backdrop-visible { opacity: 1 !important; pointer-events: auto !important; }
+
+    /* Image loading niceties */
+    .img-skel{
+      background: linear-gradient(90deg, rgba(0,0,0,.06), rgba(0,0,0,.02), rgba(0,0,0,.06));
+      background-size: 200% 100%;
+      animation: sk 1.1s linear infinite;
+    }
+    @keyframes sk { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .img-fade{ opacity:0; transition: opacity .25s ease; }
+    .img-fade.loaded{ opacity:1; }
+
+    /* --- category header: keep in one line --- */
+    .cat-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* --- category chip in cards: keep in one line too --- */
+    .cat-chip {
+      white-space: nowrap;
+    }
+
+    /* --- details panel: don't stretch to the tallest column --- */
+    #courseDetails.card {
+      align-self: start;
+    }
+
+    /* --- image: don't force huge height --- */
+    #courseImgWrap {
+  display: flex;
+  align-items: center;      /* vertical center */
+  justify-content: center;  /* horizontal center */
+  overflow: hidden;
+}
+
+    @media (min-width: 1024px){
+      #courseImgWrap { max-height: 220px; }
+    }
+    
+
+    /* --- tighten spacing inside details --- */
+    #courseDetails .grid { gap: .85rem; }
+    /* --- Active course card highlight --- */
+.course-active {
+  border-color: #3b82f6;                 /* blue */
+  box-shadow: 0 0 0 2px rgba(59,130,246,.15);
+  background: #f8fbff;
+}
+
+.course-active .badge {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
   </style>
 </head>
+
 <body class="bg-white text-slate-800">
 
   <!-- Header -->
@@ -97,46 +156,87 @@
 
   <!-- Content -->
   <section class="max-w-6xl mx-auto px-4 py-14">
-    <h2 class="text-2xl md:text-3xl">言語講座</h2>
+    <h2 class="text-2xl md:text-3xl">コース / Courses</h2>
     <p class="mt-3 text-slate-600 text-sm">
       各国のネイティブ講師（教師資格あり／日本語対応可）が指導。目的に合わせたカリキュラムで、楽しく継続できる学びを提供します。
     </p>
 
-    <div class="grid md:grid-cols-2 gap-6 mt-8">
-      <article class="card">
-        <h3 class="font-bold">英語</h3>
-        <p class="text-sm text-slate-600 mt-1">TOEFL／TOEIC／英検／ビジネス／トピック英語／旅行英語／英会話／子供英語</p>
-      </article>
-      <article class="card"><h3 class="font-bold">中国語／日本語／韓国語／タイ語／ベトナム語</h3></article>
-      <article class="card"><h3 class="font-bold">スペイン語／ポルトガル語／フランス語</h3></article>
-      <article class="card"><h3 class="font-bold">アラビア語／イタリア語／ドイツ語</h3></article>
-      <article class="card"><h3 class="font-bold">ロシア語／ウクライナ語／デンマーク語</h3></article>
-      <article class="card"><h3 class="font-bold">ヒンディー語／モンゴル語／ポーランド語／その他言語</h3></article>
+    <!-- Search -->
+    <div class="mt-7 flex flex-col md:flex-row gap-3 md:items-center">
+      <input id="courseSearch" type="text"
+             class="w-full md:max-w-md border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+             placeholder="コース名で検索 (例: 英語 / Spanish / 交流会)"/>
+      <div class="text-xs text-slate-500">
+        ※ クリックすると詳細が右（スマホは下）に表示されます。
+      </div>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-6 mt-10">
+    <div class="grid lg:grid-cols-[1.25fr_.95fr] gap-6 mt-8">
+      <!-- Left: list -->
+      <div>
+        <div id="courseList"></div>
+        <p id="noResults" class="hidden text-sm text-slate-600 mt-4">
+          該当するコースが見つかりませんでした。
+        </p>
+      </div>
+
+      <!-- Right: details -->
+      <div id="courseDetails" class="card hidden">
+        <div class="grid gap-4">
+          <div id="courseImgWrap" class="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 img-skel">
+            <img id="courseImg"
+                 src="assets/courses/placeholder.jpg"
+                 alt=""
+                 loading="lazy"
+                 decoding="async"
+                 class="w-full h-full object-cover img-fade">
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="courseCat" class="badge cat-chip"></span>
+            <span id="courseLevel" class="chip hidden"></span>
+          </div>
+
+          <div>
+            <h3 id="courseTitle" class="text-xl font-extrabold"></h3>
+            <p id="courseSubtitle" class="text-sm text-slate-600 mt-1"></p>
+          </div>
+
+          <p id="courseDesc" class="text-sm text-slate-700"></p>
+
+          <ul id="courseBullets" class="list-disc pl-5 text-sm text-slate-600 space-y-1"></ul>
+
+          <div id="courseExamBox" class="hidden rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div class="font-semibold text-sm">試験対策 / Exam prep</div>
+            <div id="courseExams" class="text-sm text-slate-600 mt-1"></div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <a href="register.html" class="btn-primary text-center">無料登録して予約へ</a>
+            <a href="schedule.html" class="btn-outline text-center">スケジュールを見る</a>
+            <a href="pricing.html" class="btn-outline text-center">料金を見る</a>
+          </div>
+
+          <p class="text-xs text-slate-500">
+            ※ 体験レッスン・交流会（イベント）の予約には、無料会員登録・ログインが必要です。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary blocks -->
+    <div class="grid md:grid-cols-3 gap-6 mt-12">
       <div class="card">
         <h4 class="font-semibold">レベル</h4>
         <p class="text-sm text-slate-600 mt-2">初級／中級／上級</p>
       </div>
       <div class="card">
         <h4 class="font-semibold">内容</h4>
-        <p class="text-sm text-slate-600 mt-2">日常・ビジネス・旅行会話、資格試験対策（TOEIC、HSK 等）</p>
+        <p class="text-sm text-slate-600 mt-2">日常・ビジネス・旅行会話、資格試験対策（TOEIC、HSK、JLPT 等）</p>
       </div>
       <div class="card">
         <h4 class="font-semibold">レッスン形式</h4>
         <p class="text-sm text-slate-600 mt-2">対面個別／グループ／オンライン</p>
-      </div>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-6 mt-10">
-      <div class="card">
-        <h3 class="font-bold">外国人向け日本語講座</h3>
-        <p class="text-sm text-slate-600 mt-2">有資格の日本語教師が指導。EJU・JLPT 対策にも対応。</p>
-      </div>
-      <div class="card">
-        <h3 class="font-bold">趣味講座</h3>
-        <p class="text-sm text-slate-600 mt-2">絵画・ウクレレ・書道（基礎〜創作）。</p>
       </div>
     </div>
 
@@ -165,32 +265,27 @@
   <!-- Drawer script -->
   <script>
   (function () {
-    const $ = (sel) => document.querySelector(sel);
-    const drawer   = () => $('[data-drawer]');
-    const backdrop = () => $('[data-backdrop]');
-    const openBtn  = () => $('[data-drawer-open]');
+    const drawer   = document.querySelector('[data-drawer]');
+    const backdrop = document.querySelector('[data-backdrop]');
+    const openBtn  = document.querySelector('[data-drawer-open]');
+    const closeBtn = document.querySelector('[data-drawer-close]');
+    if (!drawer || !backdrop || !openBtn) return;
 
     function openDrawer() {
       document.body.style.overflow = 'hidden';
-      drawer()?.classList.add('drawer-visible');
-      drawer()?.classList.remove('drawer-hidden');
-      backdrop()?.classList.add('backdrop-visible');
-      backdrop()?.classList.remove('backdrop-hidden');
-      openBtn()?.setAttribute('aria-expanded','true');
+      drawer.classList.add('drawer-visible'); drawer.classList.remove('drawer-hidden');
+      backdrop.classList.add('backdrop-visible'); backdrop.classList.remove('backdrop-hidden');
+      openBtn.setAttribute('aria-expanded','true');
     }
     function closeDrawer() {
       document.body.style.overflow = '';
-      drawer()?.classList.add('drawer-hidden');
-      drawer()?.classList.remove('drawer-visible');
-      backdrop()?.classList.add('backdrop-hidden');
-      backdrop()?.classList.remove('backdrop-visible');
-      openBtn()?.setAttribute('aria-expanded','false');
+      drawer.classList.add('drawer-hidden'); drawer.classList.remove('drawer-visible');
+      backdrop.classList.add('backdrop-hidden'); backdrop.classList.remove('backdrop-visible');
+      openBtn.setAttribute('aria-expanded','false');
     }
 
-    // Start closed
     closeDrawer();
 
-    // Delegated clicks
     document.addEventListener('click', (e) => {
       if (e.target.closest('[data-drawer-open]'))  { e.preventDefault(); openDrawer(); }
       if (e.target.closest('[data-drawer-close]')) { e.preventDefault(); closeDrawer(); }
@@ -198,12 +293,395 @@
       if (e.target.closest('[data-drawer] a'))     { closeDrawer(); }
     }, true);
 
-    // ESC closes
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); }, true);
+  })();
+  </script>
 
-    // dev helpers (optional)
-    window.__drawerOpen  = openDrawer;
-    window.__drawerClose = closeDrawer;
+  <!-- Courses data + page logic -->
+  <script>
+  const COURSES = [
+    // ===== Languages / 語学 =====
+    {
+      id: "Chinese Course",
+      cat: "語学 / Languages",
+      label: "中国語コース（Chinese Course）",
+      subtitle: "HSK／日常会話／ビジネス中国語",
+      desc: "声調・発音の基礎からスタートし、日常会話〜ビジネス表現まで段階的に学べます。学習目的に合わせて教材・トピックを調整します。",
+      bullets: [
+        "発音・声調のトレーニング（聞き取り・スピーキング）",
+        "旅行・日常会話（買い物、レストラン、道案内など）",
+        "ビジネス（メール、会議、電話対応）"
+      ],
+      exams: "HSK（漢語水平考試）対策対応",
+      img: "chinese.jpg"
+    },
+    {
+      id: "English Course",
+      cat: "語学 / Languages",
+      label: "英語（English Course）",
+      subtitle: "TOEFL／TOEIC／英検／ビジネス／旅行／会話／子供英語",
+      desc: "目的別に最短ルートで伸ばす英語コース。スピーキング中心も、試験対策中心もOK。レベルに合わせて無理なく続けられる設計です。",
+      bullets: [
+        "日常英会話・トピック英語（意見を言う練習）",
+        "旅行英語（空港、ホテル、トラブル対応）",
+        "ビジネス英語（会議、交渉、プレゼン）",
+        "子供英語（年齢・興味に合わせたレッスン）"
+      ],
+      exams: "TOEIC／TOEFL／英検 対策対応",
+      img: "english.jpg"
+    },
+    {
+      id: "Japanese Course",
+      cat: "語学 / Languages",
+      label: "日本語コース（Japanese Course）",
+      subtitle: "会話／生活日本語／JLPT／EJU",
+      desc: "外国人向け日本語講座。有資格の日本語教師が指導し、生活に必要な日本語から試験対策まで幅広く対応します。",
+      bullets: [
+        "生活会話（役所、病院、職場、友達づくり）",
+        "敬語・ビジネス日本語（職場で使える表現）",
+        "読み書き（ひらがな〜漢字、作文）"
+      ],
+      exams: "JLPT／EJU 対策対応",
+      img: "japanese.jpg"
+    },
+    {
+      id: "French Course",
+      cat: "語学 / Languages",
+      label: "フランス語コース（French Course）",
+      subtitle: "発音／会話／旅行／DELF・DALF",
+      desc: "発音とリズムの基礎から丁寧に。会話・旅行フランス語・文法強化まで、目標に合わせてカスタマイズできます。",
+      bullets: [
+        "発音（リエゾン、鼻母音、イントネーション）",
+        "旅行会話・日常会話（自己紹介、注文、道案内）",
+        "文法（初級〜上級）"
+      ],
+      exams: "DELF／DALF 対策対応（希望者）",
+      img: "french.jpg"
+    },
+    {
+      id: "Spanish Course",
+      cat: "語学 / Languages",
+      label: "スペイン語講座（Spanish Course）",
+      subtitle: "会話／旅行／発音／文法（初心者歓迎）",
+      desc: "超初心者でも安心。発音・基本文法・会話をバランスよく。旅行や趣味、仕事目的に合わせて内容を調整します。",
+      bullets: [
+        "発音（r/rr、母音、イントネーション）",
+        "日常会話（買い物、レストラン、友達との会話）",
+        "旅行会話（空港、ホテル、緊急時）"
+      ],
+      exams: "DELE 対策（希望者）",
+      img: "spanish.jpg"
+    },
+    {
+      id: "Danish Course",
+      cat: "語学 / Languages",
+      label: "デンマーク語コース（Danish Course）",
+      subtitle: "発音／基礎会話／文化",
+      desc: "北欧言語に興味がある方向け。アルファベット・発音・基本フレーズから始めて、日常会話の土台を作ります。",
+      bullets: [
+        "発音・基本フレーズ（挨拶、自己紹介）",
+        "日常会話（時間、場所、買い物）",
+        "文化・マナーも一緒に学べます"
+      ],
+      exams: "",
+      img: "danish.jpg"
+    },
+    {
+      id: "Mongolian Course",
+      cat: "語学 / Languages",
+      label: "モンゴル語（Mongolian Course）",
+      subtitle: "基礎会話／発音／旅行",
+      desc: "文字・発音・基本会話から丁寧に。旅行や交流目的にもおすすめ。",
+      bullets: [
+        "基本フレーズ（挨拶、自己紹介）",
+        "旅行会話（移動、食事、買い物）",
+        "必要に応じて文字もサポート"
+      ],
+      exams: "",
+      img: "mongolian.jpg"
+    },
+    {
+      id: "Arabic Course",
+      cat: "語学 / Languages",
+      label: "アラビア語コース（اللغة العربية）",
+      subtitle: "文字／発音／基礎会話",
+      desc: "アラビア文字の読み書き・発音からスタートし、基本会話へ。初心者向けに分かりやすく進めます。",
+      bullets: [
+        "アラビア文字（読み書き）",
+        "発音（独特な音の練習）",
+        "基礎会話（挨拶、自己紹介、簡単な質問）"
+      ],
+      exams: "",
+      img: "arabic.jpg"
+    },
+
+    // ===== Culture & Other / 文化・その他 =====
+    {
+      id: "Ukulele Course",
+      cat: "文化・その他 / Culture & Other",
+      label: "ウクレレコース（Ukulele Course）",
+      subtitle: "基礎〜弾き語り",
+      desc: "初心者からOK。コード・リズムの基本から、好きな曲の弾き語りまでサポートします。",
+      bullets: [
+        "コードの押さえ方、ストローク練習",
+        "簡単な曲で実践（テンポ感）",
+        "弾き語り（歌との合わせ方）"
+      ],
+      exams: "",
+      img: "ukulele.jpg"
+    },
+    {
+      id: "Painting Course",
+      cat: "文化・その他 / Culture & Other",
+      label: "絵画コース（Painting Course）",
+      subtitle: "基礎〜創作",
+      desc: "デッサンの基礎から色彩表現、自由制作まで。目的やレベルに合わせて進めます。",
+      bullets: [
+        "基礎（形の取り方、陰影）",
+        "色彩・構図（見せ方のコツ）",
+        "作品制作（好きなテーマで創作）"
+      ],
+      exams: "",
+      img: "painting.jpg"
+    },
+    {
+      id: "Calligraphy",
+      cat: "文化・その他 / Culture & Other",
+      label: "習字・書道（Calligraphy）",
+      subtitle: "基礎〜作品づくり",
+      desc: "筆の持ち方・線の練習から、文字のバランス、作品制作まで。日本文化体験としても人気です。",
+      bullets: [
+        "筆づかい（止め・はね・はらい）",
+        "文字の形（バランス・配置）",
+        "作品づくり（季節の言葉・好きな言葉）"
+      ],
+      exams: "",
+      img: "calligraphy.jpg"
+    },
+    {
+      id: "Programming Class",
+      cat: "文化・その他 / Culture & Other",
+      label: "プログラミングクラス（Programming Class）",
+      subtitle: "初心者〜実践（内容は相談OK）",
+      desc: "Web・アプリ・基礎ロジックなど、目的に合わせて相談しながら進めます。完全初心者もOKです。",
+      bullets: [
+        "基礎（考え方、簡単な課題）",
+        "Web制作（HTML/CSS/JS）※希望者",
+        "アプリ開発の入口（相談ベース）"
+      ],
+      exams: "",
+      img: "programming.jpg"
+    },
+
+    // ===== Events / イベント =====
+    {
+      id: "Language Exchange Meetings",
+      cat: "イベント / Events",
+      label: "交流会（Language Exchange Meetings）",
+      subtitle: "気軽に話せる言語交流コミュニティ",
+      desc: "英語・日本語・スペイン語など、参加者同士で会話練習。初心者も安心の雰囲気で、友達作りにもおすすめです。",
+      bullets: [
+        "会話中心（スピーキング練習）",
+        "初心者歓迎（サポートあり）",
+        "テーマトーク・ゲームなど（開催内容は回ごとに変動）"
+      ],
+      exams: "",
+      img: "exchange.jpg"
+    }
+  ];
+
+  const FALLBACK_IMG = "assets/courses/placeholder.jpg";
+
+  const $ = (sel) => document.querySelector(sel);
+  const listRoot = $("#courseList");
+  const details = $("#courseDetails");
+  const noResults = $("#noResults");
+  const search = $("#courseSearch");
+
+  const ui = {
+    cat: $("#courseCat"),
+    level: $("#courseLevel"),
+    title: $("#courseTitle"),
+    subtitle: $("#courseSubtitle"),
+    desc: $("#courseDesc"),
+    bullets: $("#courseBullets"),
+    examBox: $("#courseExamBox"),
+    exams: $("#courseExams"),
+    imgWrap: $("#courseImgWrap"),
+    img: $("#courseImg")
+  };
+function setActiveCard(courseId){
+  document.querySelectorAll(".course-card").forEach(card => {
+    card.classList.toggle(
+      "course-active",
+      card.getAttribute("data-course-id") === courseId
+    );
+  });
+}
+
+  function groupByCategory(items){
+    const map = {};
+    items.forEach(c => (map[c.cat] ??= []).push(c));
+    return map;
+  }
+
+  function escapeHtml(s){
+    return String(s ?? "").replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+
+  function renderList(items){
+    const grouped = groupByCategory(items);
+    const cats = Object.keys(grouped);
+
+    if (!items.length){
+      listRoot.innerHTML = "";
+      noResults.classList.remove("hidden");
+      return;
+    }
+    noResults.classList.add("hidden");
+
+    listRoot.innerHTML = cats.map(cat => {
+      const cards = grouped[cat].map(c => `
+        <button class="card course-card w-full text-left flex flex-col gap-1"
+                data-course-id="${escapeHtml(c.id)}">
+          <div class="flex items-start justify-between gap-2">
+            <div class="font-bold">${escapeHtml(c.label)}</div>
+            <span class="badge cat-chip">${escapeHtml(cat.split(" / ")[0])}</span>
+          </div>
+          <div class="text-sm text-slate-600">${escapeHtml(c.subtitle)}</div>
+        </button>
+      `).join("");
+
+      return `
+        <div class="mt-6">
+          <h3 class="font-bold text-lg cat-title">${escapeHtml(cat)}</h3>
+          <div class="grid md:grid-cols-2 gap-4 mt-3">${cards}</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function loadImageWithRetry(url, altText){
+    return new Promise((resolve) => {
+      const img = ui.img;
+      const wrap = ui.imgWrap;
+
+      img.classList.remove("loaded");
+      wrap.classList.add("img-skel");
+
+      const pre = new Image();
+      pre.decoding = "async";
+
+      let retried = false;
+
+      const finalize = (finalUrl) => {
+        img.src = finalUrl;
+        img.alt = altText || "";
+        img.onload = () => {
+          img.classList.add("loaded");
+          wrap.classList.remove("img-skel");
+          resolve();
+        };
+        img.onerror = () => {
+          wrap.classList.remove("img-skel");
+          resolve();
+        };
+      };
+
+      pre.onload = () => finalize(url);
+
+      pre.onerror = () => {
+        if (!retried && url && url !== FALLBACK_IMG) {
+          retried = true;
+          const busted = url + (url.includes("?") ? "&" : "?") + "v=" + Date.now();
+          const pre2 = new Image();
+          pre2.onload = () => finalize(busted);
+          pre2.onerror = () => finalize(FALLBACK_IMG);
+          pre2.src = busted;
+          return;
+        }
+        finalize(FALLBACK_IMG);
+      };
+
+      pre.src = url || FALLBACK_IMG;
+    });
+  }
+
+  function showCourseById(courseId, {scroll=true}={}){
+    const c = COURSES.find(x => x.id === courseId) || COURSES[0];
+    if (!c) return;
+    setActiveCard(c.id);
+
+
+    ui.cat.textContent = c.cat;
+    ui.title.textContent = c.label;
+    ui.subtitle.textContent = c.subtitle || "";
+    ui.desc.textContent = c.desc || "";
+
+    ui.bullets.innerHTML = "";
+    (c.bullets || []).forEach(b => {
+      const li = document.createElement("li");
+      li.textContent = b;
+      ui.bullets.appendChild(li);
+    });
+
+    const examsText = (c.exams || "").trim();
+    if (examsText){
+      ui.examBox.classList.remove("hidden");
+      ui.exams.textContent = examsText;
+    } else {
+      ui.examBox.classList.add("hidden");
+      ui.exams.textContent = "";
+    }
+
+    const imgUrl = c.img ? `assets/courses/${c.img}` : FALLBACK_IMG;
+    loadImageWithRetry(imgUrl, c.label);
+
+    details.classList.remove("hidden");
+
+    const newHash = "#course=" + encodeURIComponent(c.id);
+    if (location.hash !== newHash) history.replaceState(null, "", newHash);
+
+    if (scroll && window.innerWidth < 1024){
+      details.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-course-id]");
+    if (!btn) return;
+    showCourseById(btn.getAttribute("data-course-id"), {scroll:true});
+  });
+
+  function applySearch(){
+    const q = (search.value || "").trim().toLowerCase();
+    if (!q){
+      renderList(COURSES);
+      return;
+    }
+    const filtered = COURSES.filter(c =>
+      (c.label || "").toLowerCase().includes(q) ||
+      (c.subtitle || "").toLowerCase().includes(q) ||
+      (c.desc || "").toLowerCase().includes(q) ||
+      (c.cat || "").toLowerCase().includes(q) ||
+      (c.id || "").toLowerCase().includes(q)
+    );
+    renderList(filtered);
+  }
+  search.addEventListener("input", applySearch);
+
+  renderList(COURSES);
+
+  (function(){
+    const m = location.hash.match(/course=([^&]+)/);
+    if (m && m[1]){
+      const id = decodeURIComponent(m[1]);
+      showCourseById(id, {scroll:false});
+    } else {
+      if (window.innerWidth >= 1024) showCourseById(COURSES[0].id, {scroll:false});
+    }
   })();
   </script>
 </body>

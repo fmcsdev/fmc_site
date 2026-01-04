@@ -6,9 +6,7 @@ const { createClient: createClientAdmin } = window.supabase;
 const SUPABASE_URL_A  = "https://dsbvgomhugvjruqykbmr.supabase.co";
 const SUPABASE_ANON_A = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYnZnb21odWd2anJ1cXlrYm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NzIwNzksImV4cCI6MjA3ODQ0ODA3OX0.FHX45XbBfpeNtnnCLc9wvoyxOM6w2vIIjOcIZWfb-_I";
 
-const supabaseA = createClientAdmin(SUPABASE_URL_A, SUPABASE_ANON_A, {
-  auth: { persistSession: true, detectSessionInUrl: true }
-});
+const supabaseA = window.supabaseClient;
 
 document.addEventListener("DOMContentLoaded", () => {
   initAdmin().catch(err => {
@@ -278,19 +276,22 @@ async function loadSlotsForAdmin() {
   const tbody = document.getElementById("admin-slots-body");
   if (!tbody) return;
 
-  // Your index.html has 8 columns now (including Course)
   tbody.innerHTML = "<tr><td colspan='8'>読み込み中...</td></tr>";
 
-  // Join teacher + course
-  const { data, error } = await supabaseA
+  // Try with status first (new schema), fallback without status (old schema)
+  let res = await supabaseA
     .from("reservation_slots")
-    .select(`
-      id, start_time, end_time, capacity, status, language,
-      teacher_ref_id, course_id,
-      teachers:teacher_ref_id ( id, display_name ),
-      courses:course_id ( id, title_ja, duration_min )
-    `)
+    .select("id, teacher_id, language, course_id, start_time, end_time, capacity, status")
     .order("start_time", { ascending: true });
+
+  if (res.error && /status/i.test(res.error.message || "")) {
+    res = await supabaseA
+      .from("reservation_slots")
+      .select("id, teacher_id, language, course_id, start_time, end_time, capacity")
+      .order("start_time", { ascending: true });
+  }
+
+  const { data, error } = res;
 
   if (error) {
     console.error("loadSlotsForAdmin error:", error);
@@ -303,84 +304,59 @@ async function loadSlotsForAdmin() {
     return;
   }
 
+  const teacherIds = [...new Set(data.map(r => r.teacher_id).filter(Boolean))];
+  const teacherNameMap = await fetchTeacherNames(teacherIds);
+
   tbody.innerHTML = "";
+
   data.forEach(row => {
-    const teacherName = row.teachers?.display_name || (row.teacher_ref_id ? shortIdA(row.teacher_ref_id) : "");
-    const courseTitle = row.courses?.title_ja || (row.course_id ? shortIdA(row.course_id) : "");
+    const teacherName = teacherNameMap[row.teacher_id] || shortIdA(row.teacher_id);
+    const dateStr     = formatDateOnlyA(row.start_time);
+    const timeRange   = formatTimeRangeA(row.start_time, row.end_time);
 
-    const dateStr   = formatDateOnlyA(row.start_time);
-    const timeRange = formatTimeRangeA(row.start_time, row.end_time);
+    const hasStatus = ("status" in row);
+    const statusVal = hasStatus ? row.status : "active"; // assume active if missing
+    const statusLabel =
+      statusVal === "active" ? "公開中" :
+      statusVal === "closed" ? "停止中" :
+      "下書き";
 
-    const statusLabel = row.status === "active"
-      ? "公開中"
-      : row.status === "closed"
-      ? "停止中"
-      : "下書き";
-
-    const toggleLabel = row.status === "active" ? "停止" : "公開";
+    const toggleLabel = statusVal === "active" ? "停止" : "公開";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${escapeHtml(teacherName)}</td>
-      <td>${escapeHtml(row.language || "")}</td>
-      <td>${escapeHtml(courseTitle)}</td>
-      <td>${escapeHtml(dateStr)} ${escapeHtml(timeRange)}</td>
-      <td>${escapeHtml(dateStr)} ${escapeHtml(formatTimeRangeA(row.start_time, row.end_time))}</td>
-      <td>${escapeHtml(String(row.capacity ?? 1))}</td>
-      <td>${escapeHtml(statusLabel)}</td>
-      <td class="whitespace-nowrap">
-        <button class="btn-xs btn-outline" data-action="toggle-slot-status" data-id="${row.id}" data-status="${row.status}">
-          ${escapeHtml(toggleLabel)}
-        </button>
-        <button class="btn-xs btn-ghost text-slate-500 ml-1" data-action="edit-slot" data-id="${row.id}">
-          編集
-        </button>
+      <td>${teacherName}</td>
+      <td>${row.language || ""}</td>
+      <td>${row.course_id || ""}</td>
+      <td>${dateStr} ${timeRange}</td>
+      <td>${dateStr} ${formatTimeRangeA(row.start_time, row.end_time)}</td>
+      <td>${row.capacity ?? 1}</td>
+      <td>${statusLabel}</td>
+      <td>
+        ${hasStatus ? `
+          <button
+            class="btn-xs btn-outline"
+            data-action="toggle-slot-status"
+            data-id="${row.id}"
+            data-status="${statusVal}"
+          >${toggleLabel}</button>
+        ` : `<span class="text-xs text-slate-400">status未対応</span>`}
       </td>
     `;
     tbody.appendChild(tr);
 
-    tr.querySelector('[data-action="toggle-slot-status"]')?.addEventListener("click", async (e) => {
-      const btn = e.currentTarget;
-      const current = btn.dataset.status || "active";
-      const next = current === "active" ? "closed" : "active";
-      const ok = await updateSlotStatus(row.id, next);
-      if (ok) {
-        await loadSlotsForAdmin();
-        window.__adminCalendarRefetch?.();
-      }
-    });
-
-    tr.querySelector('[data-action="edit-slot"]')?.addEventListener("click", async () => {
-      const defaults = {
-        teacher_ref_id: row.teacher_ref_id || "",
-        course_id: row.course_id || "",
-        language: row.language || "",
-        start_time: row.start_time,
-        end_time: row.end_time,
-        capacity: row.capacity ?? 1,
-        status: row.status || "active"
-      };
-      const result = await openSlotModal(defaults);
-      if (!result) return;
-
-      const ok = await updateReservationSlot(row.id, {
-        teacher_ref_id: result.teacher_ref_id,
-        course_id: result.course_id,
-        language: result.language,
-        start_time: result.start_time,
-        end_time: result.end_time,
-        capacity: result.capacity,
-        status: result.status
+    if (hasStatus) {
+      const toggleBtn = tr.querySelector('[data-action="toggle-slot-status"]');
+      toggleBtn?.addEventListener("click", async () => {
+        const current = toggleBtn.dataset.status || "active";
+        const next = current === "active" ? "closed" : "active";
+        const ok = await updateSlotStatus(row.id, next);
+        if (ok) await loadSlotsForAdmin();
       });
-
-      if (ok) {
-        await loadSlotsForAdmin();
-        alert("更新しました。");
-        window.__adminCalendarRefetch?.();
-      }
-    });
+    }
   });
 }
+
 
 async function updateSlotStatus(slotId, newStatus) {
   const { error } = await supabaseA

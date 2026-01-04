@@ -641,3 +641,80 @@ function todayStringA() {
   const day = String(d.getDate()).padStart(2, "0");
   return `${y}/${m}/${day}`;
 }
+async function createSlotsFromTemplates({
+  rangeStartDate,   // "2026-01-05"
+  rangeEndDate,     // "2026-01-11"
+  weekdays,         // [0..6] where 0=Sun ... 6=Sat
+  teacher_id,
+  language,
+  course_id = null,
+  capacity = 1,
+  slotType = null,  // null = all, or "class"/"reservation"
+  status = "active"
+}) {
+  // 1) load templates
+  let q = supabaseA
+    .from("time_slot_templates")
+    .select("id, start_local, end_local, slot_type, sort_order")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
+
+  if (slotType) q = q.eq("slot_type", slotType);
+
+  const { data: templates, error: tErr } = await q;
+  if (tErr) throw tErr;
+  if (!templates?.length) {
+    alert("テンプレの時間枠がありません。time_slot_templates を確認してください。");
+    return;
+  }
+
+  // 2) build inserts
+  const start = new Date(rangeStartDate + "T00:00:00");
+  const end   = new Date(rangeEndDate + "T00:00:00");
+
+  const inserts = [];
+
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const dow = d.getDay();
+    if (!weekdays.includes(dow)) continue;
+
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const dateStr = `${yyyy}-${mm}-${dd}`;
+
+    for (const t of templates) {
+      // t.start_local comes like "13:30:00"
+      const start_time = new Date(`${dateStr}T${t.start_local}+09:00`).toISOString();
+      const end_time   = new Date(`${dateStr}T${t.end_local}+09:00`).toISOString();
+
+      inserts.push({
+        teacher_id,
+        language,
+        course_id,
+        capacity,
+        status,
+        template_id: t.id,
+        start_time,
+        end_time
+      });
+    }
+  }
+
+  if (!inserts.length) {
+    alert("作成する枠がありません（曜日/日付を確認）");
+    return;
+  }
+
+  // 3) insert (best effort)
+  const { error: insErr } = await supabaseA.from("reservation_slots").insert(inserts);
+  if (insErr) {
+    console.error(insErr);
+    alert("枠の作成に失敗しました。重複や制約を確認してください。");
+    return;
+  }
+
+  alert(`予約枠を作成しました（${inserts.length}件）`);
+  await loadSlotsForAdmin();
+  window.__adminCalendarRefetch?.();
+}

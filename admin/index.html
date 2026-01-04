@@ -4,12 +4,35 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>管理者ダッシュボード | FMC 多国語会話教室</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="../assets/styles.css?v=7">
+  <link rel="stylesheet" href="../assets/styles.css?v=8">
+
+  <!-- FullCalendar (Calendar UI) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css">
+
+  <!-- Optional: calendar container tweaks -->
+  <style>
+    #adminCalendar{
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.04);
+    }
+    /* Make FullCalendar buttons match your UI a bit */
+    .fc .fc-button{
+      border-radius: 10px;
+      padding: .4rem .65rem;
+      font-weight: 600;
+    }
+  </style>
 </head>
+
 <body class="bg-white text-slate-800">
 
   <!-- App Header (Admin) -->
@@ -47,11 +70,11 @@
   </header>
 
   <!-- Backdrop -->
-  <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden" data-backdrop aria-hidden="true"></div>
+  <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden z-40" data-backdrop aria-hidden="true"></div>
 
   <!-- Mobile drawer -->
   <aside id="mobile-drawer"
-         class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 drawer-hidden md:hidden"
+         class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 drawer-hidden md:hidden z-50"
          role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
          data-drawer>
     <div class="flex items-center justify-between px-4 py-3 border-b">
@@ -98,6 +121,28 @@
       <div class="card">
         <div class="text-xs text-slate-500 mb-1">未承認の講師スケジュール</div>
         <div id="admin-pending-avail" class="text-3xl font-bold">0</div>
+      </div>
+    </section>
+
+    <!-- Calendar view -->
+    <section class="mb-10" data-reveal>
+      <div class="schedule-headbar mb-3">
+        <div>
+          <h2 class="text-base font-bold">カレンダー（予約枠・講師申請）</h2>
+          <p class="text-xs text-slate-500 mt-1">
+            予約枠（公開中/停止中）と講師の申請（承認待ち/承認済み）をカレンダーで確認できます。
+          </p>
+        </div>
+        <div class="chips">
+          <span class="chip">予約枠</span>
+          <span class="chip">講師申請</span>
+        </div>
+      </div>
+
+      <div id="adminCalendar"></div>
+
+      <div class="mt-3 text-xs text-slate-500">
+        ※ 表示色は状態によって変わります（例：公開中=青／停止中=グレー／承認待ち=オレンジ／承認済み=緑）。
       </div>
     </section>
 
@@ -149,6 +194,7 @@
             <tr>
               <th class="schedule-head w-28">講師</th>
               <th class="schedule-head w-24">言語</th>
+              <th class="schedule-head w-44">コース</th>
               <th class="schedule-head w-40">開始</th>
               <th class="schedule-head w-40">終了</th>
               <th class="schedule-head w-20">定員</th>
@@ -191,7 +237,6 @@
     </section>
   </main>
 
-  <!-- Footer stays simple / black theme from styles.css -->
   <footer class="border-t border-slate-200">
     <div class="max-w-6xl mx-auto px-4 py-6 text-xs text-slate-500 flex justify-between">
       <span>© FMC 多国語会話教室</span>
@@ -199,8 +244,19 @@
     </div>
   </footer>
 
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- FullCalendar -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+  <!-- Your site interactions (drawer, reveal, etc.) -->
   <script src="../assets/site.js" defer></script>
+
+  <!-- Admin logic (your existing file) -->
   <script src="../assets/admin.js" defer></script>
+
+  <!-- Calendar loader -->
+  <script src="../assets/admin-calendar.js" defer></script>
 </body>
 </html>

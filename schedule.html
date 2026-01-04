@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FMC 多国語会話教室 | スケジュール</title>
   <meta name="description" content="完全予約制。営業時間・予約コース（45/90/180分）・体験フォーム。">
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/styles.css?v=8">
+
+  <!-- FullCalendar (public calendar) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css">
 
   <!-- Drawer specificity fix -->
   <style>
@@ -15,8 +22,23 @@
     [data-drawer].drawer-visible { transform: translateX(0%) !important; }
     [data-backdrop].backdrop-hidden  { opacity: 0 !important; pointer-events: none !important; }
     [data-backdrop].backdrop-visible { opacity: 1 !important; pointer-events: auto !important; }
+
+    /* Calendar container */
+    #publicCalendar{
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:16px;
+      padding:12px;
+      box-shadow:0 2px 6px rgba(0,0,0,.04);
+    }
+    .fc .fc-button{
+      border-radius:10px;
+      padding:.4rem .65rem;
+      font-weight:600;
+    }
   </style>
 </head>
+
 <body class="bg-white text-slate-800">
 
   <!-- Header -->
@@ -30,7 +52,7 @@
       <!-- Desktop nav -->
       <nav class="hidden md:flex items-center gap-6 text-sm text-white">
         <a href="courses.html">コース</a>
-        <a href="schedule.html" aria-current="page">スケジュール</a>
+        <a href="schedule.html" aria-current="page" class="font-semibold underline underline-offset-4">スケジュール</a>
         <a href="pricing.html">料金</a>
         <a href="access.html">アクセス</a>
         <a href="contact.html">お問い合わせ</a>
@@ -39,25 +61,26 @@
       <!-- Desktop actions -->
       <div class="hidden md:flex items-center gap-2">
         <a href="login.html" class="text-sm px-3 py-2 rounded-lg btn-outline">ログイン</a>
-         <a href="register.html" class="text-sm px-3 py-2 rounded-lg btn-outline">無料登録</a>
+        <a href="register.html" class="text-sm px-3 py-2 rounded-lg btn-outline">無料登録</a>
         <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 btn-primary">今すぐ申し込み</a>
       </div>
 
-      <!-- Mobile open button (right corner) -->
+      <!-- Mobile open button -->
       <button
         class="md:hidden inline-flex items-center justify-center p-2 rounded text-white/90 hover:text-white"
         aria-label="Open menu" aria-controls="mobile-drawer" aria-expanded="false"
         data-drawer-open>
-        <!-- 3 dots icon -->
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+        </svg>
       </button>
     </div>
   </header>
 
-  <!-- Backdrop (ONE per page) -->
+  <!-- Backdrop -->
   <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden z-40" data-backdrop aria-hidden="true"></div>
 
-  <!-- Drawer (ONE per page) -->
+  <!-- Drawer -->
   <aside
     id="mobile-drawer"
     class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200
@@ -78,13 +101,13 @@
 
     <nav class="px-4 py-3 flex flex-col text-slate-700">
       <a href="courses.html"  class="menu-link px-3 py-2 rounded hover:bg-slate-100">コース</a>
-      <a href="schedule.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">スケジュール</a>
+      <a href="schedule.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100 font-semibold">スケジュール</a>
       <a href="pricing.html"  class="menu-link px-3 py-2 rounded hover:bg-slate-100">料金</a>
       <a href="access.html"   class="menu-link px-3 py-2 rounded hover:bg-slate-100">アクセス</a>
       <a href="contact.html"  class="menu-link px-3 py-2 rounded hover:bg-slate-100">お問い合わせ</a>
       <div class="h-px bg-slate-200 my-3"></div>
       <a href="login.html" class="btn-outline w-full text-center">ログイン</a>
-       <a href="register.html" class="btn-outline w-full text-center mt-2">無料登録</a>
+      <a href="register.html" class="btn-outline w-full text-center mt-2">無料登録</a>
       <a href="https://buy.stripe.com/your_payment_link" class="btn-primary w-full text-center mt-2">今すぐ申し込み</a>
     </nav>
 
@@ -96,7 +119,8 @@
   <!-- Page content -->
   <section class="max-w-6xl mx-auto px-4 py-14">
     <h2 class="text-2xl md:text-3xl">営業時間・予約制</h2>
-    <div class="grid md:grid-cols-2 gap-6 mt-8">
+
+    <div class="grid md:grid-cols-2 gap-6 mt-8" data-reveal>
       <div class="card">
         <h3 class="font-bold">営業時間</h3>
         <ul class="list-disc pl-5 text-sm text-slate-600 mt-2 space-y-1">
@@ -106,6 +130,7 @@
         </ul>
         <p class="text-xs text-slate-500 mt-3">完全予約制（45分／90分／180分）。</p>
       </div>
+
       <div class="card">
         <h3 class="font-bold">体験・予約</h3>
         <p class="text-sm text-slate-600 mt-2">初回体験（45分）は無料。メールで以下をお送りください。</p>
@@ -113,48 +138,91 @@
         <a href="mailto:fmc.osaka@outlook.jp" class="mt-4 inline-block btn-primary">メールで予約する</a>
       </div>
     </div>
-          <div class="mt-10 table-wrap" >
-  <h3 class="font-extrabold text-lg md:text-xl mb-3">授業予約（平日・土曜日）案内</h3>
 
-  <table class="schedule-table" aria-describedby="schedule-desc">
-    <caption id="schedule-desc" class="sr-only">午前・午後・夜の各時間帯における授業の開始・終了時刻。最下段は入学手続き時間と定休日。</caption>
-    <thead>
-      <tr>
-        <th scope="col" class="schedule-head">午前</th>
-        <th scope="col" class="schedule-head">午後</th>
-        <th scope="col" class="schedule-head">夜</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="bg-am">9：00～9：45</td>
-        <td class="bg-pm">13：45～14：30</td>
-        <td class="bg-night">18：40～19：25</td>
-      </tr>
-      <tr>
-        <td class="bg-am">9：50～10：35</td>
-        <td class="bg-pm">14：35～15：20</td>
-        <td class="bg-night">19：30～20：15</td>
-      </tr>
-      <tr>
-        <td class="bg-night">10：45～11：30</td>
-        <td class="bg-pm">15：30～16：15</td>
-        <td class="bg-am">20：25～21：10</td>
-      </tr>
-      <tr>
-        <td class="bg-am">11：35～12：20</td>
-        <td class="bg-pm">16：20～17：05</td>
-        <td class="bg-night">21：15～22：00</td>
-      </tr>
-      <tr>
-        <td class="bg-note text-[15px]">12：30～12：45（入学手続き）</td>
-        <td class="bg-note text-[15px]">17：15～17：30（入学手続き）</td>
-        <td class="bg-note text-[15px]"><span class="note-red">定休日：祝日</span></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+    <!-- Static timetable (your original) -->
+    <div class="mt-10 table-wrap" data-reveal>
+      <h3 class="font-extrabold text-lg md:text-xl mb-3">授業予約（平日・土曜日）案内</h3>
 
+      <table class="schedule-table" aria-describedby="schedule-desc">
+        <caption id="schedule-desc" class="sr-only">午前・午後・夜の各時間帯における授業の開始・終了時刻。最下段は入学手続き時間と定休日。</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="schedule-head">午前</th>
+            <th scope="col" class="schedule-head">午後</th>
+            <th scope="col" class="schedule-head">夜</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="bg-am">9：00～9：45</td>
+            <td class="bg-pm">13：45～14：30</td>
+            <td class="bg-night">18：40～19：25</td>
+          </tr>
+          <tr>
+            <td class="bg-am">9：50～10：35</td>
+            <td class="bg-pm">14：35～15：20</td>
+            <td class="bg-night">19：30～20：15</td>
+          </tr>
+          <tr>
+            <td class="bg-am">10：45～11：30</td>
+            <td class="bg-pm">15：30～16：15</td>
+            <td class="bg-night">20：25～21：10</td>
+          </tr>
+          <tr>
+            <td class="bg-am">11：35～12：20</td>
+            <td class="bg-pm">16：20～17：05</td>
+            <td class="bg-night">21：15～22：00</td>
+          </tr>
+          <tr>
+            <td class="bg-note text-[15px]">12：30～12：45（入学手続き）</td>
+            <td class="bg-note text-[15px]">17：15～17：30（入学手続き）</td>
+            <td class="bg-note text-[15px]"><span class="note-red">定休日：祝日</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Calendar of available reservation slots -->
+    <div class="mt-12" data-reveal>
+      <div class="schedule-headbar mb-3">
+        <div>
+          <h2 class="text-base font-bold">予約可能枠カレンダー</h2>
+          <p class="text-xs text-slate-500 mt-1">
+            カレンダーの枠をクリックすると「ログイン」画面に移動します（ログイン後に予約へ進みます）。
+          </p>
+        </div>
+        <div class="chips">
+          <span class="chip">予約枠</span>
+          <a class="btn-primary text-xs px-3 py-2" href="login.html?redirect=%2Fschedule.html">予約する（ログイン）</a>
+        </div>
+      </div>
+
+      <div id="publicCalendar"></div>
+
+      <div class="mt-3 text-xs text-slate-500">
+        ※ 公開中（active）の予約枠のみ表示されます。
+      </div>
+    </div>
+
+    <!-- Dynamic public schedule (courses + available slots) -->
+    <div class="mt-12" data-reveal>
+      <div class="schedule-headbar mb-3">
+        <div>
+          <h2 class="text-base font-bold">予約可能な授業（コース別）</h2>
+          <p class="text-xs text-slate-500 mt-1">
+            「予約する」ボタンでログインして予約に進めます（ログイン後、入学金の状況により画面が変わります）。
+          </p>
+        </div>
+        <div class="chips">
+          <span class="chip">オンライン予約</span>
+          <span class="chip">コース別</span>
+        </div>
+      </div>
+
+      <div id="public-course-schedules">
+        <div class="card">読み込み中...</div>
+      </div>
+    </div>
   </section>
 
   <footer class="border-t border-slate-200">
@@ -173,7 +241,18 @@
     </div>
   </footer>
 
-  <!-- Drawer script (same as other pages) -->
+  <!-- Supabase + FullCalendar -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+  <!-- Your site interactions (shadow, reveal, drawer, etc.) -->
+  <script src="assets/site.js" defer></script>
+
+  <!-- Public schedule loader (table + calendar) -->
+  <script src="assets/schedule-public.js?v=9" defer></script>
+
+  <!-- Drawer (inline) — keep ONLY ONE drawer implementation.
+       If assets/site.js already handles drawer, you can delete this block. -->
   <script>
   (function () {
     const $ = (sel) => document.querySelector(sel);
@@ -198,10 +277,8 @@
       openBtn()?.setAttribute('aria-expanded','false');
     }
 
-    // Start closed
     closeDrawer();
 
-    // Delegated clicks (works even if elements get re-rendered)
     document.addEventListener('click', (e) => {
       if (e.target.closest('[data-drawer-open]'))  { e.preventDefault(); openDrawer(); }
       if (e.target.closest('[data-drawer-close]')) { e.preventDefault(); closeDrawer(); }
@@ -209,14 +286,10 @@
       if (e.target.closest('[data-drawer] a'))     { closeDrawer(); }
     }, true);
 
-    // ESC closes
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); }, true);
-
-    // dev helpers
-    window.__drawerOpen  = openDrawer;
-    window.__drawerClose = closeDrawer;
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDrawer();
+    }, true);
   })();
   </script>
 </body>
 </html>
-

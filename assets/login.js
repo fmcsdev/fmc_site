@@ -71,10 +71,10 @@ async function login() {
     if (redirect) return (window.location.href = redirect);
 
     switch (role) {
-  case "teacher":  window.location.href = "/teacher/index.html";  break;
-  case "admin":    window.location.href = "/admin/index.html";    break;
-  case "student":  window.location.href = "/student/index.html";  break;
-  default:         window.location.href = "/student/index.html";  break;
+  case "teacher":  window.location.href = "/teacher/dashboard.html";  break;
+  case "admin":    window.location.href = "/admin/dashboard.html";    break;
+  case "student":  window.location.href = "/student/dashboard.html";  break;
+  default:         window.location.href = "/student/dashboard.html";  break;
 }
   } catch (e) {
     setStatus(`Error: ${e.message}`, true);

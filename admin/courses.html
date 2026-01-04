@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>コース管理 | FMC 管理コンソール</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css?v=8">
+</head>
+
+<body class="bg-white text-slate-800">
+
+  <header class="sticky top-0 z-40 fmc-header">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 font-extrabold text-lg">
+        <span class="fmc-brand-dot">FMC</span>
+        <span class="text-white">管理コンソール</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-6 text-sm text-white">
+        <a href="index.html">ダッシュボード</a>
+        <a href="teachers.html">講師管理</a>
+        <a href="courses.html" class="font-semibold underline underline-offset-4">コース管理</a>
+        <a href="students.html">学生予約</a>
+        <a href="settings.html">設定</a>
+      </nav>
+
+      <div class="hidden md:flex items-center gap-3 text-xs text-white">
+        <span id="userDisplayName" class="opacity-80">Admin</span>
+        <button id="logoutBtn" class="btn-outline text-xs px-3 py-1.5">ログアウト</button>
+      </div>
+
+      <button class="md:hidden inline-flex items-center justify-center p-2 rounded text-white/90 hover:text-white"
+        aria-label="メニューを開く" aria-controls="mobile-drawer" aria-expanded="false"
+        data-drawer-open>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden z-40" data-backdrop aria-hidden="true"></div>
+
+  <aside id="mobile-drawer"
+    class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 drawer-hidden md:hidden z-50"
+    role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
+    data-drawer>
+    <div class="flex items-center justify-between px-4 py-3 border-b">
+      <div class="flex items-center gap-2">
+        <img src="../assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto">
+        <h2 id="mobile-drawer-title" class="font-bold">管理メニュー</h2>
+      </div>
+      <button type="button" class="p-2 rounded hover:bg-slate-100" aria-label="メニューを閉じる" data-drawer-close>×</button>
+    </div>
+    <nav class="px-4 py-3 flex flex-col text-slate-700">
+      <a href="index.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">ダッシュボード</a>
+      <a href="teachers.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">講師管理</a>
+      <a href="courses.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">コース管理</a>
+      <a href="students.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">学生予約</a>
+      <a href="settings.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">設定</a>
+      <div class="h-px bg-slate-200 my-3"></div>
+      <button id="logoutBtnMobile" class="btn-outline w-full text-center">ログアウト</button>
+    </nav>
+  </aside>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <header class="mb-6">
+      <p class="text-xs text-slate-500">管理者専用</p>
+      <h1 class="font-extrabold text-2xl mt-1">コース管理</h1>
+      <p class="text-sm text-slate-600 mt-1">コース名・カテゴリ・レベル・時間を作成/編集/停止できます。</p>
+    </header>
+
+    <section class="grid md:grid-cols-2 gap-6">
+      <!-- Form -->
+      <div class="card">
+        <h2 class="text-base font-bold">コースを追加 / 編集</h2>
+        <p class="text-xs text-slate-500 mt-1">「保存」で追加、一覧から選択すると編集できます。</p>
+
+        <div class="mt-4 grid gap-3">
+          <input type="hidden" id="courseId">
+
+          <label class="text-sm">
+            <div class="text-xs text-slate-500 mb-1">コース名（日本語・必須）</div>
+            <input id="courseTitleJa" class="w-full border rounded-lg px-3 py-2" placeholder="例：スペイン語初級">
+          </label>
+
+          <label class="text-sm">
+            <div class="text-xs text-slate-500 mb-1">コース名（英語・任意）</div>
+            <input id="courseTitleEn" class="w-full border rounded-lg px-3 py-2" placeholder="Example: Spanish Beginner">
+          </label>
+
+          <div class="grid md:grid-cols-2 gap-3">
+            <label class="text-sm">
+              <div class="text-xs text-slate-500 mb-1">カテゴリ</div>
+              <input id="courseCategory" class="w-full border rounded-lg px-3 py-2" placeholder="例：語学">
+            </label>
+            <label class="text-sm">
+              <div class="text-xs text-slate-500 mb-1">レベル</div>
+              <input id="courseLevel" class="w-full border rounded-lg px-3 py-2" placeholder="例：初級 / 中級">
+            </label>
+          </div>
+
+          <label class="text-sm">
+            <div class="text-xs text-slate-500 mb-1">時間（分）</div>
+            <select id="courseDuration" class="w-full border rounded-lg px-3 py-2">
+              <option value="45">45</option>
+              <option value="90">90</option>
+              <option value="180">180</option>
+            </select>
+          </label>
+
+          <label class="text-sm">
+            <div class="text-xs text-slate-500 mb-1">説明（任意）</div>
+            <textarea id="courseDesc" class="w-full border rounded-lg px-3 py-2" rows="3" placeholder="内容メモ…"></textarea>
+          </label>
+
+          <label class="inline-flex items-center gap-2 text-sm mt-1">
+            <input id="courseActive" type="checkbox" class="scale-110" checked>
+            <span>有効（is_active）</span>
+          </label>
+
+          <div class="flex gap-2 mt-2">
+            <button id="saveCourseBtn" class="btn-primary text-sm">保存</button>
+            <button id="resetCourseBtn" class="btn-outline text-sm">クリア</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- List -->
+      <div class="card">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-bold">コース一覧</h2>
+          <button id="refreshCoursesBtn" class="btn-outline text-xs px-3 py-2">更新</button>
+        </div>
+
+        <div class="table-wrap mt-3">
+          <table class="schedule-table text-xs md:text-sm w-full">
+            <thead>
+              <tr>
+                <th class="schedule-head">コース</th>
+                <th class="schedule-head">カテゴリ/レベル</th>
+                <th class="schedule-head">分</th>
+                <th class="schedule-head">状態</th>
+                <th class="schedule-head">操作</th>
+              </tr>
+            </thead>
+            <tbody id="coursesBody">
+              <tr><td colspan="5">読み込み中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="text-xs text-slate-500 mt-3">
+          ※ 停止してもデータは消えません（is_active=false）。
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-6 text-xs text-slate-500 flex justify-between">
+      <span>© FMC 多国語会話教室</span>
+      <span>管理コンソール</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/site.js" defer></script>
+
+  <script>
+    const { createClient } = window.supabase;
+    const supabase = createClient(
+      "https://dsbvgomhugvjruqykbmr.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYnZnb21odWd2anJ1cXlrYm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NzIwNzksImV4cCI6MjA3ODQ0ODA3OX0.FHX45XbBfpeNtnnCLc9wvoyxOM6w2vIIjOcIZWfb-_I",
+      { auth: { persistSession: true, detectSessionInUrl: true } }
+    );
+
+    document.addEventListener("DOMContentLoaded", () => init().catch(e => {
+      console.error(e); alert("読み込みエラー");
+    }));
+
+    async function init(){
+      await requireAdmin();
+      setupLogout();
+      bindUI();
+      await loadCourses();
+    }
+
+    async function requireAdmin(){
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        location.href = "../login.html?redirect=" + encodeURIComponent(location.pathname);
+        throw new Error("Not logged in");
+      }
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("role, login_id")
+        .eq("user_id", data.user.id)
+        .single();
+
+      if (!profile || profile.role !== "admin") {
+        location.href = "../login.html";
+        throw new Error("Not admin");
+      }
+      const nameEl = document.getElementById("userDisplayName");
+      if (nameEl) nameEl.textContent = profile.login_id || data.user.email || "Admin";
+    }
+
+    function setupLogout(){
+      [document.getElementById("logoutBtn"), document.getElementById("logoutBtnMobile")]
+        .filter(Boolean)
+        .forEach(btn => btn.addEventListener("click", async () => {
+          await supabase.auth.signOut();
+          location.href = "../login.html";
+        }));
+    }
+
+    function bindUI(){
+      document.getElementById("saveCourseBtn").addEventListener("click", saveCourse);
+      document.getElementById("resetCourseBtn").addEventListener("click", resetForm);
+      document.getElementById("refreshCoursesBtn").addEventListener("click", loadCourses);
+    }
+
+    function resetForm(){
+      document.getElementById("courseId").value = "";
+      document.getElementById("courseTitleJa").value = "";
+      document.getElementById("courseTitleEn").value = "";
+      document.getElementById("courseCategory").value = "";
+      document.getElementById("courseLevel").value = "";
+      document.getElementById("courseDuration").value = "45";
+      document.getElementById("courseDesc").value = "";
+      document.getElementById("courseActive").checked = true;
+    }
+
+    async function loadCourses(){
+      const body = document.getElementById("coursesBody");
+      body.innerHTML = `<tr><td colspan="5">読み込み中...</td></tr>`;
+
+      const { data, error } = await supabase
+        .from("courses")
+        .select("id, title_ja, category, level, duration_min, is_active")
+        .order("title_ja", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        body.innerHTML = `<tr><td colspan="5" class="text-red-500">読み込みエラー</td></tr>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        body.innerHTML = `<tr><td colspan="5">まだコースが登録されていません。</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = "";
+      data.forEach(c => {
+        const meta = [c.category, c.level].filter(Boolean).join(" / ");
+        const status = c.is_active ? "有効" : "停止";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${esc(c.title_ja)}</td>
+          <td>${esc(meta)}</td>
+          <td>${esc(String(c.duration_min ?? 45))}</td>
+          <td>${esc(status)}</td>
+          <td class="whitespace-nowrap">
+            <button class="btn-xs btn-outline" data-edit="${c.id}">編集</button>
+            <button class="btn-xs btn-ghost text-slate-500 ml-1" data-toggle="${c.id}" data-active="${c.is_active}">
+              ${c.is_active ? "停止" : "有効化"}
+            </button>
+          </td>
+        `;
+        body.appendChild(tr);
+
+        tr.querySelector("[data-edit]").addEventListener("click", () => fillForm(c));
+        tr.querySelector("[data-toggle]").addEventListener("click", async (e) => {
+          const id = e.currentTarget.dataset.toggle;
+          const active = e.currentTarget.dataset.active === "true";
+          await toggleActive(id, !active);
+          await loadCourses();
+        });
+      });
+    }
+
+    function fillForm(c){
+      document.getElementById("courseId").value = c.id;
+      document.getElementById("courseTitleJa").value = c.title_ja || "";
+      document.getElementById("courseTitleEn").value = c.title_en || "";
+      document.getElementById("courseCategory").value = c.category || "";
+      document.getElementById("courseLevel").value = c.level || "";
+      document.getElementById("courseDuration").value = String(c.duration_min ?? 45);
+      document.getElementById("courseDesc").value = c.description || "";
+      document.getElementById("courseActive").checked = !!c.is_active;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function toggleActive(id, is_active){
+      const { error } = await supabase.from("courses").update({ is_active }).eq("id", id);
+      if (error) {
+        console.error(error);
+        alert("更新に失敗しました");
+      }
+    }
+
+    async function saveCourse(){
+      const id = document.getElementById("courseId").value.trim();
+      const title_ja = document.getElementById("courseTitleJa").value.trim();
+      const title_en = document.getElementById("courseTitleEn").value.trim() || null;
+      const category = document.getElementById("courseCategory").value.trim() || null;
+      const level = document.getElementById("courseLevel").value.trim() || null;
+      const duration_min = parseInt(document.getElementById("courseDuration").value, 10) || 45;
+      const description = document.getElementById("courseDesc").value.trim() || null;
+      const is_active = document.getElementById("courseActive").checked;
+
+      if (!title_ja) {
+        alert("コース名（日本語）を入力してください。");
+        return;
+      }
+
+      const payload = { title_ja, title_en, category, level, duration_min, description, is_active };
+
+      let res;
+      if (!id) res = await supabase.from("courses").insert(payload);
+      else     res = await supabase.from("courses").update(payload).eq("id", id);
+
+      if (res.error) {
+        console.error(res.error);
+        alert("保存に失敗しました。RLS/権限やカラム名を確認してください。");
+        return;
+      }
+
+      resetForm();
+      await loadCourses();
+      alert("保存しました。");
+    }
+
+    function esc(s=""){
+      return String(s).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+  </script>
+</body>
+</html>

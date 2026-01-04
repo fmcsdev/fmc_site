@@ -1,141 +1,188 @@
 // assets/admin-calendar.js
-(function () {
-  // Only run on admin dashboard if calendar exists
-  const calEl = document.getElementById("adminCalendar");
-  if (!calEl) return;
+// Calendar view: reservation_slots + teacher_availabilities
 
-  // Use the same Supabase credentials as admin.js (keep consistent)
+(function () {
+  const calEl = document.getElementById("adminCalendar");
+  if (!calEl || !window.FullCalendar || !window.supabase) return;
+
   const { createClient } = window.supabase;
 
+  // Use SAME project as admin.js
   const SUPABASE_URL  = "https://dsbvgomhugvjruqykbmr.supabase.co";
-  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYnZnb21odWd2anJ1cXlrYm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NzIwNzksImV4cCI6MjA3ODQ0ODA3OX0.FHX45XbBfpeNtnnCLc9wvoyxOM6w2vIIjOcIZWfb-_I";
+  const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYnZnb21odWd2anJ1cXlrYm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NzIwNzksImV4cCI6MjA3ODQ0ODA3OX0.FHX45XbBfpeNtnnCLc9wvoyxOM6w2vIIjOcIZWfb-_I"; // same as admin.js
 
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
     auth: { persistSession: true, detectSessionInUrl: true }
   });
 
-  function statusColor(kind, status) {
-    // kind: "slot" | "avail"
-    if (kind === "slot") {
-      if (status === "active") return "#3b82f6";  // blue
-      if (status === "closed") return "#94a3b8";  // slate
-      return "#a855f7";                            // purple fallback
-    }
-    // avail
-    if (status === "approved") return "#22c55e";   // green
-    if (status === "pending") return "#f59e0b";    // orange
-    if (status === "rejected") return "#ef4444";   // red
-    return "#64748b";
+  // Colors
+  const COLORS = {
+    slot_active:  { bg: "#3b82f6", border: "#3b82f6", text: "#fff" }, // blue
+    slot_closed:  { bg: "#9ca3af", border: "#9ca3af", text: "#fff" }, // gray
+    avail_pending:{ bg: "#f59e0b", border: "#f59e0b", text: "#111827" }, // orange
+    avail_approved:{ bg: "#22c55e", border: "#22c55e", text: "#0b1220" }, // green
+    avail_rejected:{ bg: "#ef4444", border: "#ef4444", text: "#fff" } // red
+  };
+
+  function isMissingColumnError(err) {
+    const msg = (err && (err.message || err.toString())) || "";
+    return msg.includes('column "status" does not exist') || msg.includes("42703");
   }
 
-  function slotTitle(s) {
-    // You can expand later to include course name once you join courses
-    return `予約枠 (${s.language || ""})`;
-  }
-
-  function availTitle(a) {
-    const label = a.status === "approved" ? "講師申請(承認済み)"
-      : a.status === "pending" ? "講師申請(承認待ち)"
-      : a.status === "rejected" ? "講師申請(却下)"
-      : "講師申請";
-    return `${label} (${a.language || ""})`;
-  }
-
-  async function fetchEvents(rangeStart, rangeEnd) {
-    // fetch slots within calendar range
-    const { data: slots, error: sErr } = await sb
+  async function fetchSlotsSafe() {
+    // Try with status first
+    let res = await sb
       .from("reservation_slots")
-      .select("id, language, start_time, end_time, status, teacher_id")
-      .gte("start_time", rangeStart.toISOString())
-      .lte("start_time", rangeEnd.toISOString())
+      .select("id, teacher_id, language, course_id, start_time, end_time, capacity, status")
       .order("start_time", { ascending: true });
 
-    if (sErr) {
-      console.warn("calendar slots error:", sErr);
+    if (res.error && isMissingColumnError(res.error)) {
+      // Retry without status
+      res = await sb
+        .from("reservation_slots")
+        .select("id, teacher_id, language, course_id, start_time, end_time, capacity")
+        .order("start_time", { ascending: true });
+      if (!res.error && res.data) {
+        // synthesize status
+        res.data = res.data.map(r => ({ ...r, status: "active" }));
+      }
     }
+    if (res.error) throw res.error;
+    return res.data || [];
+  }
 
-    // fetch teacher availabilities within range
-    const { data: avails, error: aErr } = await sb
+  async function fetchAvailabilities() {
+    const { data, error } = await sb
       .from("teacher_availabilities")
-      .select("id, language, start_time, end_time, status, teacher_id")
-      .gte("start_time", rangeStart.toISOString())
-      .lte("start_time", rangeEnd.toISOString())
+      .select("id, teacher_id, language, start_time, end_time, status")
       .order("start_time", { ascending: true });
 
-    if (aErr) {
-      console.warn("calendar avails error:", aErr);
-    }
+    if (error) throw error;
+    return data || [];
+  }
 
-    const events = [];
+  async function fetchCourses() {
+    // Optional (for nicer titles)
+    const { data, error } = await sb
+      .from("courses")
+      .select("id, title_ja, duration_min")
+      .order("sort_order", { ascending: true });
 
-    (slots || []).forEach(s => {
-      events.push({
-        id: "slot-" + s.id,
-        title: slotTitle(s),
+    if (error) return [];
+    return data || [];
+  }
+
+  function makeCourseMap(courses) {
+    const map = {};
+    courses.forEach(c => {
+      const title = (c.title_ja || "").trim();
+      const dur = c.duration_min != null ? `${c.duration_min}分` : "";
+      map[c.id] = title ? (dur ? `${title}（${dur}）` : title) : (dur || "コース");
+    });
+    return map;
+  }
+
+  function slotColor(status) {
+    if (status === "closed") return COLORS.slot_closed;
+    return COLORS.slot_active; // default
+  }
+
+  function availColor(status) {
+    if (status === "approved") return COLORS.avail_approved;
+    if (status === "rejected") return COLORS.avail_rejected;
+    return COLORS.avail_pending;
+  }
+
+  function short(s) {
+    if (!s) return "";
+    return String(s).slice(0, 6) + "…";
+  }
+
+  async function buildEvents() {
+    const [slots, avails, courses] = await Promise.all([
+      fetchSlotsSafe(),
+      fetchAvailabilities(),
+      fetchCourses()
+    ]);
+
+    const courseMap = makeCourseMap(courses);
+
+    const slotEvents = slots.map(s => {
+      const c = slotColor(s.status);
+      const titleCourse = s.course_id ? (courseMap[s.course_id] || "コース") : "（コース未設定）";
+      const title = `【予約枠】${titleCourse} / ${s.language || ""} / ${short(s.teacher_id)}`;
+
+      return {
+        id: `slot:${s.id}`,
+        title,
         start: s.start_time,
         end: s.end_time,
-        backgroundColor: statusColor("slot", s.status),
-        borderColor: statusColor("slot", s.status),
-        textColor: "#ffffff",
-        extendedProps: { kind: "slot", raw: s }
-      });
+        backgroundColor: c.bg,
+        borderColor: c.border,
+        textColor: c.text,
+        extendedProps: { kind: "slot", row: s }
+      };
     });
 
-    (avails || []).forEach(a => {
-      events.push({
-        id: "avail-" + a.id,
-        title: availTitle(a),
+    const availEvents = avails.map(a => {
+      const c = availColor(a.status);
+      const statusJa =
+        a.status === "approved" ? "承認済み" :
+        a.status === "rejected" ? "却下" : "承認待ち";
+
+      const title = `【講師申請/${statusJa}】${a.language || ""} / ${short(a.teacher_id)}`;
+
+      return {
+        id: `avail:${a.id}`,
+        title,
         start: a.start_time,
         end: a.end_time,
-        backgroundColor: statusColor("avail", a.status),
-        borderColor: statusColor("avail", a.status),
-        textColor: "#111827",
-        extendedProps: { kind: "avail", raw: a }
-      });
+        backgroundColor: c.bg,
+        borderColor: c.border,
+        textColor: c.text,
+        extendedProps: { kind: "avail", row: a }
+      };
     });
 
-    return events;
+    return [...slotEvents, ...availEvents];
   }
 
   const calendar = new FullCalendar.Calendar(calEl, {
-    initialView: "dayGridMonth",
-    height: "auto",
-    nowIndicator: true,
+    initialView: "timeGridWeek",
     locale: "ja",
+    nowIndicator: true,
+    height: "auto",
     headerToolbar: {
       left: "prev,next today",
       center: "title",
       right: "dayGridMonth,timeGridWeek,timeGridDay"
     },
+    slotMinTime: "08:00:00",
+    slotMaxTime: "23:00:00",
     eventTimeFormat: { hour: "2-digit", minute: "2-digit", hour12: false },
-    events: async (info, successCallback, failureCallback) => {
+    events: async (info, success, failure) => {
       try {
-        const events = await fetchEvents(info.start, info.end);
-        successCallback(events);
+        const events = await buildEvents();
+        success(events);
       } catch (e) {
-        console.error("calendar events failed:", e);
-        failureCallback(e);
+        console.error("calendar load error:", e);
+        failure(e);
       }
     },
     eventClick: (info) => {
-      const { kind, raw } = info.event.extendedProps || {};
-      if (!raw) return;
+      const kind = info.event.extendedProps?.kind;
 
-      // Simple details popup (you can replace with a nicer modal later)
-      const start = new Date(raw.start_time).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
-      const end   = new Date(raw.end_time).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
-      alert(
-        `種類: ${kind}\n` +
-        `言語: ${raw.language || ""}\n` +
-        `状態: ${raw.status || ""}\n` +
-        `開始: ${start}\n` +
-        `終了: ${end}`
-      );
+      if (kind === "slot") {
+        // Jump to the slots table area so admin can find it
+        document.querySelector("#admin-slots-body")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (kind === "avail") {
+        document.querySelector("#admin-availability-body")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     }
   });
 
   calendar.render();
 
-  // Optional: allow admin.js to refresh calendar after changes
+  // Optional refresh hook for other scripts
   window.__adminCalendarRefetch = () => calendar.refetchEvents();
 })();

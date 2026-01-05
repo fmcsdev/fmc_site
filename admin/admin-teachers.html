@@ -153,7 +153,8 @@
   <script src="../assets/site.js" defer></script>
 
   <script>
-    const { createClient } = window.supabase;
+    const supabase = window.supabaseClient;
+
 
     document.addEventListener("DOMContentLoaded", () => init().catch(e => {
       console.error(e); alert("読み込みエラー");

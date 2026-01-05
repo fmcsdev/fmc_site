@@ -241,7 +241,7 @@
 
     const { data, error } = await sb
       .from("courses")
-      .select("id, title_ja, title_en, category, level, duration_min, description, is_active")
+      .select("id, title_ja, language, duration_min, is_active, sort_order")
       .order("title_ja", { ascending: true });
 
     if (error) {
@@ -257,7 +257,7 @@
 
     body.innerHTML = "";
     data.forEach(c => {
-      const meta = [c.category, c.level].filter(Boolean).join(" / ");
+      const meta = c.language || "";
       const status = c.is_active ? "有効" : "停止";
 
       const tr = document.createElement("tr");

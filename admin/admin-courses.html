@@ -23,11 +23,11 @@
       </a>
 
       <nav class="hidden md:flex items-center gap-6 text-sm text-white">
-  <a href="dashboard.html">ダッシュボード</a>
-  <a href="admin-teachers.html">講師</a>
-  <a href="admin-courses.html">コース</a>
-  <a href="admin-students.html">学生予約</a>
-</nav>
+        <a href="dashboard.html">ダッシュボード</a>
+        <a href="admin-teachers.html">講師</a>
+        <a href="admin-courses.html">コース</a>
+        <a href="admin-students.html">学生予約</a>
+      </nav>
 
       <div class="hidden md:flex items-center gap-3 text-xs text-white">
         <span id="userDisplayName" class="opacity-80">Admin</span>
@@ -71,7 +71,7 @@
     <header class="mb-6">
       <p class="text-xs text-slate-500">管理者専用</p>
       <h1 class="font-extrabold text-2xl mt-1">コース管理</h1>
-      <p class="text-sm text-slate-600 mt-1">コース名・カテゴリ・レベル・時間を作成/編集/停止できます。</p>
+      <p class="text-sm text-slate-600 mt-1">コース名・言語・時間を作成/編集/停止できます。</p>
     </header>
 
     <section class="grid md:grid-cols-2 gap-6">
@@ -89,34 +89,19 @@
           </label>
 
           <label class="text-sm">
-            <div class="text-xs text-slate-500 mb-1">コース名（英語・任意）</div>
-            <input id="courseTitleEn" class="w-full border rounded-lg px-3 py-2" placeholder="Example: Spanish Beginner">
+            <div class="text-xs text-slate-500 mb-1">言語（必須）</div>
+            <select id="courseLanguage" class="w-full border rounded-lg px-3 py-2">
+              <option value="">選択してください</option>
+              <option value="English">English</option>
+              <option value="Spanish">Spanish</option>
+              <option value="Japanese">Japanese</option>
+              <option value="Chinese">Chinese</option>
+              <option value="French">French</option>
+              <option value="Arabic">Arabic</option>
+              <option value="Programming">Programming</option>
+              <option value="Other">Other</option>
+            </select>
           </label>
-<label class="text-sm">
-  <div class="text-xs text-slate-500 mb-1">言語（必須）</div>
-  <select id="courseLanguage" class="w-full border rounded-lg px-3 py-2">
-    <option value="">選択してください</option>
-    <option value="English">English</option>
-    <option value="Spanish">Spanish</option>
-    <option value="Japanese">Japanese</option>
-    <option value="Chinese">Chinese</option>
-    <option value="French">French</option>
-    <option value="Arabic">Arabic</option>
-    <option value="Programming">Programming</option>
-    <option value="Other">Other</option>
-  </select>
-</label>
-
-          <div class="grid md:grid-cols-2 gap-3">
-            <label class="text-sm">
-              <div class="text-xs text-slate-500 mb-1">カテゴリ</div>
-              <input id="courseCategory" class="w-full border rounded-lg px-3 py-2" placeholder="例：語学">
-            </label>
-            <label class="text-sm">
-              <div class="text-xs text-slate-500 mb-1">レベル</div>
-              <input id="courseLevel" class="w-full border rounded-lg px-3 py-2" placeholder="例：初級 / 中級">
-            </label>
-          </div>
 
           <label class="text-sm">
             <div class="text-xs text-slate-500 mb-1">時間（分）</div>
@@ -125,11 +110,6 @@
               <option value="90">90</option>
               <option value="180">180</option>
             </select>
-          </label>
-
-          <label class="text-sm">
-            <div class="text-xs text-slate-500 mb-1">説明（任意）</div>
-            <textarea id="courseDesc" class="w-full border rounded-lg px-3 py-2" rows="3" placeholder="内容メモ…"></textarea>
           </label>
 
           <label class="inline-flex items-center gap-2 text-sm mt-1">
@@ -141,6 +121,10 @@
             <button id="saveCourseBtn" class="btn-primary text-sm">保存</button>
             <button id="resetCourseBtn" class="btn-outline text-sm">クリア</button>
           </div>
+
+          <p class="text-xs text-slate-500">
+            ※ この画面はあなたのDB（coursesテーブル）に合わせて、存在しないカラム（category / level / title_en / description）を使わないようにしています。
+          </p>
         </div>
       </div>
 
@@ -156,7 +140,7 @@
             <thead>
               <tr>
                 <th class="schedule-head">コース</th>
-                <th class="schedule-head">カテゴリ/レベル</th>
+                <th class="schedule-head">言語</th>
                 <th class="schedule-head">分</th>
                 <th class="schedule-head">状態</th>
                 <th class="schedule-head">操作</th>
@@ -186,190 +170,186 @@
   <script src="../assets/supabase-client.js"></script>
   <script src="../assets/site.js" defer></script>
 
- <script>
-  // ✅ reuse the global singleton client (avoid declaring "supabase" again)
-  const sb = window.supabaseClient;
+  <script>
+    // ✅ reuse the global singleton client
+    const sb = window.supabaseClient;
 
-  document.addEventListener("DOMContentLoaded", () => init().catch(e => {
-    console.error(e); alert("読み込みエラー");
-  }));
+    document.addEventListener("DOMContentLoaded", () => init().catch(e => {
+      console.error(e); alert("読み込みエラー");
+    }));
 
-  async function init(){
-    await requireAdmin();
-    setupLogout();
-    bindUI();
-    await loadCourses();
-  }
-
-  async function requireAdmin(){
-    const { data, error } = await sb.auth.getUser();
-    if (error || !data.user) {
-      location.href = "../login.html?redirect=" + encodeURIComponent(location.pathname);
-      throw new Error("Not logged in");
+    async function init(){
+      await requireAdmin();
+      setupLogout();
+      bindUI();
+      await loadCourses();
     }
 
-    const { data: profile } = await sb
-      .from("user_profiles")
-      .select("role, login_id")
-      .eq("user_id", data.user.id)
-      .single();
+    async function requireAdmin(){
+      const { data, error } = await sb.auth.getUser();
+      if (error || !data.user) {
+        location.href = "../login.html?redirect=" + encodeURIComponent(location.pathname);
+        throw new Error("Not logged in");
+      }
 
-    if (!profile || profile.role !== "admin") {
-      location.href = "../login.html";
-      throw new Error("Not admin");
-    }
+      const { data: profile, error: pErr } = await sb
+        .from("user_profiles")
+        .select("role, login_id")
+        .eq("user_id", data.user.id)
+        .single();
 
-    const nameEl = document.getElementById("userDisplayName");
-    if (nameEl) nameEl.textContent = profile.login_id || data.user.email || "Admin";
-  }
+      if (pErr) console.warn("profile load:", pErr);
 
-  function setupLogout(){
-    [document.getElementById("logoutBtn"), document.getElementById("logoutBtnMobile")]
-      .filter(Boolean)
-      .forEach(btn => btn.addEventListener("click", async () => {
-        await sb.auth.signOut();
+      if (!profile || profile.role !== "admin") {
         location.href = "../login.html";
-      }));
-  }
+        throw new Error("Not admin");
+      }
 
-  function bindUI(){
-    document.getElementById("saveCourseBtn").addEventListener("click", saveCourse);
-    document.getElementById("resetCourseBtn").addEventListener("click", resetForm);
-    document.getElementById("refreshCoursesBtn").addEventListener("click", loadCourses);
-  }
-
-  function resetForm(){
-    document.getElementById("courseId").value = "";
-    document.getElementById("courseTitleJa").value = "";
-    document.getElementById("courseTitleEn").value = "";
-    document.getElementById("courseCategory").value = "";
-    document.getElementById("courseLevel").value = "";
-    document.getElementById("courseDuration").value = "45";
-    document.getElementById("courseDesc").value = "";
-    document.getElementById("courseActive").checked = true;
-    document.getElementById("courseLanguage").value = "";
-
-  }
-
-  async function loadCourses(){
-    const body = document.getElementById("coursesBody");
-    body.innerHTML = `<tr><td colspan="5">読み込み中...</td></tr>`;
-
-    const { data, error } = await sb
-      .from("courses")
-      .select("id, title_ja, language, duration_min, is_active, sort_order")
-      .order("title_ja", { ascending: true });
-
-    if (error) {
-      console.error(error);
-      body.innerHTML = `<tr><td colspan="5" class="text-red-500">読み込みエラー</td></tr>`;
-      return;
+      const nameEl = document.getElementById("userDisplayName");
+      if (nameEl) nameEl.textContent = profile.login_id || data.user.email || "Admin";
     }
 
-    if (!data || data.length === 0) {
-      body.innerHTML = `<tr><td colspan="5">まだコースが登録されていません。</td></tr>`;
-      return;
+    function setupLogout(){
+      [document.getElementById("logoutBtn"), document.getElementById("logoutBtnMobile")]
+        .filter(Boolean)
+        .forEach(btn => btn.addEventListener("click", async () => {
+          await sb.auth.signOut();
+          location.href = "../login.html";
+        }));
     }
 
-    body.innerHTML = "";
-    data.forEach(c => {
-      const meta = c.language || "";
-      const status = c.is_active ? "有効" : "停止";
+    function bindUI(){
+      document.getElementById("saveCourseBtn").addEventListener("click", saveCourse);
+      document.getElementById("resetCourseBtn").addEventListener("click", resetForm);
+      document.getElementById("refreshCoursesBtn").addEventListener("click", loadCourses);
+    }
 
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${esc(c.title_ja)}</td>
-        <td>${esc(meta)}</td>
-        <td>${esc(String(c.duration_min ?? 45))}</td>
-        <td>${esc(status)}</td>
-        <td>${esc(c.language || "")}</td>
-        <td class="whitespace-nowrap">
-          <button class="btn-xs btn-outline" data-edit="${c.id}">編集</button>
-          <button class="btn-xs btn-ghost text-slate-500 ml-1" data-toggle="${c.id}" data-active="${c.is_active}">
-            ${c.is_active ? "停止" : "有効化"}
-          </button>
-        </td>
-      `;
-      body.appendChild(tr);
+    function resetForm(){
+      document.getElementById("courseId").value = "";
+      document.getElementById("courseTitleJa").value = "";
+      document.getElementById("courseLanguage").value = "";
+      document.getElementById("courseDuration").value = "45";
+      document.getElementById("courseActive").checked = true;
+    }
 
-      tr.querySelector("[data-edit]").addEventListener("click", () => fillForm(c));
-      tr.querySelector("[data-toggle]").addEventListener("click", async (e) => {
-        const id = e.currentTarget.dataset.toggle;
-        const active = e.currentTarget.dataset.active === "true";
-        await toggleActive(id, !active);
-        await loadCourses();
+    async function loadCourses(){
+      const body = document.getElementById("coursesBody");
+      body.innerHTML = `<tr><td colspan="5">読み込み中...</td></tr>`;
+
+      const { data, error } = await sb
+        .from("courses")
+        .select("id, title_ja, language, duration_min, is_active, sort_order")
+        .order("sort_order", { ascending: true, nullsFirst: false })
+        .order("title_ja", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        body.innerHTML = `<tr><td colspan="5" class="text-red-500">読み込みエラー</td></tr>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        body.innerHTML = `<tr><td colspan="5">まだコースが登録されていません。</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = "";
+      data.forEach(c => {
+        const status = c.is_active ? "有効" : "停止";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${esc(c.title_ja)}</td>
+          <td>${esc(c.language || "")}</td>
+          <td>${esc(String(c.duration_min ?? 45))}</td>
+          <td>${esc(status)}</td>
+          <td class="whitespace-nowrap">
+            <button class="btn-xs btn-outline" data-edit="${c.id}">編集</button>
+            <button class="btn-xs btn-ghost text-slate-500 ml-1" data-toggle="${c.id}" data-active="${c.is_active}">
+              ${c.is_active ? "停止" : "有効化"}
+            </button>
+          </td>
+        `;
+        body.appendChild(tr);
+
+        tr.querySelector("[data-edit]").addEventListener("click", () => fillForm(c));
+        tr.querySelector("[data-toggle]").addEventListener("click", async (e) => {
+          const id = e.currentTarget.dataset.toggle;
+          const active = e.currentTarget.dataset.active === "true";
+          await toggleActive(id, !active);
+          await loadCourses();
+        });
       });
-    });
-  }
-
-  function fillForm(c){
-    document.getElementById("courseId").value = c.id;
-    document.getElementById("courseTitleJa").value = c.title_ja || "";
-    document.getElementById("courseTitleEn").value = c.title_en || "";
-    document.getElementById("courseCategory").value = c.category || "";
-    document.getElementById("courseLevel").value = c.level || "";
-    document.getElementById("courseDuration").value = String(c.duration_min ?? 45);
-    document.getElementById("courseLanguage").value = c.language || "";
-    document.getElementById("courseDesc").value = c.description || "";
-    document.getElementById("courseActive").checked = !!c.is_active;
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  async function toggleActive(id, is_active){
-    const { error } = await sb.from("courses").update({ is_active }).eq("id", id);
-    if (error) {
-      console.error(error);
-      alert("更新に失敗しました");
-    }
-  }
-
-  async function saveCourse(){
-    const id = document.getElementById("courseId").value.trim();
-    const title_ja = document.getElementById("courseTitleJa").value.trim();
-    const title_en = document.getElementById("courseTitleEn").value.trim() || null;
-    const category = document.getElementById("courseCategory").value.trim() || null;
-    const level = document.getElementById("courseLevel").value.trim() || null;
-    const duration_min = parseInt(document.getElementById("courseDuration").value, 10) || 45;
-    const description = document.getElementById("courseDesc").value.trim() || null;
-    const language = document.getElementById("courseLanguage").value.trim();
-
-if (!language) {
-  alert("言語（language）を選択してください。");
-  return;
-}
-
-    const is_active = document.getElementById("courseActive").checked;
-    
-
-    if (!title_ja) {
-      alert("コース名（日本語）を入力してください。");
-      return;
     }
 
-   const payload = { title_ja, language, duration_min, is_active, sort_order };
-
-
-    const res = !id
-      ? await sb.from("courses").insert(payload)
-      : await sb.from("courses").update(payload).eq("id", id);
-
-    if (res.error) {
-      console.error(res.error);
-      alert("保存に失敗しました。RLS/権限やカラム名を確認してください。");
-      return;
+    function fillForm(c){
+      document.getElementById("courseId").value = c.id;
+      document.getElementById("courseTitleJa").value = c.title_ja || "";
+      document.getElementById("courseLanguage").value = c.language || "";
+      document.getElementById("courseDuration").value = String(c.duration_min ?? 45);
+      document.getElementById("courseActive").checked = !!c.is_active;
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    resetForm();
-    await loadCourses();
-    alert("保存しました。");
-  }
+    async function toggleActive(id, is_active){
+      const { error } = await sb.from("courses").update({ is_active }).eq("id", id);
+      if (error) {
+        console.error(error);
+        alert("更新に失敗しました");
+      }
+    }
 
-  function esc(s=""){
-    return String(s).replace(/[&<>"']/g, m => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    }[m]));
-  }
-</script>
+    async function saveCourse(){
+      const id = document.getElementById("courseId").value.trim();
+      const title_ja = document.getElementById("courseTitleJa").value.trim();
+      const language = document.getElementById("courseLanguage").value.trim();
+      const duration_min = parseInt(document.getElementById("courseDuration").value, 10) || 45;
+      const is_active = document.getElementById("courseActive").checked;
+
+      if (!title_ja) {
+        alert("コース名（日本語）を入力してください。");
+        return;
+      }
+      if (!language) {
+        alert("言語（language）を選択してください。");
+        return;
+      }
+
+      // ✅ FIX: define sort_order so ReferenceError never happens
+      // Simple default: 0 for new courses, keep existing for edits (or default 0 if null)
+      let sort_order = 0;
+      if (id) {
+        const { data: existing, error: eErr } = await sb
+          .from("courses")
+          .select("sort_order")
+          .eq("id", id)
+          .single();
+        if (!eErr && existing && existing.sort_order != null) sort_order = existing.sort_order;
+      }
+
+      const payload = { title_ja, language, duration_min, is_active, sort_order };
+
+      const res = !id
+        ? await sb.from("courses").insert(payload)
+        : await sb.from("courses").update(payload).eq("id", id);
+
+      if (res.error) {
+        console.error(res.error);
+        alert("保存に失敗しました。RLS/権限やカラム名を確認してください。");
+        return;
+      }
+
+      resetForm();
+      await loadCourses();
+      alert("保存しました。");
+    }
+
+    function esc(s=""){
+      return String(s).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+  </script>
 
 </body>
 </html>

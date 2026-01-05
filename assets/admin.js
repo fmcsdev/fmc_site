@@ -1,10 +1,6 @@
 // assets/admin.js
-// Admin dashboard: teacher availabilities + reservation slots (with Course + Teacher entities)
-
-const { createClient: createClientAdmin } = window.supabase;
-
-const SUPABASE_URL_A  = "https://dsbvgomhugvjruqykbmr.supabase.co";
-const SUPABASE_ANON_A = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYnZnb21odWd2anJ1cXlrYm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NzIwNzksImV4cCI6MjA3ODQ0ODA3OX0.FHX45XbBfpeNtnnCLc9wvoyxOM6w2vIIjOcIZWfb-_I";
+// Admin dashboard: teacher availabilities + reservation slots (Course + Teacher entities)
+// FIXED: reservation_slots uses teacher_id (auth uid), not teacher_ref_id
 
 const supabaseA = window.supabaseClient;
 
@@ -19,13 +15,11 @@ async function initAdmin() {
   await requireAuthAdmin("admin");
   setupLogoutAdmin();
 
-  // buttons
   setupAddSlotButton();
 
   await Promise.all([
     loadTeacherAvailabilitiesForAdmin(),
     loadSlotsForAdmin()
-    // later: loadReservationsForAdmin()
   ]);
 }
 
@@ -58,18 +52,10 @@ async function requireAuthAdmin(requiredRole) {
 
   if (profile.role !== requiredRole) {
     switch (profile.role) {
-      case "teacher":
-        window.location.href = "../teacher/index.html";
-        break;
-      case "student":
-        window.location.href = "../student/index.html";
-        break;
-      case "guardian":
-        window.location.href = "../guardian/index.html";
-        break;
-      default:
-        window.location.href = "../login.html";
-        break;
+      case "teacher":   window.location.href = "../teacher/index.html"; break;
+      case "student":   window.location.href = "../student/index.html"; break;
+      case "guardian":  window.location.href = "../guardian/index.html"; break;
+      default:          window.location.href = "../login.html"; break;
     }
     throw new Error("Wrong role");
   }
@@ -104,7 +90,7 @@ async function loadTeacherAvailabilitiesForAdmin() {
   if (!tbody) return;
   tbody.innerHTML = "<tr><td colspan='6'>読み込み中...</td></tr>";
 
-  // NOTE: teacher_availabilities.teacher_id is still auth user id
+  // teacher_availabilities.teacher_id is auth uid
   const { data, error } = await supabaseA
     .from("teacher_availabilities")
     .select("id, teacher_id, language, start_time, end_time, status")
@@ -127,7 +113,6 @@ async function loadTeacherAvailabilitiesForAdmin() {
     return;
   }
 
-  // Map auth user_id -> name (login_id/display_name) for display
   const teacherIds = [...new Set(data.map(r => r.teacher_id).filter(Boolean))];
   const teacherNameMap = await fetchAuthTeacherNames(teacherIds);
 
@@ -144,16 +129,14 @@ async function loadTeacherAvailabilitiesForAdmin() {
 
     const startDateStr = formatDateOnlyA(row.start_time);
     if (startDateStr === todayStr && row.status === "approved") {
-      todayReservationsCount++; // placeholder (connect to reservations table later)
+      todayReservationsCount++; // placeholder
     }
 
     const teacherName = teacherNameMap[row.teacher_id] || shortIdA(row.teacher_id);
     const timeRange   = formatTimeRangeA(row.start_time, row.end_time);
-    const statusLabel = row.status === "approved"
-      ? "承認済み"
-      : row.status === "rejected"
-      ? "却下"
-      : "承認待ち";
+    const statusLabel =
+      row.status === "approved" ? "承認済み" :
+      row.status === "rejected" ? "却下" : "承認待ち";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -165,19 +148,11 @@ async function loadTeacherAvailabilitiesForAdmin() {
       <td>
         <button class="btn-xs btn-outline" data-action="approve-avail" data-id="${row.id}">承認</button>
         <button class="btn-xs btn-ghost text-slate-500 ml-1" data-action="reject-avail" data-id="${row.id}">却下</button>
-        <button
-          class="btn-xs btn-primary ml-2"
-          data-action="create-slot"
-          data-id="${row.id}"
-          data-start="${row.start_time}"
-          data-end="${row.end_time}"
-          data-language="${row.language || ""}"
-        >予約枠を作成</button>
+        <button class="btn-xs btn-primary ml-2" data-action="create-slot">予約枠を作成</button>
       </td>
     `;
     tbody.appendChild(tr);
 
-    // handlers
     tr.querySelector('[data-action="approve-avail"]')?.addEventListener("click", async () => {
       const ok = await updateAvailabilityStatus(row.id, "approved");
       if (ok) await loadTeacherAvailabilitiesForAdmin();
@@ -189,29 +164,21 @@ async function loadTeacherAvailabilitiesForAdmin() {
     });
 
     tr.querySelector('[data-action="create-slot"]')?.addEventListener("click", async () => {
-      // Because availabilities are tied to auth teachers (teacher_id),
-      // and reservation slots are tied to your teachers table (teacher_ref_id),
-      // admin selects Teacher + Course here.
+      // Default to the same teacher (auth uid) from availability
       const defaults = {
+        teacher_id: row.teacher_id || "",
+        course_id: "",
+        language: row.language || "",
         start_time: row.start_time,
         end_time: row.end_time,
-        language: row.language || "",
         capacity: 1,
         status: "active"
       };
+
       const result = await openSlotModal(defaults);
       if (!result) return;
 
-      const ok = await createReservationSlot({
-        teacher_ref_id: result.teacher_ref_id,
-        course_id: result.course_id,
-        language: result.language,
-        start_time: result.start_time,
-        end_time: result.end_time,
-        capacity: result.capacity,
-        status: result.status
-      });
-
+      const ok = await createReservationSlot(result);
       if (ok) {
         await loadSlotsForAdmin();
         alert("予約枠を作成しました。");
@@ -232,7 +199,7 @@ async function fetchAuthTeacherNames(authTeacherIds) {
 
   const { data, error } = await supabaseA
     .from("user_profiles")
-    .select("id, user_id, login_id, display_name")
+    .select("user_id, login_id, display_name")
     .in("user_id", authTeacherIds);
 
   if (error) {
@@ -240,17 +207,21 @@ async function fetchAuthTeacherNames(authTeacherIds) {
     return map;
   }
 
-  data.forEach(row => {
+  (data || []).forEach(row => {
     const label =
       (row.display_name && row.display_name.trim()) ||
       (row.login_id && row.login_id.trim()) ||
-      shortIdA(row.user_id || row.id);
+      shortIdA(row.user_id);
 
     if (row.user_id) map[row.user_id] = label;
-    if (row.id)      map[row.id]      = label;
   });
 
   return map;
+}
+
+/** Alias (your old code calls fetchTeacherNames in loadSlotsForAdmin) */
+async function fetchTeacherNames(authTeacherIds) {
+  return fetchAuthTeacherNames(authTeacherIds);
 }
 
 /** Update teacher_availabilities.status */
@@ -325,21 +296,21 @@ async function loadSlotsForAdmin() {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${teacherName}</td>
-      <td>${row.language || ""}</td>
-      <td>${row.course_id || ""}</td>
-      <td>${dateStr} ${timeRange}</td>
-      <td>${dateStr} ${formatTimeRangeA(row.start_time, row.end_time)}</td>
-      <td>${row.capacity ?? 1}</td>
-      <td>${statusLabel}</td>
+      <td>${escapeHtml(teacherName)}</td>
+      <td>${escapeHtml(row.language || "")}</td>
+      <td>${escapeHtml(row.course_id || "")}</td>
+      <td>${escapeHtml(dateStr)} ${escapeHtml(timeRange)}</td>
+      <td>${escapeHtml(dateStr)} ${escapeHtml(formatTimeRangeA(row.start_time, row.end_time))}</td>
+      <td>${escapeHtml(String(row.capacity ?? 1))}</td>
+      <td>${escapeHtml(statusLabel)}</td>
       <td>
         ${hasStatus ? `
           <button
             class="btn-xs btn-outline"
             data-action="toggle-slot-status"
             data-id="${row.id}"
-            data-status="${statusVal}"
-          >${toggleLabel}</button>
+            data-status="${escapeHtml(statusVal || "active")}"
+          >${escapeHtml(toggleLabel)}</button>
         ` : `<span class="text-xs text-slate-400">status未対応</span>`}
       </td>
     `;
@@ -357,7 +328,6 @@ async function loadSlotsForAdmin() {
   });
 }
 
-
 async function updateSlotStatus(slotId, newStatus) {
   const { error } = await supabaseA
     .from("reservation_slots")
@@ -373,7 +343,7 @@ async function updateSlotStatus(slotId, newStatus) {
 }
 
 /* =========================
-   Create / Edit slot modal
+   Create slot modal
 ========================= */
 
 let __teachersCache = null;
@@ -381,19 +351,45 @@ let __coursesCache = null;
 
 async function fetchTeachersActive() {
   if (__teachersCache) return __teachersCache;
-  const { data, error } = await supabaseA
+
+  // Preferred: teachers table has user_id (auth uid)
+  // Fallback: user_profiles (role='teacher')
+  let data = null;
+
+  const res1 = await supabaseA
     .from("teachers")
-    .select("id, display_name")
+    .select("user_id, display_name")
     .eq("is_active", true)
     .order("display_name", { ascending: true });
 
-  if (error) throw error;
+  if (!res1.error && res1.data) {
+    data = (res1.data || []).filter(t => t.user_id);
+  } else {
+    console.warn("fetchTeachersActive: teachers table not usable, fallback to user_profiles", res1.error);
+
+    const res2 = await supabaseA
+      .from("user_profiles")
+      .select("user_id, display_name, login_id")
+      .eq("role", "teacher");
+
+    if (res2.error) throw res2.error;
+
+    data = (res2.data || [])
+      .filter(r => r.user_id)
+      .map(r => ({
+        user_id: r.user_id,
+        display_name: (r.display_name && r.display_name.trim()) || (r.login_id && r.login_id.trim()) || shortIdA(r.user_id)
+      }))
+      .sort((a, b) => String(a.display_name).localeCompare(String(b.display_name), "ja"));
+  }
+
   __teachersCache = data || [];
   return __teachersCache;
 }
 
 async function fetchCoursesActive() {
   if (__coursesCache) return __coursesCache;
+
   const { data, error } = await supabaseA
     .from("courses")
     .select("id, title_ja, duration_min")
@@ -403,11 +399,6 @@ async function fetchCoursesActive() {
   if (error) throw error;
   __coursesCache = data || [];
   return __coursesCache;
-}
-
-function clearEntityCaches() {
-  __teachersCache = null;
-  __coursesCache = null;
 }
 
 function setupAddSlotButton() {
@@ -422,7 +413,7 @@ function setupAddSlotButton() {
     const dateStr = `${yyyy}-${mm}-${dd}`;
 
     const defaults = {
-      teacher_ref_id: "",
+      teacher_id: "",
       course_id: "",
       language: "",
       start_time: new Date(`${dateStr}T13:30:00+09:00`).toISOString(),
@@ -434,16 +425,7 @@ function setupAddSlotButton() {
     const result = await openSlotModal(defaults);
     if (!result) return;
 
-    const ok = await createReservationSlot({
-      teacher_ref_id: result.teacher_ref_id,
-      course_id: result.course_id,
-      language: result.language,
-      start_time: result.start_time,
-      end_time: result.end_time,
-      capacity: result.capacity,
-      status: result.status
-    });
-
+    const ok = await createReservationSlot(result);
     if (ok) {
       await loadSlotsForAdmin();
       alert("予約枠を追加しました。");
@@ -460,7 +442,7 @@ async function openSlotModal(defaults) {
     modal.id = "slotModal";
     modal.className = "fixed inset-0 z-[60] hidden";
     modal.innerHTML = `
-      <div class="absolute inset-0 bg-black/40"></div>
+      <div class="absolute inset-0 bg-black/40" data-backdrop></div>
       <div class="absolute inset-0 flex items-center justify-center p-4">
         <div class="w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-xl">
           <div class="px-4 py-3 border-b flex items-center justify-between">
@@ -523,46 +505,64 @@ async function openSlotModal(defaults) {
       </div>
     `;
     document.body.appendChild(modal);
+  }
 
-    modal.querySelectorAll("[data-close]").forEach(btn => {
-      btn.addEventListener("click", () => hideModal(modal));
-    });
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal.firstElementChild) hideModal(modal);
-    });
+  const teacherSel = modal.querySelector('[data-field="teacher"]');
+  const courseSel  = modal.querySelector('[data-field="course"]');
+
+  // If modal HTML changed or failed to create, avoid null crash
+  if (!teacherSel || !courseSel) {
+    console.error("openSlotModal: modal fields not found");
+    alert("モーダルの初期化に失敗しました（フィールドが見つかりません）。");
+    return null;
   }
 
   // Load teacher/course lists
   const [teachers, courses] = await Promise.all([fetchTeachersActive(), fetchCoursesActive()]);
 
-  const teacherSel = modal.querySelector('[data-field="teacher"]');
-  const courseSel  = modal.querySelector('[data-field="course"]');
-
   teacherSel.innerHTML = `
     <option value="">選択してください</option>
-    ${teachers.map(t => `<option value="${t.id}">${escapeHtml(t.display_name)}</option>`).join("")}
+    ${teachers.map(t => `<option value="${escapeHtml(t.user_id)}">${escapeHtml(t.display_name)}</option>`).join("")}
   `;
   courseSel.innerHTML = `
     <option value="">選択してください</option>
-    ${courses.map(c => `<option value="${c.id}">${escapeHtml(c.title_ja)}（${c.duration_min}分）</option>`).join("")}
+    ${courses.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.title_ja)}（${escapeHtml(String(c.duration_min))}分）</option>`).join("")}
   `;
 
   // Fill defaults
-  teacherSel.value = defaults.teacher_ref_id || "";
+  teacherSel.value = defaults.teacher_id || "";
   courseSel.value  = defaults.course_id || "";
 
-  modal.querySelector('[data-field="language"]').value  = defaults.language || "";
-  modal.querySelector('[data-field="capacity"]').value  = String(defaults.capacity ?? 1);
-  modal.querySelector('[data-field="status"]').value    = defaults.status || "active";
+  modal.querySelector('[data-field="language"]').value = defaults.language || "";
+  modal.querySelector('[data-field="capacity"]').value = String(defaults.capacity ?? 1);
+  modal.querySelector('[data-field="status"]').value = defaults.status || "active";
 
   modal.querySelector('[data-field="start"]').value = toDatetimeLocalJST(defaults.start_time);
   modal.querySelector('[data-field="end"]').value   = toDatetimeLocalJST(defaults.end_time);
 
+  // Show modal
+  showModal(modal);
+
   // Return a promise resolved by Save/Cancel
   return new Promise((resolve) => {
     const saveBtn = modal.querySelector("[data-save]");
+    const closeBtns = modal.querySelectorAll("[data-close]");
+    const backdrop = modal.querySelector("[data-backdrop]");
+
+    const cleanup = () => {
+      saveBtn?.removeEventListener("click", onSave);
+      closeBtns.forEach(b => b.removeEventListener("click", onCancel));
+      backdrop?.removeEventListener("click", onCancel);
+    };
+
+    const onCancel = () => {
+      cleanup();
+      hideModal(modal);
+      resolve(null);
+    };
+
     const onSave = () => {
-      const teacher_ref_id = teacherSel.value;
+      const teacher_id = teacherSel.value;
       const course_id = courseSel.value;
       const language = modal.querySelector('[data-field="language"]').value.trim();
       const capacity = parseInt(modal.querySelector('[data-field="capacity"]').value, 10) || 1;
@@ -571,8 +571,8 @@ async function openSlotModal(defaults) {
       const startLocal = modal.querySelector('[data-field="start"]').value;
       const endLocal   = modal.querySelector('[data-field="end"]').value;
 
-      if (!teacher_ref_id) { alert("講師を選択してください。"); return; }
-      if (!course_id) { alert("コースを選択してください。"); return; }
+      if (!teacher_id) { alert("講師を選択してください。"); return; }
+      if (!course_id)  { alert("コースを選択してください。"); return; }
       if (!startLocal || !endLocal) { alert("開始と終了を入力してください。"); return; }
 
       const start_time = fromDatetimeLocalJST(startLocal);
@@ -583,26 +583,14 @@ async function openSlotModal(defaults) {
         return;
       }
 
+      cleanup();
       hideModal(modal);
-      saveBtn.removeEventListener("click", onSave);
-      resolve({ teacher_ref_id, course_id, language, capacity, status, start_time, end_time });
+      resolve({ teacher_id, course_id, language, capacity, status, start_time, end_time });
     };
 
-    saveBtn.addEventListener("click", onSave, { once: true });
-
-    showModal(modal);
-
-    // Cancel via close buttons returns null
-    const cancelHandler = () => {
-      // if still visible and user closes it, resolve null
-      if (modal.classList.contains("hidden")) return;
-      hideModal(modal);
-      resolve(null);
-    };
-
-    modal.querySelectorAll("[data-close]").forEach(btn => {
-      btn.addEventListener("click", cancelHandler, { once: true });
-    });
+    saveBtn?.addEventListener("click", onSave);
+    closeBtns.forEach(b => b.addEventListener("click", onCancel));
+    backdrop?.addEventListener("click", onCancel);
   });
 }
 
@@ -616,34 +604,37 @@ function hideModal(modal) {
   document.body.style.overflow = "";
 }
 
+/**
+ * Create slot (teacher_id is auth uid)
+ * NOTE: RLS must allow admins to insert
+ */
 async function createReservationSlot(payload) {
-  // 🔹 Duplicate check
+  // Duplicate check: (teacher_id + start_time)
   const { data: existing, error: exErr } = await supabaseA
     .from("reservation_slots")
     .select("id")
-    .eq("teacher_id", payload.teacher_ref_id) // ✅ FIXED
+    .eq("teacher_id", payload.teacher_id)
     .eq("start_time", payload.start_time);
 
   if (exErr) {
     console.error("check existing slot error:", exErr);
-    alert("Duplicate check failed.");
+    alert("重複チェックに失敗しました。"); // Duplicate check failed.
     return false;
   }
 
   if (existing && existing.length > 0) {
-    alert("A reservation slot already exists for this time.");
+    alert("同じ時間帯の予約枠が既に存在します。");
     return false;
   }
 
-  // 🔹 Insert (use teacher_id, not teacher_ref_id)
   const insertPayload = {
-    teacher_id: payload.teacher_ref_id,  // ✅ FIXED
+    teacher_id: payload.teacher_id,
     course_id: payload.course_id,
-    language: payload.language,
+    language: payload.language || "",
     start_time: payload.start_time,
     end_time: payload.end_time,
-    capacity: payload.capacity,
-    status: payload.status
+    capacity: payload.capacity ?? 1,
+    status: payload.status ?? "active"
   };
 
   const { error } = await supabaseA
@@ -652,13 +643,12 @@ async function createReservationSlot(payload) {
 
   if (error) {
     console.error("createReservationSlot error:", error);
-    alert("Failed to create reservation slot.");
+    alert("予約枠の作成に失敗しました。");
     return false;
   }
 
   return true;
 }
-
 
 /* =========================
    Helpers
@@ -708,7 +698,6 @@ function todayStringA() {
 function toDatetimeLocalJST(iso) {
   if (!iso) return "";
   const d = new Date(iso);
-  // build local yyyy-mm-ddThh:mm based on current browser tz (yours is likely JST)
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
@@ -719,7 +708,5 @@ function toDatetimeLocalJST(iso) {
 
 // Convert datetime-local (assumed JST) -> ISO
 function fromDatetimeLocalJST(localValue) {
-  // localValue like "2026-01-05T13:30"
-  // Force +09:00 to avoid timezone surprises
   return new Date(localValue + ":00+09:00").toISOString();
 }

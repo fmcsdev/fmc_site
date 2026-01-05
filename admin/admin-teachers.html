@@ -147,176 +147,173 @@
       <span>管理コンソール</span>
     </div>
   </footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/supabase-client.js"></script>
+<script src="../assets/site.js" defer></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/supabase-client.js"></script>
-  <script src="../assets/site.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    init().catch(e => {
+      console.error(e);
+      alert("読み込みエラー");
+    });
+  });
 
-  <script>
-    const supabase = window.supabaseClient;
+  async function init(){
+    const sb = window.supabaseClient;
+    if (!sb) throw new Error("window.supabaseClient is missing. Check supabase-client.js load order.");
 
+    await requireAdmin(sb);
+    setupLogout(sb);
+    bindUI(sb);
+    await loadTeachers(sb);
+  }
 
-    document.addEventListener("DOMContentLoaded", () => init().catch(e => {
-      console.error(e); alert("読み込みエラー");
-    }));
-
-    async function init(){
-      await requireAdmin();
-      setupLogout();
-      bindUI();
-      await loadTeachers();
+  async function requireAdmin(sb){
+    const { data, error } = await sb.auth.getUser();
+    if (error || !data.user) {
+      location.href = "../login.html?redirect=" + encodeURIComponent(location.pathname);
+      throw new Error("Not logged in");
     }
 
-    async function requireAdmin(){
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        location.href = "../login.html?redirect=" + encodeURIComponent(location.pathname);
-        throw new Error("Not logged in");
-      }
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("role, login_id")
-        .eq("user_id", data.user.id)
-        .single();
+    const { data: profile } = await sb
+      .from("user_profiles")
+      .select("role, login_id")
+      .eq("user_id", data.user.id)
+      .single();
 
-      if (!profile || profile.role !== "admin") {
+    if (!profile || profile.role !== "admin") {
+      location.href = "../login.html";
+      throw new Error("Not admin");
+    }
+
+    const nameEl = document.getElementById("userDisplayName");
+    if (nameEl) nameEl.textContent = profile.login_id || data.user.email || "Admin";
+  }
+
+  function setupLogout(sb){
+    [document.getElementById("logoutBtn"), document.getElementById("logoutBtnMobile")]
+      .filter(Boolean)
+      .forEach(btn => btn.addEventListener("click", async () => {
+        await sb.auth.signOut();
         location.href = "../login.html";
-        throw new Error("Not admin");
-      }
-      const nameEl = document.getElementById("userDisplayName");
-      if (nameEl) nameEl.textContent = profile.login_id || data.user.email || "Admin";
+      }));
+  }
+
+  function bindUI(sb){
+    document.getElementById("saveTeacherBtn").addEventListener("click", () => saveTeacher(sb));
+    document.getElementById("resetTeacherBtn").addEventListener("click", resetForm);
+    document.getElementById("refreshTeachersBtn").addEventListener("click", () => loadTeachers(sb));
+  }
+
+  function resetForm(){
+    document.getElementById("teacherId").value = "";
+    document.getElementById("teacherName").value = "";
+    document.getElementById("teacherLangs").value = "";
+    document.getElementById("teacherEmail").value = "";
+    document.getElementById("teacherActive").checked = true;
+  }
+
+  async function loadTeachers(sb){
+    const body = document.getElementById("teachersBody");
+    body.innerHTML = `<tr><td colspan="4">読み込み中...</td></tr>`;
+
+    const { data, error } = await sb
+      .from("teachers")
+      .select("id, display_name, languages, is_active")
+      .order("display_name", { ascending: true });
+
+    if (error) {
+      console.error(error);
+      body.innerHTML = `<tr><td colspan="4" class="text-red-500">読み込みエラー</td></tr>`;
+      return;
     }
 
-    function setupLogout(){
-      [document.getElementById("logoutBtn"), document.getElementById("logoutBtnMobile")]
-        .filter(Boolean)
-        .forEach(btn => btn.addEventListener("click", async () => {
-          await supabase.auth.signOut();
-          location.href = "../login.html";
-        }));
+    if (!data || data.length === 0) {
+      body.innerHTML = `<tr><td colspan="4">まだ講師が登録されていません。</td></tr>`;
+      return;
     }
 
-    function bindUI(){
-      document.getElementById("saveTeacherBtn").addEventListener("click", saveTeacher);
-      document.getElementById("resetTeacherBtn").addEventListener("click", resetForm);
-      document.getElementById("refreshTeachersBtn").addEventListener("click", loadTeachers);
-    }
+    body.innerHTML = "";
+    data.forEach(t => {
+      const langs = Array.isArray(t.languages) ? t.languages.join(", ") : "";
+      const status = t.is_active ? "有効" : "停止";
 
-    function resetForm(){
-      document.getElementById("teacherId").value = "";
-      document.getElementById("teacherName").value = "";
-      document.getElementById("teacherLangs").value = "";
-      document.getElementById("teacherEmail").value = "";
-      document.getElementById("teacherActive").checked = true;
-    }
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${esc(t.display_name)}</td>
+        <td>${esc(langs)}</td>
+        <td>${esc(status)}</td>
+        <td class="whitespace-nowrap">
+          <button class="btn-xs btn-outline" data-edit="${t.id}">編集</button>
+          <button class="btn-xs btn-ghost text-slate-500 ml-1" data-toggle="${t.id}" data-active="${t.is_active}">
+            ${t.is_active ? "停止" : "有効化"}
+          </button>
+        </td>
+      `;
+      body.appendChild(tr);
 
-    async function loadTeachers(){
-      const body = document.getElementById("teachersBody");
-      body.innerHTML = `<tr><td colspan="4">読み込み中...</td></tr>`;
-
-      const { data, error } = await supabase
-        .from("teachers")
-        .select("id, display_name, languages, is_active")
-        .order("display_name", { ascending: true });
-
-      if (error) {
-        console.error(error);
-        body.innerHTML = `<tr><td colspan="4" class="text-red-500">読み込みエラー</td></tr>`;
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        body.innerHTML = `<tr><td colspan="4">まだ講師が登録されていません。</td></tr>`;
-        return;
-      }
-
-      body.innerHTML = "";
-      data.forEach(t => {
-        const langs = Array.isArray(t.languages) ? t.languages.join(", ") : "";
-        const status = t.is_active ? "有効" : "停止";
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${esc(t.display_name)}</td>
-          <td>${esc(langs)}</td>
-          <td>${esc(status)}</td>
-          <td class="whitespace-nowrap">
-            <button class="btn-xs btn-outline" data-edit="${t.id}">編集</button>
-            <button class="btn-xs btn-ghost text-slate-500 ml-1" data-toggle="${t.id}" data-active="${t.is_active}">
-              ${t.is_active ? "停止" : "有効化"}
-            </button>
-          </td>
-        `;
-        body.appendChild(tr);
-
-        tr.querySelector("[data-edit]").addEventListener("click", () => fillForm(t));
-        tr.querySelector("[data-toggle]").addEventListener("click", async (e) => {
-          const id = e.currentTarget.dataset.toggle;
-          const active = e.currentTarget.dataset.active === "true";
-          await toggleActive(id, !active);
-          await loadTeachers();
-        });
+      tr.querySelector("[data-edit]").addEventListener("click", () => fillForm(t));
+      tr.querySelector("[data-toggle]").addEventListener("click", async (e) => {
+        const id = e.currentTarget.dataset.toggle;
+        const active = e.currentTarget.dataset.active === "true";
+        await toggleActive(sb, id, !active);
+        await loadTeachers(sb);
       });
+    });
+  }
+
+  function fillForm(t){
+    document.getElementById("teacherId").value = t.id;
+    document.getElementById("teacherName").value = t.display_name || "";
+    document.getElementById("teacherLangs").value = Array.isArray(t.languages) ? t.languages.join(", ") : "";
+    document.getElementById("teacherEmail").value = t.email || "";
+    document.getElementById("teacherActive").checked = !!t.is_active;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function toggleActive(sb, id, is_active){
+    const { error } = await sb.from("teachers").update({ is_active }).eq("id", id);
+    if (error) {
+      console.error(error);
+      alert("更新に失敗しました");
+    }
+  }
+
+  async function saveTeacher(sb){
+    const id = document.getElementById("teacherId").value.trim();
+    const display_name = document.getElementById("teacherName").value.trim();
+    const email = document.getElementById("teacherEmail").value.trim() || null;
+    const is_active = document.getElementById("teacherActive").checked;
+
+    const langsRaw = document.getElementById("teacherLangs").value.trim();
+    const languages = langsRaw ? langsRaw.split(",").map(s => s.trim()).filter(Boolean) : [];
+
+    if (!display_name) {
+      alert("表示名を入力してください。");
+      return;
     }
 
-    function fillForm(t){
-      document.getElementById("teacherId").value = t.id;
-      document.getElementById("teacherName").value = t.display_name || "";
-      document.getElementById("teacherLangs").value = Array.isArray(t.languages) ? t.languages.join(", ") : "";
-      document.getElementById("teacherEmail").value = t.email || "";
-      document.getElementById("teacherActive").checked = !!t.is_active;
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    const payload = { display_name, languages, email, is_active };
+
+    const res = !id
+      ? await sb.from("teachers").insert(payload)
+      : await sb.from("teachers").update(payload).eq("id", id);
+
+    if (res.error) {
+      console.error(res.error);
+      alert("保存に失敗しました。RLS/権限やカラム名を確認してください。");
+      return;
     }
 
-    async function toggleActive(id, is_active){
-      const { error } = await supabase.from("teachers").update({ is_active }).eq("id", id);
-      if (error) {
-        console.error(error);
-        alert("更新に失敗しました");
-      }
-    }
+    resetForm();
+    await loadTeachers(sb);
+    alert("保存しました。");
+  }
 
-    async function saveTeacher(){
-      const id = document.getElementById("teacherId").value.trim();
-      const display_name = document.getElementById("teacherName").value.trim();
-      const email = document.getElementById("teacherEmail").value.trim() || null;
-      const is_active = document.getElementById("teacherActive").checked;
-
-      const langsRaw = document.getElementById("teacherLangs").value.trim();
-      const languages = langsRaw
-        ? langsRaw.split(",").map(s => s.trim()).filter(Boolean)
-        : [];
-
-      if (!display_name) {
-        alert("表示名を入力してください。");
-        return;
-      }
-
-      const payload = { display_name, languages, email, is_active };
-
-      let res;
-      if (!id) {
-        res = await supabase.from("teachers").insert(payload);
-      } else {
-        res = await supabase.from("teachers").update(payload).eq("id", id);
-      }
-
-      if (res.error) {
-        console.error(res.error);
-        alert("保存に失敗しました。RLS/権限やカラム名を確認してください。");
-        return;
-      }
-
-      resetForm();
-      await loadTeachers();
-      alert("保存しました。");
-    }
-
-    function esc(s=""){
-      return String(s).replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[m]));
-    }
-  </script>
-</body>
-</html>
+  function esc(s=""){
+    return String(s).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+</script>

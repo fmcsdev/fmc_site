@@ -617,48 +617,48 @@ function hideModal(modal) {
 }
 
 async function createReservationSlot(payload) {
-  // prevent exact duplicates (teacher + start_time) best-effort
+  // 🔹 Duplicate check
   const { data: existing, error: exErr } = await supabaseA
     .from("reservation_slots")
     .select("id")
-    .eq("teacher_ref_id", payload.teacher_ref_id)
+    .eq("teacher_id", payload.teacher_ref_id) // ✅ FIXED
     .eq("start_time", payload.start_time);
 
   if (exErr) {
     console.error("check existing slot error:", exErr);
-    alert("重複チェックに失敗しました。");
-    return false;
-  }
-  if (existing && existing.length > 0) {
-    alert("同じ時間帯の予約枠が既に存在します。");
+    alert("Duplicate check failed.");
     return false;
   }
 
+  if (existing && existing.length > 0) {
+    alert("A reservation slot already exists for this time.");
+    return false;
+  }
+
+  // 🔹 Insert (use teacher_id, not teacher_ref_id)
+  const insertPayload = {
+    teacher_id: payload.teacher_ref_id,  // ✅ FIXED
+    course_id: payload.course_id,
+    language: payload.language,
+    start_time: payload.start_time,
+    end_time: payload.end_time,
+    capacity: payload.capacity,
+    status: payload.status
+  };
+
   const { error } = await supabaseA
     .from("reservation_slots")
-    .insert(payload);
+    .insert(insertPayload);
 
   if (error) {
     console.error("createReservationSlot error:", error);
-    alert("予約枠の作成に失敗しました。");
+    alert("Failed to create reservation slot.");
     return false;
   }
+
   return true;
 }
 
-async function updateReservationSlot(slotId, payload) {
-  const { error } = await supabaseA
-    .from("reservation_slots")
-    .update(payload)
-    .eq("id", slotId);
-
-  if (error) {
-    console.error("updateReservationSlot error:", error);
-    alert("更新に失敗しました。");
-    return false;
-  }
-  return true;
-}
 
 /* =========================
    Helpers

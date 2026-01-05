@@ -92,6 +92,20 @@
             <div class="text-xs text-slate-500 mb-1">コース名（英語・任意）</div>
             <input id="courseTitleEn" class="w-full border rounded-lg px-3 py-2" placeholder="Example: Spanish Beginner">
           </label>
+<label class="text-sm">
+  <div class="text-xs text-slate-500 mb-1">言語（必須）</div>
+  <select id="courseLanguage" class="w-full border rounded-lg px-3 py-2">
+    <option value="">選択してください</option>
+    <option value="English">English</option>
+    <option value="Spanish">Spanish</option>
+    <option value="Japanese">Japanese</option>
+    <option value="Chinese">Chinese</option>
+    <option value="French">French</option>
+    <option value="Arabic">Arabic</option>
+    <option value="Programming">Programming</option>
+    <option value="Other">Other</option>
+  </select>
+</label>
 
           <div class="grid md:grid-cols-2 gap-3">
             <label class="text-sm">
@@ -233,6 +247,8 @@
     document.getElementById("courseDuration").value = "45";
     document.getElementById("courseDesc").value = "";
     document.getElementById("courseActive").checked = true;
+    document.getElementById("courseLanguage").value = "";
+
   }
 
   async function loadCourses(){
@@ -266,6 +282,7 @@
         <td>${esc(meta)}</td>
         <td>${esc(String(c.duration_min ?? 45))}</td>
         <td>${esc(status)}</td>
+        <td>${esc(c.language || "")}</td>
         <td class="whitespace-nowrap">
           <button class="btn-xs btn-outline" data-edit="${c.id}">編集</button>
           <button class="btn-xs btn-ghost text-slate-500 ml-1" data-toggle="${c.id}" data-active="${c.is_active}">
@@ -292,6 +309,7 @@
     document.getElementById("courseCategory").value = c.category || "";
     document.getElementById("courseLevel").value = c.level || "";
     document.getElementById("courseDuration").value = String(c.duration_min ?? 45);
+    document.getElementById("courseLanguage").value = c.language || "";
     document.getElementById("courseDesc").value = c.description || "";
     document.getElementById("courseActive").checked = !!c.is_active;
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -313,14 +331,23 @@
     const level = document.getElementById("courseLevel").value.trim() || null;
     const duration_min = parseInt(document.getElementById("courseDuration").value, 10) || 45;
     const description = document.getElementById("courseDesc").value.trim() || null;
+    const language = document.getElementById("courseLanguage").value.trim();
+
+if (!language) {
+  alert("言語（language）を選択してください。");
+  return;
+}
+
     const is_active = document.getElementById("courseActive").checked;
+    
 
     if (!title_ja) {
       alert("コース名（日本語）を入力してください。");
       return;
     }
 
-    const payload = { title_ja, title_en, category, level, duration_min, description, is_active };
+   const payload = { title_ja, language, duration_min, is_active, sort_order };
+
 
     const res = !id
       ? await sb.from("courses").insert(payload)

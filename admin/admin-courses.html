@@ -173,12 +173,9 @@
   <script src="../assets/site.js" defer></script>
 
   <script>
-    const { createClient } = window.supabase;
-    const supabase = createClient(
-      "https://dsbvgomhugvjruqykbmr.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYnZnb21odWd2anJ1cXlrYm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NzIwNzksImV4cCI6MjA3ODQ0ODA3OX0.FHX45XbBfpeNtnnCLc9wvoyxOM6w2vIIjOcIZWfb-_I",
-      { auth: { persistSession: true, detectSessionInUrl: true } }
-    );
+    // ✅ reuse the global singleton client
+const supabaseA = window.supabaseClient;
+
 
     document.addEventListener("DOMContentLoaded", () => init().catch(e => {
       console.error(e); alert("読み込みエラー");

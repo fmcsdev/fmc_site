@@ -172,173 +172,177 @@
   <script src="../assets/supabase-client.js"></script>
   <script src="../assets/site.js" defer></script>
 
-  <script>
-    // ✅ reuse the global singleton client
-    const supabase = window.supabaseClient;
-    document.addEventListener("DOMContentLoaded", () => init().catch(e => {
-      console.error(e); alert("読み込みエラー");
-    }));
+ <script>
+  // ✅ reuse the global singleton client (avoid declaring "supabase" again)
+  const sb = window.supabaseClient;
 
-    async function init(){
-      await requireAdmin();
-      setupLogout();
-      bindUI();
-      await loadCourses();
+  document.addEventListener("DOMContentLoaded", () => init().catch(e => {
+    console.error(e); alert("読み込みエラー");
+  }));
+
+  async function init(){
+    await requireAdmin();
+    setupLogout();
+    bindUI();
+    await loadCourses();
+  }
+
+  async function requireAdmin(){
+    const { data, error } = await sb.auth.getUser();
+    if (error || !data.user) {
+      location.href = "../login.html?redirect=" + encodeURIComponent(location.pathname);
+      throw new Error("Not logged in");
     }
 
-    async function requireAdmin(){
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        location.href = "../login.html?redirect=" + encodeURIComponent(location.pathname);
-        throw new Error("Not logged in");
-      }
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("role, login_id")
-        .eq("user_id", data.user.id)
-        .single();
+    const { data: profile } = await sb
+      .from("user_profiles")
+      .select("role, login_id")
+      .eq("user_id", data.user.id)
+      .single();
 
-      if (!profile || profile.role !== "admin") {
+    if (!profile || profile.role !== "admin") {
+      location.href = "../login.html";
+      throw new Error("Not admin");
+    }
+
+    const nameEl = document.getElementById("userDisplayName");
+    if (nameEl) nameEl.textContent = profile.login_id || data.user.email || "Admin";
+  }
+
+  function setupLogout(){
+    [document.getElementById("logoutBtn"), document.getElementById("logoutBtnMobile")]
+      .filter(Boolean)
+      .forEach(btn => btn.addEventListener("click", async () => {
+        await sb.auth.signOut();
         location.href = "../login.html";
-        throw new Error("Not admin");
-      }
-      const nameEl = document.getElementById("userDisplayName");
-      if (nameEl) nameEl.textContent = profile.login_id || data.user.email || "Admin";
+      }));
+  }
+
+  function bindUI(){
+    document.getElementById("saveCourseBtn").addEventListener("click", saveCourse);
+    document.getElementById("resetCourseBtn").addEventListener("click", resetForm);
+    document.getElementById("refreshCoursesBtn").addEventListener("click", loadCourses);
+  }
+
+  function resetForm(){
+    document.getElementById("courseId").value = "";
+    document.getElementById("courseTitleJa").value = "";
+    document.getElementById("courseTitleEn").value = "";
+    document.getElementById("courseCategory").value = "";
+    document.getElementById("courseLevel").value = "";
+    document.getElementById("courseDuration").value = "45";
+    document.getElementById("courseDesc").value = "";
+    document.getElementById("courseActive").checked = true;
+  }
+
+  async function loadCourses(){
+    const body = document.getElementById("coursesBody");
+    body.innerHTML = `<tr><td colspan="5">読み込み中...</td></tr>`;
+
+    const { data, error } = await sb
+      .from("courses")
+      .select("id, title_ja, title_en, category, level, duration_min, description, is_active")
+      .order("title_ja", { ascending: true });
+
+    if (error) {
+      console.error(error);
+      body.innerHTML = `<tr><td colspan="5" class="text-red-500">読み込みエラー</td></tr>`;
+      return;
     }
 
-    function setupLogout(){
-      [document.getElementById("logoutBtn"), document.getElementById("logoutBtnMobile")]
-        .filter(Boolean)
-        .forEach(btn => btn.addEventListener("click", async () => {
-          await supabase.auth.signOut();
-          location.href = "../login.html";
-        }));
+    if (!data || data.length === 0) {
+      body.innerHTML = `<tr><td colspan="5">まだコースが登録されていません。</td></tr>`;
+      return;
     }
 
-    function bindUI(){
-      document.getElementById("saveCourseBtn").addEventListener("click", saveCourse);
-      document.getElementById("resetCourseBtn").addEventListener("click", resetForm);
-      document.getElementById("refreshCoursesBtn").addEventListener("click", loadCourses);
-    }
+    body.innerHTML = "";
+    data.forEach(c => {
+      const meta = [c.category, c.level].filter(Boolean).join(" / ");
+      const status = c.is_active ? "有効" : "停止";
 
-    function resetForm(){
-      document.getElementById("courseId").value = "";
-      document.getElementById("courseTitleJa").value = "";
-      document.getElementById("courseTitleEn").value = "";
-      document.getElementById("courseCategory").value = "";
-      document.getElementById("courseLevel").value = "";
-      document.getElementById("courseDuration").value = "45";
-      document.getElementById("courseDesc").value = "";
-      document.getElementById("courseActive").checked = true;
-    }
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${esc(c.title_ja)}</td>
+        <td>${esc(meta)}</td>
+        <td>${esc(String(c.duration_min ?? 45))}</td>
+        <td>${esc(status)}</td>
+        <td class="whitespace-nowrap">
+          <button class="btn-xs btn-outline" data-edit="${c.id}">編集</button>
+          <button class="btn-xs btn-ghost text-slate-500 ml-1" data-toggle="${c.id}" data-active="${c.is_active}">
+            ${c.is_active ? "停止" : "有効化"}
+          </button>
+        </td>
+      `;
+      body.appendChild(tr);
 
-    async function loadCourses(){
-      const body = document.getElementById("coursesBody");
-      body.innerHTML = `<tr><td colspan="5">読み込み中...</td></tr>`;
-
-      const { data, error } = await supabase
-        .from("courses")
-        .select("id, title_ja, category, level, duration_min, is_active")
-        .order("title_ja", { ascending: true });
-
-      if (error) {
-        console.error(error);
-        body.innerHTML = `<tr><td colspan="5" class="text-red-500">読み込みエラー</td></tr>`;
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        body.innerHTML = `<tr><td colspan="5">まだコースが登録されていません。</td></tr>`;
-        return;
-      }
-
-      body.innerHTML = "";
-      data.forEach(c => {
-        const meta = [c.category, c.level].filter(Boolean).join(" / ");
-        const status = c.is_active ? "有効" : "停止";
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${esc(c.title_ja)}</td>
-          <td>${esc(meta)}</td>
-          <td>${esc(String(c.duration_min ?? 45))}</td>
-          <td>${esc(status)}</td>
-          <td class="whitespace-nowrap">
-            <button class="btn-xs btn-outline" data-edit="${c.id}">編集</button>
-            <button class="btn-xs btn-ghost text-slate-500 ml-1" data-toggle="${c.id}" data-active="${c.is_active}">
-              ${c.is_active ? "停止" : "有効化"}
-            </button>
-          </td>
-        `;
-        body.appendChild(tr);
-
-        tr.querySelector("[data-edit]").addEventListener("click", () => fillForm(c));
-        tr.querySelector("[data-toggle]").addEventListener("click", async (e) => {
-          const id = e.currentTarget.dataset.toggle;
-          const active = e.currentTarget.dataset.active === "true";
-          await toggleActive(id, !active);
-          await loadCourses();
-        });
+      tr.querySelector("[data-edit]").addEventListener("click", () => fillForm(c));
+      tr.querySelector("[data-toggle]").addEventListener("click", async (e) => {
+        const id = e.currentTarget.dataset.toggle;
+        const active = e.currentTarget.dataset.active === "true";
+        await toggleActive(id, !active);
+        await loadCourses();
       });
+    });
+  }
+
+  function fillForm(c){
+    document.getElementById("courseId").value = c.id;
+    document.getElementById("courseTitleJa").value = c.title_ja || "";
+    document.getElementById("courseTitleEn").value = c.title_en || "";
+    document.getElementById("courseCategory").value = c.category || "";
+    document.getElementById("courseLevel").value = c.level || "";
+    document.getElementById("courseDuration").value = String(c.duration_min ?? 45);
+    document.getElementById("courseDesc").value = c.description || "";
+    document.getElementById("courseActive").checked = !!c.is_active;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function toggleActive(id, is_active){
+    const { error } = await sb.from("courses").update({ is_active }).eq("id", id);
+    if (error) {
+      console.error(error);
+      alert("更新に失敗しました");
+    }
+  }
+
+  async function saveCourse(){
+    const id = document.getElementById("courseId").value.trim();
+    const title_ja = document.getElementById("courseTitleJa").value.trim();
+    const title_en = document.getElementById("courseTitleEn").value.trim() || null;
+    const category = document.getElementById("courseCategory").value.trim() || null;
+    const level = document.getElementById("courseLevel").value.trim() || null;
+    const duration_min = parseInt(document.getElementById("courseDuration").value, 10) || 45;
+    const description = document.getElementById("courseDesc").value.trim() || null;
+    const is_active = document.getElementById("courseActive").checked;
+
+    if (!title_ja) {
+      alert("コース名（日本語）を入力してください。");
+      return;
     }
 
-    function fillForm(c){
-      document.getElementById("courseId").value = c.id;
-      document.getElementById("courseTitleJa").value = c.title_ja || "";
-      document.getElementById("courseTitleEn").value = c.title_en || "";
-      document.getElementById("courseCategory").value = c.category || "";
-      document.getElementById("courseLevel").value = c.level || "";
-      document.getElementById("courseDuration").value = String(c.duration_min ?? 45);
-      document.getElementById("courseDesc").value = c.description || "";
-      document.getElementById("courseActive").checked = !!c.is_active;
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    const payload = { title_ja, title_en, category, level, duration_min, description, is_active };
+
+    const res = !id
+      ? await sb.from("courses").insert(payload)
+      : await sb.from("courses").update(payload).eq("id", id);
+
+    if (res.error) {
+      console.error(res.error);
+      alert("保存に失敗しました。RLS/権限やカラム名を確認してください。");
+      return;
     }
 
-    async function toggleActive(id, is_active){
-      const { error } = await supabase.from("courses").update({ is_active }).eq("id", id);
-      if (error) {
-        console.error(error);
-        alert("更新に失敗しました");
-      }
-    }
+    resetForm();
+    await loadCourses();
+    alert("保存しました。");
+  }
 
-    async function saveCourse(){
-      const id = document.getElementById("courseId").value.trim();
-      const title_ja = document.getElementById("courseTitleJa").value.trim();
-      const title_en = document.getElementById("courseTitleEn").value.trim() || null;
-      const category = document.getElementById("courseCategory").value.trim() || null;
-      const level = document.getElementById("courseLevel").value.trim() || null;
-      const duration_min = parseInt(document.getElementById("courseDuration").value, 10) || 45;
-      const description = document.getElementById("courseDesc").value.trim() || null;
-      const is_active = document.getElementById("courseActive").checked;
+  function esc(s=""){
+    return String(s).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+</script>
 
-      if (!title_ja) {
-        alert("コース名（日本語）を入力してください。");
-        return;
-      }
-
-      const payload = { title_ja, title_en, category, level, duration_min, description, is_active };
-
-      let res;
-      if (!id) res = await supabase.from("courses").insert(payload);
-      else     res = await supabase.from("courses").update(payload).eq("id", id);
-
-      if (res.error) {
-        console.error(res.error);
-        alert("保存に失敗しました。RLS/権限やカラム名を確認してください。");
-        return;
-      }
-
-      resetForm();
-      await loadCourses();
-      alert("保存しました。");
-    }
-
-    function esc(s=""){
-      return String(s).replace(/[&<>"']/g, m => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[m]));
-    }
-  </script>
 </body>
 </html>

@@ -71,11 +71,31 @@ async function login() {
     if (redirect) return (window.location.href = redirect);
 
     switch (role) {
-  case "teacher":  window.location.href = "/teacher/dashboard.html";  break;
-  case "admin":    window.location.href = "/admin/dashboard.html";    break;
-  case "student":  window.location.href = "/student/dashboard.html";  break;
-  default:         window.location.href = "/student/dashboard.html";  break;
+  case "teacher":
+    window.location.href = "/teacher/dashboard.html";
+    break;
+
+  case "admin":
+    window.location.href = "/admin/dashboard.html";
+    break;
+
+  case "student": {
+    const status = await getStudentStatus(data.user.id);
+
+    if (status.entrance_fee_paid) {
+      window.location.href = "/student/student-dashboard.html";          // full dashboard
+    } else {
+      window.location.href = "/student-student/pre-entrance.html";      // shows 2 options:
+                                                                // (estimate+bank) OR (book trial)
+    }
+    break;
+  }
+
+  default:
+    window.location.href = "/student/dashboard.html";
+    break;
 }
+
   } catch (e) {
     setStatus(`Error: ${e.message}`, true);
     loginBtn.disabled = false;
@@ -107,4 +127,16 @@ if (openBtn && drawer && backdrop) {
   backdrop.addEventListener("click", closeDrawer);
 }
 });
+async function getStudentStatus(userId) {
+  const { data, error } = await supabase
+    .from("user_profiles")
+    .select("entrance_fee_paid")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) throw new Error("Unable to get student status.");
+  return {
+    entrance_fee_paid: !!data?.entrance_fee_paid
+  };
+}
 

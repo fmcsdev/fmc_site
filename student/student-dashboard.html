@@ -10,18 +10,19 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="../assets/styles.css?v=7">
 </head>
+
 <body class="bg-white text-slate-800">
 
   <!-- App Header (Student) -->
   <header class="sticky top-0 z-40 fmc-header">
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-2 font-extrabold text-lg">
+      <a href="student-dashboard.html" class="flex items-center gap-2 font-extrabold text-lg">
         <span class="fmc-brand-dot">FMC</span>
         <span class="text-white">受講ページ</span>
       </a>
 
       <nav class="hidden md:flex items-center gap-6 text-sm text-white" data-nav>
-        <a href="index.html" class="font-semibold underline underline-offset-4">予約する</a>
+        <a href="student-dashboard.html" class="font-semibold underline underline-offset-4">予約する</a>
         <a href="my-reservations.html">自分の予約</a>
         <a href="profile.html">プロフィール</a>
       </nav>
@@ -60,7 +61,7 @@
       </button>
     </div>
     <nav class="px-4 py-3 flex flex-col text-slate-700">
-      <a href="index.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">予約する</a>
+      <a href="student-dashboard.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">予約する</a>
       <a href="my-reservations.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">自分の予約</a>
       <a href="profile.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">プロフィール</a>
       <div class="h-px bg-slate-200 my-3"></div>
@@ -69,7 +70,7 @@
   </aside>
 
   <main class="max-w-6xl mx-auto px-4 py-8">
-    <header class="mb-6">
+    <header class="mb-6" data-reveal>
       <p class="text-xs text-slate-500">学生専用ページ</p>
       <h1 class="font-extrabold text-2xl mt-1">レッスン予約</h1>
       <p class="text-sm text-slate-600 mt-1">
@@ -94,7 +95,6 @@
           <label class="block text-xs text-slate-600 mb-1">講師</label>
           <select name="teacher" class="w-full border rounded px-2 py-2" id="student-filter-teacher">
             <option value="">すべて</option>
-            <!-- student.js で講師一覧を注入 -->
           </select>
         </div>
         <div>
@@ -118,6 +118,7 @@
           </p>
         </div>
       </div>
+
       <div class="table-wrap">
         <table class="schedule-table text-xs md:text-sm w-full">
           <thead>
@@ -131,12 +132,13 @@
             </tr>
           </thead>
           <tbody id="student-slots-body">
-            <!-- student.js で埋める -->
+            <!-- student-dashboard.js inject -->
           </tbody>
         </table>
       </div>
       <p id="student-slots-status" class="text-xs text-slate-600 mt-2 px-4 pb-3"></p>
     </section>
+
   </main>
 
   <footer class="border-t border-slate-200">
@@ -148,6 +150,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/site.js" defer></script>
-  <script src="../assets/student.js" defer></script>
+
+  <!-- Change your existing student.js name to this if you want -->
+  <script src="../assets/student-dashboard.js" defer></script>
 </body>
 </html>

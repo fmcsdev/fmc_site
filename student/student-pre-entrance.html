@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>入会手続き | FMC 多国語会話教室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/styles.css?v=7">
+</head>
+
+<body class="bg-white text-slate-800">
+
+  <!-- App Header (Student) -->
+  <header class="sticky top-0 z-40 fmc-header">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="student-pre-entrance.html" class="flex items-center gap-2 font-extrabold text-lg">
+        <span class="fmc-brand-dot">FMC</span>
+        <span class="text-white">受講ページ</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-6 text-sm text-white" data-nav>
+        <a href="student-pre-entrance.html" class="font-semibold underline underline-offset-4">入会手続き</a>
+        <a href="profile.html">プロフィール</a>
+      </nav>
+
+      <div class="hidden md:flex items-center gap-3 text-xs text-white">
+        <span id="userDisplayName" class="opacity-80">Student</span>
+        <button id="logoutBtn" class="btn-outline text-xs px-3 py-1.5">ログアウト</button>
+      </div>
+
+      <button
+        class="md:hidden inline-flex items-center justify-center p-2 rounded text-white/90 hover:text-white"
+        aria-label="メニューを開く" aria-controls="mobile-drawer" aria-expanded="false"
+        data-drawer-open>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden" data-backdrop aria-hidden="true"></div>
+
+  <aside id="mobile-drawer"
+         class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 drawer-hidden md:hidden"
+         role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
+         data-drawer>
+    <div class="flex items-center justify-between px-4 py-3 border-b">
+      <div class="flex items-center gap-2">
+        <img src="../assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto">
+        <h2 id="mobile-drawer-title" class="font-bold">受講メニュー</h2>
+      </div>
+      <button type="button" class="p-2 rounded hover:bg-slate-100" aria-label="メニューを閉じる" data-drawer-close>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <nav class="px-4 py-3 flex flex-col text-slate-700">
+      <a href="student-pre-entrance.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">入会手続き</a>
+      <a href="profile.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">プロフィール</a>
+      <div class="h-px bg-slate-200 my-3"></div>
+      <button id="logoutBtnMobile" class="btn-outline w-full text-center">ログアウト</button>
+    </nav>
+  </aside>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <header class="mb-6" data-reveal>
+      <p class="text-xs text-slate-500">学生専用ページ</p>
+      <h1 class="font-extrabold text-2xl mt-1">入会手続き</h1>
+      <p class="text-sm text-slate-600 mt-1">
+        現在は「入会金のお支払い前」です。以下のいずれかを選んで進めてください。
+      </p>
+    </header>
+
+    <section class="grid gap-4 md:grid-cols-2" data-reveal>
+
+      <!-- Option A: estimate + bank transfer -->
+      <div class="card">
+        <h2 class="text-base font-bold mb-1">① 料金シミュレーション & お振込情報</h2>
+        <p class="text-sm text-slate-600 mb-4">
+          受講にかかる費用の目安を計算して、お振込先を確認できます。
+        </p>
+
+        <div class="grid gap-3 text-sm">
+          <div>
+            <label class="block text-xs text-slate-600 mb-1">受講言語</label>
+            <select id="estimateLanguage" class="w-full border rounded px-2 py-2">
+              <option value="Spanish">スペイン語</option>
+              <option value="English">英語</option>
+              <option value="Japanese">日本語</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-600 mb-1">月のレッスン回数（目安）</label>
+            <input id="estimateLessons" type="number" min="1" value="4" class="w-full border rounded px-2 py-2" />
+          </div>
+
+          <button id="estimateBtn" class="btn-primary w-full">見積もりを表示</button>
+
+          <div id="estimateResult" class="hidden rounded bg-slate-50 border p-3 text-sm">
+            <!-- student-pre-entrance.js inject -->
+          </div>
+
+          <div class="rounded border p-3">
+            <p class="text-xs text-slate-500 mb-2">お振込先</p>
+            <div class="text-sm leading-6">
+              <div><span class="font-semibold">銀行名:</span> <span id="bankName">◯◯銀行</span></div>
+              <div><span class="font-semibold">支店名:</span> <span id="bankBranch">◯◯支店</span></div>
+              <div><span class="font-semibold">口座種別:</span> <span id="bankType">普通</span></div>
+              <div><span class="font-semibold">口座番号:</span> <span id="bankNumber">1234567</span></div>
+              <div><span class="font-semibold">名義:</span> <span id="bankHolder">FMC ◯◯</span></div>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">
+              お振込後、反映まで少し時間がかかる場合があります。
+            </p>
+          </div>
+
+          <a href="contact.html" class="text-xs text-slate-500 underline">
+            振込後に反映されない場合はこちら
+          </a>
+        </div>
+      </div>
+
+      <!-- Option B: trial booking -->
+      <div class="card">
+        <h2 class="text-base font-bold mb-1">② 体験レッスンを予約する</h2>
+        <p class="text-sm text-slate-600 mb-4">
+          体験レッスン枠の中から予約できます（料金も表示されます）。
+        </p>
+
+        <div class="rounded bg-slate-50 border p-3 text-sm mb-3">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-600">体験レッスン料金</span>
+            <span class="font-bold" id="trialFeeLabel">¥---</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">
+            予約確定後は、当日のご案内に従ってお支払いください。
+          </p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="schedule-table text-xs md:text-sm w-full">
+            <thead>
+              <tr>
+                <th class="schedule-head">日付</th>
+                <th class="schedule-head">時間</th>
+                <th class="schedule-head">言語</th>
+                <th class="schedule-head">講師</th>
+                <th class="schedule-head">料金</th>
+                <th class="schedule-head">予約</th>
+              </tr>
+            </thead>
+            <tbody id="trial-slots-body">
+              <!-- student-pre-entrance.js inject -->
+            </tbody>
+          </table>
+        </div>
+        <p id="trial-slots-status" class="text-xs text-slate-600 mt-2"></p>
+
+        <div class="mt-4 text-xs text-slate-500">
+          <p>※ 体験レッスン後に入会すると、通常レッスン予約が可能になります。</p>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="card mt-6" data-reveal>
+      <h3 class="font-bold mb-1">入会後にできること</h3>
+      <ul class="text-sm text-slate-600 list-disc pl-5 space-y-1">
+        <li>講師・言語・日付を選んで通常レッスンの予約</li>
+        <li>自分の予約一覧の確認・キャンセル</li>
+        <li>プロフィール・受講履歴の管理</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 py-6 text-xs text-slate-500 flex justify-between">
+      <span>© FMC 多国語会話教室</span>
+      <span>受講ページ</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/site.js" defer></script>
+  <script src="../assets/student-pre-entrance.js" defer></script>
+</body>
+</html>

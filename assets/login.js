@@ -1,5 +1,4 @@
 // assets/login.js
-// assets/login.js
 const { createClient } = window.supabase;
 
 console.log("✅ login.js loaded");
@@ -10,7 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const SUPABASE_URL  = "https://dsbvgomhugvjruqykbmr.supabase.co";
   const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzYnZnb21odWd2anJ1cXlrYm1yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NzIwNzksImV4cCI6MjA3ODQ0ODA3OX0.FHX45XbBfpeNtnnCLc9wvoyxOM6w2vIIjOcIZWfb-_I";
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  // ✅ IMPORTANT: Use a unique variable name to avoid collisions with window.supabase
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
     auth: { persistSession: true, detectSessionInUrl: true }
   });
 
@@ -20,123 +20,141 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusEl = document.getElementById("status");
   const togglePw = document.getElementById("togglePw");
 
-  console.log("🔘 Waiting for button click...");
+  const setStatus = (msg, isError = false) => {
+    statusEl.textContent = msg;
+    statusEl.classList.toggle("text-red-600", isError);
+    statusEl.classList.toggle("text-slate-600", !isError);
+  };
 
+  const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-const setStatus = (msg, isError = false) => {
-  statusEl.textContent = msg;
-  statusEl.classList.toggle("text-red-600", isError);
-  statusEl.classList.toggle("text-slate-600", !isError);
-};
+  async function resolveToEmail(identifier) {
+    if (isEmail(identifier)) return identifier.toLowerCase();
 
-const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    const { data, error } = await sb.rpc("resolve_identifier_email", { p_identifier: identifier });
+    if (error || !data) throw new Error("User ID not found.");
+    return data;
+  }
 
-async function resolveToEmail(identifier) {
-  // Email login or username login
-  if (isEmail(identifier)) return identifier.toLowerCase();
-  const { data, error } = await supabase.rpc("resolve_identifier_email", { p_identifier: identifier });
-  if (error || !data) throw new Error("User ID not found.");
-  return data;
-}
+  async function getUserRole(userId) {
+    const { data, error } = await sb
+      .from("user_profiles")
+      .select("role")
+      .eq("user_id", userId)
+      .single();
 
-async function getUserRole(userId) {
-  const { data, error } = await supabase
-    .from("user_profiles")
-    .select("role")
-    .eq("user_id", userId)
-    .single();
-  if (error || !data?.role) throw new Error("Unable to get role.");
-  return data.role;
-}
+    if (error || !data?.role) throw new Error("Unable to get role.");
+    return data.role;
+  }
 
-async function login() {
-  const identifier = (idEl.value || "").trim();
-  const password = pwEl.value || "";
-  if (!identifier) return setStatus("Enter your user ID or email.", true);
-  if (!password) return setStatus("Enter your password.", true);
+  async function getStudentStatus(userId) {
+    const { data, error } = await sb
+      .from("user_profiles")
+      .select("entrance_fee_paid")
+      .eq("user_id", userId)
+      .single();
 
-  loginBtn.disabled = true;
-  setStatus("Authenticating...");
+    // If the column doesn't exist yet, you'll get an error here.
+    if (error) throw new Error("Unable to get student status.");
+    return { entrance_fee_paid: !!data?.entrance_fee_paid };
+  }
 
-  try {
-    const email = await resolveToEmail(identifier);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(error.message);
-
-    const role = await getUserRole(data.user.id);
-
-    // redirect logic
+  function safeRedirectFromQuery() {
     const u = new URL(window.location.href);
     const redirect = u.searchParams.get("redirect");
-    if (redirect) return (window.location.href = redirect);
+    // ✅ only allow internal redirects
+    if (redirect && redirect.startsWith("/")) return redirect;
+    return null;
+  }
 
-    switch (role) {
-  case "teacher":
-    window.location.href = "/teacher/dashboard.html";
-    break;
+  async function login() {
+    const identifier = (idEl.value || "").trim();
+    const password = pwEl.value || "";
 
-  case "admin":
-    window.location.href = "/admin/dashboard.html";
-    break;
+    if (!identifier) return setStatus("Enter your user ID or email.", true);
+    if (!password) return setStatus("Enter your password.", true);
 
-  case "student": {
-    const status = await getStudentStatus(data.user.id);
+    loginBtn.disabled = true;
+    setStatus("Authenticating...");
 
-    if (status.entrance_fee_paid) {
-      window.location.href = "/student/student-dashboard.html";          // full dashboard
-    } else {
-      window.location.href = "/student-student/pre-entrance.html";      // shows 2 options:
-                                                                // (estimate+bank) OR (book trial)
+    try {
+      const email = await resolveToEmail(identifier);
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw new Error(error.message);
+
+      const role = await getUserRole(data.user.id);
+
+      // redirect logic (safe)
+      const forced = safeRedirectFromQuery();
+      if (forced) {
+        window.location.href = forced;
+        return;
+      }
+
+      switch (role) {
+        case "teacher":
+          window.location.href = "/teacher/dashboard.html";
+          return;
+
+        case "admin":
+          window.location.href = "/admin/dashboard.html";
+          return;
+
+        case "student": {
+          const status = await getStudentStatus(data.user.id);
+
+          if (status.entrance_fee_paid) {
+            window.location.href = "/student/student-dashboard.html";
+          } else {
+            // ✅ FIXED PATH
+            window.location.href = "/student/student-pre-entrance.html";
+          }
+          return;
+        }
+
+        default:
+          window.location.href = "/student/student-dashboard.html";
+          return;
+      }
+
+    } catch (e) {
+      setStatus(`Error: ${e.message}`, true);
+      loginBtn.disabled = false;
     }
-    break;
   }
 
-  default:
-    window.location.href = "/student/dashboard.html";
-    break;
-}
+  loginBtn.addEventListener("click", login);
+  idEl.addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+  pwEl.addEventListener("keydown", e => { if (e.key === "Enter") login(); });
 
-  } catch (e) {
-    setStatus(`Error: ${e.message}`, true);
-    loginBtn.disabled = false;
+  if (togglePw) {
+    togglePw.addEventListener("click", () => {
+      const type = pwEl.type === "password" ? "text" : "password";
+      pwEl.type = type;
+      togglePw.textContent = type === "password" ? "👁" : "🙈";
+    });
   }
-}
 
-loginBtn.addEventListener("click", login);
-idEl.addEventListener("keydown", e => { if (e.key === "Enter") login(); });
-pwEl.addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+  // Mobile drawer (your existing logic)
+  const drawer   = document.querySelector("[data-drawer]");
+  const openBtn  = document.querySelector("[data-drawer-open]");
+  const closeBtn = document.querySelector("[data-drawer-close]");
+  const backdrop = document.querySelector("[data-backdrop]");
 
-if (togglePw) {
-  togglePw.addEventListener("click", () => {
-    const type = pwEl.type === "password" ? "text" : "password";
-    pwEl.type = type;
-    togglePw.textContent = type === "password" ? "👁" : "🙈";
-  });
-}
-
-// Mobile drawer (same logic as other pages)
-const drawer   = document.querySelector("[data-drawer]");
-const openBtn  = document.querySelector("[data-drawer-open]");
-const closeBtn = document.querySelector("[data-drawer-close]");
-const backdrop = document.querySelector("[data-backdrop]");
-if (openBtn && drawer && backdrop) {
-  const openDrawer = () => { drawer.classList.replace("drawer-hidden","drawer-visible"); backdrop.classList.replace("backdrop-hidden","backdrop-visible"); };
-  const closeDrawer= () => { drawer.classList.replace("drawer-visible","drawer-hidden"); backdrop.classList.replace("backdrop-visible","backdrop-hidden"); };
-  openBtn.addEventListener("click", openDrawer);
-  (closeBtn||document).addEventListener("click", (e)=>{ if (e.target?.hasAttribute?.("data-drawer-close")) closeDrawer(); });
-  backdrop.addEventListener("click", closeDrawer);
-}
+  if (openBtn && drawer && backdrop) {
+    const openDrawer = () => {
+      drawer.classList.replace("drawer-hidden", "drawer-visible");
+      backdrop.classList.replace("backdrop-hidden", "backdrop-visible");
+    };
+    const closeDrawer = () => {
+      drawer.classList.replace("drawer-visible", "drawer-hidden");
+      backdrop.classList.replace("backdrop-visible", "backdrop-hidden");
+    };
+    openBtn.addEventListener("click", openDrawer);
+    (closeBtn || document).addEventListener("click", (e) => {
+      if (e.target?.hasAttribute?.("data-drawer-close")) closeDrawer();
+    });
+    backdrop.addEventListener("click", closeDrawer);
+  }
 });
-async function getStudentStatus(userId) {
-  const { data, error } = await supabase
-    .from("user_profiles")
-    .select("entrance_fee_paid")
-    .eq("user_id", userId)
-    .single();
-
-  if (error) throw new Error("Unable to get student status.");
-  return {
-    entrance_fee_paid: !!data?.entrance_fee_paid
-  };
-}
-

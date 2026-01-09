@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FMC 多国語会話教室 | ホーム</title>
   <meta name="description" content="幼児から社会人まで。少人数・完全予約制の多言語スクール。オンライン登録・決済対応。">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Your theme -->
   <link rel="stylesheet" href="assets/styles.css?v=7">
-  <!-- (Optional) helpers; OK to remove if already in styles.css -->
-  <style>
-    .drawer-hidden{transform:translateX(100%)} .drawer-visible{transform:translateX(0%)}
-    .backdrop-hidden{opacity:0;pointer-events:none} .backdrop-visible{opacity:1;pointer-events:auto}
-  </style>
 </head>
+
 <body class="bg-white text-slate-800">
 
   <!-- Header -->
@@ -28,11 +28,11 @@
 
       <!-- Desktop nav -->
       <nav class="hidden md:flex items-center gap-6 text-sm text-white" data-nav>
-        <a href="courses.html">コース</a>
-        <a href="schedule.html">スケジュール</a>
-        <a href="pricing.html">料金</a>
-        <a href="access.html">アクセス</a>
-        <a href="contact.html">お問い合わせ</a>
+        <a href="courses.html" class="hover:opacity-95">コース</a>
+        <a href="schedule.html" class="hover:opacity-95">スケジュール</a>
+        <a href="pricing.html" class="hover:opacity-95">料金</a>
+        <a href="access.html" class="hover:opacity-95">アクセス</a>
+        <a href="contact.html" class="hover:opacity-95">お問い合わせ</a>
       </nav>
 
       <!-- Desktop actions -->
@@ -42,42 +42,37 @@
         <a href="https://buy.stripe.com/your_payment_link" class="text-sm px-4 py-2 btn-primary">今すぐ申し込み</a>
       </div>
 
-      <!-- Mobile open button (right corner) -->
+      <!-- Mobile open button -->
       <button
         class="md:hidden inline-flex items-center justify-center p-2 rounded text-white/90 hover:text-white"
         aria-label="Open menu" aria-controls="mobile-drawer" aria-expanded="false"
         data-drawer-open>
-        <!-- 3 dots icon -->
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/>
+        </svg>
       </button>
     </div>
   </header>
 
   <!-- Backdrop -->
-<div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden z-40" data-backdrop aria-hidden="true"></div>
+  <div class="fixed inset-0 bg-black/40 backdrop-hidden md:hidden" data-backdrop aria-hidden="true"></div>
 
-<!-- Drawer -->
-<aside
-  id="mobile-drawer"
-  class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 transform transition-transform duration-200 drawer-hidden md:hidden z-50"
-  role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
-  data-drawer>
+  <!-- Drawer -->
+  <aside
+    id="mobile-drawer"
+    class="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl border-l border-slate-200 transform transition-transform duration-200 drawer-hidden md:hidden"
+    role="dialog" aria-modal="true" aria-labelledby="mobile-drawer-title" tabindex="-1"
+    data-drawer>
     <div class="flex items-center justify-between px-4 py-3 border-b">
       <div class="flex items-center gap-2">
         <img src="assets/logo.png" alt="FMC ロゴ" class="h-8 w-auto">
         <h2 id="mobile-drawer-title" class="font-bold">メニュー</h2>
       </div>
-      <button
-  type="button"
-  class="p-2 rounded hover:bg-slate-100"
-  aria-label="Close menu"
-  data-drawer-close>
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-       stroke="currentColor" stroke-width="2">
-    <path d="M18 6L6 18M6 6l12 12"/>
-  </svg>
-</button>
-
+      <button type="button" class="p-2 rounded hover:bg-slate-100" aria-label="Close menu" data-drawer-close>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
     </div>
 
     <nav class="px-4 py-3 flex flex-col text-slate-700">
@@ -86,10 +81,12 @@
       <a href="pricing.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">料金</a>
       <a href="access.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">アクセス</a>
       <a href="contact.html" class="menu-link px-3 py-2 rounded hover:bg-slate-100">お問い合わせ</a>
+
       <div class="h-px bg-slate-200 my-3"></div>
+
       <a href="login.html" class="btn-outline w-full text-center">ログイン</a>
       <a href="register.html" class="btn-outline w-full text-center mt-2">無料登録</a>
-      <a href="https://buy.stripe.com/your_payment_link" class="btn-primary w-full text-center mt-2">今すぐ申し込み</a>
+      <a href="contact.html" class="btn-primary w-full text-center mt-2">今すぐ申し込み</a>
     </nav>
 
     <div class="px-4 py-4 text-xs text-slate-500">
@@ -97,37 +94,79 @@
     </div>
   </aside>
 
-  <!-- Hero -->
-  <section class="max-w-6xl mx-auto px-4 py-16">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+  <!-- HERO -->
+  <section class="max-w-6xl mx-auto px-4 py-16 relative overflow-hidden">
+    <!-- soft background blobs -->
+    <div aria-hidden="true" class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-yellow-200/40 blur-3xl"></div>
+    <div aria-hidden="true" class="absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-pink-200/40 blur-3xl"></div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center relative">
       <div data-reveal>
-        <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm text-sm">
+          <span class="font-semibold text-slate-900">初回体験</span>
+          <span class="text-blue-600 font-bold">45分無料</span>
+          <span class="text-slate-500">・完全予約制</span>
+        </div>
+
+        <h1 class="mt-4 text-3xl md:text-5xl font-extrabold leading-tight">
           学びを、もっと身近に。
-          <span class="block">初心者から上級まで、楽しく続く語学学習</span>
+          <span class="block text-slate-700">“続く仕組み”がある語学スクール</span>
         </h1>
-        <p class="mt-4 text-slate-600">
-          幼児から社会人まで、少人数・完全予約制。オンライン登録・決済、アプリ連携で進捗や連絡もスムーズ。
+
+        <p class="mt-4 text-slate-600 leading-relaxed">
+          幼児〜社会人まで。少人数・完全予約制で安心。オンライン登録・決済対応で、予約もスムーズ。
         </p>
+
         <div class="mt-6 flex flex-wrap gap-3">
-          <a href="courses.html" class="px-5 py-3 rounded-xl btn-primary">コースを見る</a>
-          <a href="schedule.html" class="px-5 py-3 rounded-xl btn-outline">スケジュール</a>
+          <a href="schedule.html" class="px-5 py-3 rounded-xl btn-primary shadow-sm">無料体験を予約</a>
+          <a href="courses.html" class="px-5 py-3 rounded-xl btn-outline">コースを見る</a>
         </div>
-        <div class="mt-6 flex items-center gap-3 text-sm text-slate-500">
-          <span class="badge">Visa / Mastercard / AMEX</span>
-          <span class="badge">Apple Pay / Google Pay</span>
-          <span class="badge">コンビニ払い / 銀行振込</span>
+
+        <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+          <div class="card !p-3 flex items-center gap-3">
+            <span class="badge">少人数</span>
+            <span class="text-slate-600">初心者でも安心</span>
+          </div>
+          <div class="card !p-3 flex items-center gap-3">
+            <span class="badge">完全予約</span>
+            <span class="text-slate-600">予定に合わせやすい</span>
+          </div>
+          <div class="card !p-3 flex items-center gap-3">
+            <span class="badge">大阪</span>
+            <span class="text-slate-600">通学 / オンライン</span>
+          </div>
         </div>
+
+        
       </div>
 
-      <div class="hero-frame p-0 overflow-hidden" data-reveal>
-        <div class="p-6 flex items-center gap-4 border-b border-slate-200 bg-white">
-          <img src="assets/logo.png" alt="FMC ロゴ" class="h-12 w-auto" loading="lazy" />
+      <!-- Carousel frame -->
+      <div class="hero-frame p-0 overflow-hidden shadow-lg" data-reveal>
+        <div class="p-5 flex items-center gap-4 border-b border-slate-200 bg-white">
+          <img src="assets/logo.png" alt="FMC ロゴ" class="h-11 w-auto" loading="lazy" />
           <div>
             <p class="text-xs text-slate-500">FMC 多国語会話教室</p>
             <p class="font-semibold">Fun Multi-Language Conversation Classroom</p>
           </div>
         </div>
-        <img src="assets/school-hero.JPG" alt="FMC 教室の様子" class="w-full aspect-[4/3] object-cover" loading="lazy" decoding="async" />
+
+        <!-- Replace filenames with your real images -->
+        <div class="relative w-full aspect-[4/3] overflow-hidden" data-carousel>
+          <img data-slide src="assets/school-hero1.jpg" alt="FMC 教室の様子 1"
+            class="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-1000"
+            loading="lazy" decoding="async" />
+          <img data-slide src="assets/school-hero2.png" alt="FMC 教室の様子 2"
+            class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
+            loading="lazy" decoding="async" />
+          <img data-slide src="assets/school-hero3.png" alt="FMC 教室の様子 3"
+            class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
+            loading="lazy" decoding="async" />
+          <div aria-hidden="true" class="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-black/0"></div>
+          <div class="absolute bottom-3 left-3 right-3 text-white text-sm flex items-center justify-between">
+            <span class="px-2 py-1 rounded bg-black/30 backdrop-blur">教室の雰囲気</span>
+            <span class="px-2 py-1 rounded bg-black/30 backdrop-blur">少人数 / 予約制</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -137,38 +176,97 @@
     </div>
   </section>
 
-  <!-- Highlights -->
+  <!-- HIGHLIGHTS -->
   <section class="max-w-6xl mx-auto px-4 py-12" data-reveal>
     <h2 class="text-2xl md:text-3xl">FMCの特長</h2>
+
     <div class="grid md:grid-cols-3 gap-6 mt-8">
       <div class="card" data-reveal>
         <h3 class="font-bold">多言語対応</h3>
-        <p class="text-sm text-slate-600 mt-2">
-          英語・中国語・韓国語・タイ語・ベトナム語・スペイン語・ポルトガル語・フランス語・アラビア語・イタリア語・ドイツ語・ロシア語・
-          ウクライナ語・デンマーク語・ヒンディー語・モンゴル語・ポーランド語・日本語 ほか
+        <div class="mt-3 flex flex-wrap gap-2">
+          <span class="chip">英語</span><span class="chip">スペイン語</span><span class="chip">中国語</span><span class="chip">韓国語</span>
+          <span class="chip">フランス語</span><span class="chip">ポルトガル語</span><span class="chip">ドイツ語</span><span class="chip">日本語</span>
+          <span class="chip">…ほか</span>
+        </div>
+        <p class="text-sm text-slate-600 mt-3">
+          旅行・日常・ビジネス・試験対策まで、目的に合わせて提案します。
         </p>
       </div>
+
       <div class="card" data-reveal>
         <h3 class="font-bold">目的別カリキュラム</h3>
-        <p class="text-sm text-slate-600 mt-2">日常／ビジネス／旅行／試験対策（TOEIC・英検・HSK 等）に対応。</p>
+        <p class="text-sm text-slate-600 mt-2">
+          日常／ビジネス／旅行／試験対策（TOEIC・英検・HSK 等）に対応。
+        </p>
       </div>
+
       <div class="card" data-reveal>
         <h3 class="font-bold">柔軟な受講形態</h3>
-        <p class="text-sm text-slate-600 mt-2">個別・グループ・オンラインから選択。完全予約制で安心。</p>
+        <p class="text-sm text-slate-600 mt-2">
+          個別・グループ・オンラインから選択。完全予約制で安心。
+        </p>
       </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="max-w-6xl mx-auto px-4 py-12" data-reveal>
+    <h2 class="text-2xl md:text-3xl">はじめ方</h2>
+
+    <div class="grid md:grid-cols-3 gap-6 mt-8">
+      <div class="card">
+        <p class="text-xs text-slate-500">STEP 1</p>
+        <h3 class="font-bold mt-1">無料登録</h3>
+        <p class="text-sm text-slate-600 mt-2">オンラインで1分。メール確認ですぐ始められます。</p>
+      </div>
+
+      <div class="card">
+        <p class="text-xs text-slate-500">STEP 2</p>
+        <h3 class="font-bold mt-1">体験予約</h3>
+        <p class="text-sm text-slate-600 mt-2">スケジュールから希望日時を選ぶだけ。</p>
+      </div>
+
+      <div class="card">
+        <p class="text-xs text-slate-500">STEP 3</p>
+        <h3 class="font-bold mt-1">レッスン開始</h3>
+        <p class="text-sm text-slate-600 mt-2">目的に合わせて教材・進め方を調整します。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="max-w-6xl mx-auto px-4 py-12" data-reveal>
+    <h2 class="text-2xl md:text-3xl">受講者の声</h2>
+
+    <div class="grid md:grid-cols-3 gap-6 mt-8">
+      <article class="card">
+        <p class="text-sm text-slate-600">“初心者でも安心。毎回楽しくて続けられています。”</p>
+        <p class="mt-3 text-xs text-slate-500">会社員 / 英会話</p>
+      </article>
+
+      <article class="card">
+        <p class="text-sm text-slate-600">“旅行前に必要な表現を集中して練習できたのが良かった。”</p>
+        <p class="mt-3 text-xs text-slate-500">学生 / スペイン語</p>
+      </article>
+
+      <article class="card">
+        <p class="text-sm text-slate-600">“予約が簡単で、仕事の予定に合わせやすいです。”</p>
+        <p class="mt-3 text-xs text-slate-500">社会人 / 中国語</p>
+      </article>
     </div>
   </section>
 
   <!-- CTA -->
   <section class="max-w-6xl mx-auto px-4 py-12" data-reveal>
-    <div class="card flex flex-col md:flex-row items-center justify-between p-6">
+    <div class="card flex flex-col md:flex-row items-center justify-between p-6 shadow-lg">
       <div>
         <h3 class="font-bold text-xl">初回体験（45分）無料</h3>
-        <p class="text-sm text-slate-600 mt-1">今すぐ体験を予約して、楽しく学ぶスタートを。</p>
+        <p class="text-sm text-slate-600 mt-1">まずは気軽に雰囲気を確認してみてください。</p>
+        <p class="text-xs text-slate-500 mt-2">※ 強引な勧誘はありません / 完全予約制</p>
       </div>
       <div class="mt-4 md:mt-0 flex gap-3">
-        <a href="schedule.html" class="btn-outline">体験スケジュール</a>
-        <a href="https://buy.stripe.com/your_payment_link" class="btn-primary">今すぐ申し込み</a>
+        <a href="register.html" class="btn-outline">無料登録</a>
+        <a href="schedule.html" class="btn-primary">体験を予約</a>
       </div>
     </div>
   </section>
@@ -181,7 +279,7 @@
         <p class="mt-2">〒556-0006 大阪市浪速区日本橋東3丁目3 大阪市営日東住宅1号館104</p>
         <p>Mail: fmc.osaka@outlook.jp / TEL: 090-3651-5407</p>
       </div>
-      <div class="md:text-right flex md:justify-end gap-4">
+      <div class="md:text-right flex md:justify-end gap-4 flex-wrap">
         <a href="pricing.html" class="hover:underline">特定商取引法に基づく表記</a>
         <a href="contact.html" class="hover:underline">プライバシーポリシー</a>
         <a href="contact.html" class="hover:underline">利用規約</a>
@@ -190,10 +288,8 @@
     </div>
   </footer>
 
- <script src="assets/main.js?v=8" defer></script> 
- <script>
-
-</script>
+  <!-- main.js (includes drawer + reveal + carousel) -->
+  <script src="assets/main.js?v=9" defer></script>
 
 </body>
 </html>

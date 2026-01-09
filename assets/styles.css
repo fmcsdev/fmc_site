@@ -195,5 +195,40 @@ table, thead, tbody, tr, th, td {
   visibility: visible !important;
   opacity: 1 !important;
 }
+.feature-chip {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  background: #e8f0ff;          /* soft blue */
+  color: #2563eb;               /* blue text */
+  font-weight: 800;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.feature-text{
+  font-size: 0.95rem;        /* smaller */
+  font-weight: 600;          /* lighter than before */
+  line-height: 1.45;         /* more breathing room */
+  letter-spacing: 0.01em;    /* subtle, not tight */
+  color: #111827;            /* softer black */
+  word-break: keep-all;      /* prevent ugly splits */
+}
+
 
 
